@@ -1,5 +1,5 @@
 /*
- * $Id: stdlib_mbtowc.c,v 1.3 2006-01-08 12:04:26 obarthel Exp $
+ * $Id: string_strlen.c,v 1.4 2006-01-08 12:04:27 obarthel Exp $
  *
  * :ts=4
  *
@@ -31,19 +31,45 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _STDLIB_HEADERS_H
-#include "stdlib_headers.h"
-#endif /* _STDLIB_HEADERS_H */
+#ifndef _STDLIB_NULL_POINTER_CHECK_H
+#include "stdlib_null_pointer_check.h"
+#endif /* _STDLIB_NULL_POINTER_CHECK_H */
 
 /****************************************************************************/
 
-#if defined(defined(__STDC_VERSION__) && (__STDC_VERSION__ >= 199901L))
+#ifndef _STRING_HEADERS_H
+#include "string_headers.h"
+#endif /* _STRING_HEADERS_H */
 
-int
-mbtowc(wchar_t *restrict pwc, const char *restrict s, size_t n)
+/****************************************************************************/
+
+size_t
+strnlen(const char *s, size_t maxlen)
 {
-	/* ZZZ unimplemented */
-	return(-1);
-}
+	const char * start = s;
+	size_t result = 0;
 
-#endif
+	assert( s != NULL );
+
+	#if defined(CHECK_FOR_NULL_POINTERS)
+	{
+		if(s == NULL)
+		{
+			__set_errno(EFAULT);
+			goto out;
+		}
+	}
+	#endif /* CHECK_FOR_NULL_POINTERS */
+
+	while((maxlen != 0) && ((*s) != '\0'))
+	{
+		s++;
+		maxlen--;
+	}
+
+	result = (size_t)(s - start);
+
+ out:
+
+	return(result);
+}

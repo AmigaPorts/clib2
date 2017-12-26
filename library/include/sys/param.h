@@ -1,10 +1,10 @@
 /*
- * $Id: stdlib_mbtowc.c,v 1.3 2006-01-08 12:04:26 obarthel Exp $
+ * $Id: $
  *
  * :ts=4
  *
  * Portable ISO 'C' (1994) runtime library for the Amiga computer
- * Copyright (c) 2002-2015 by Olaf Barthel <obarthel (at) gmx.net>
+ * Copyright (c) 2002-2017 by Olaf Barthel <obarthel (at) gmx.net>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,21 +29,45 @@
  * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
+ *
+ *****************************************************************************
+ *
+ * Documentation and source code for this library, and the most recent library
+ * build are available from <https://github.com/adtools/clib2>.
+ *
+ *****************************************************************************
  */
 
-#ifndef _STDLIB_HEADERS_H
-#include "stdlib_headers.h"
-#endif /* _STDLIB_HEADERS_H */
+#ifndef _SYS_PARAM_H
+#define _SYS_PARAM_H
 
 /****************************************************************************/
 
-#if defined(defined(__STDC_VERSION__) && (__STDC_VERSION__ >= 199901L))
+/* The following is not part of the ISO 'C' (1994) standard. */
 
-int
-mbtowc(wchar_t *restrict pwc, const char *restrict s, size_t n)
-{
-	/* ZZZ unimplemented */
-	return(-1);
+/****************************************************************************/
+
+#ifndef _UNISTD_H
+#include <unistd.h>
+#endif /* _UNISTD_H */
+
+/****************************************************************************/
+
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
+
+/****************************************************************************/
+
+#define	MIN(a,b)	(((a)<(b))?(a):(b))
+#define	MAX(a,b)	(((a)>(b))?(a):(b))
+
+/****************************************************************************/
+
+#ifdef __cplusplus
 }
+#endif /* __cplusplus */
 
-#endif
+/****************************************************************************/
+
+#endif /* _SYS_MOUNT_H */

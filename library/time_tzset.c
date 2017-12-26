@@ -1,10 +1,10 @@
 /*
- * $Id: stdlib_mbtowc.c,v 1.3 2006-01-08 12:04:26 obarthel Exp $
+ * $Id: $
  *
  * :ts=4
  *
  * Portable ISO 'C' (1994) runtime library for the Amiga computer
- * Copyright (c) 2002-2015 by Olaf Barthel <obarthel (at) gmx.net>
+ * Copyright (c) 2002-2017 by Olaf Barthel <obarthel (at) gmx.net>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,19 +31,18 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _STDLIB_HEADERS_H
-#include "stdlib_headers.h"
-#endif /* _STDLIB_HEADERS_H */
+#ifndef _TIME_HEADERS_H
+#include "time_headers.h"
+#endif /* _TIME_HEADERS_H */
+
+#ifndef _LOCALE_HEADERS_H
+#include "locale_headers.h"
+#endif /* _LOCALE_HEADERS_H */
 
 /****************************************************************************/
 
-#if defined(defined(__STDC_VERSION__) && (__STDC_VERSION__ >= 199901L))
-
-int
-mbtowc(wchar_t *restrict pwc, const char *restrict s, size_t n)
+void
+tzset(void)
 {
-	/* ZZZ unimplemented */
-	return(-1);
+	/* For now, do nothing. */
 }
-
-#endif

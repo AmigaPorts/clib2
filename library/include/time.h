@@ -106,10 +106,24 @@ extern size_t strftime(char *s, size_t maxsize, const char *format,
 
 /****************************************************************************/
 
+/* Timespec declaration */
+struct timespec
+{
+	time_t tv_secs;
+	long tv_nsec;
+};
+
+#ifndef tv_sec
+#define tv_sec tv_secs
+#endif /* tv_sec */
+
+/****************************************************************************/
+
 extern char * asctime_r(const struct tm *tm,char * buffer);
 extern char * ctime_r(const time_t *tptr,char * buffer);
 extern struct tm * gmtime_r(const time_t *t,struct tm * tm_ptr);
 extern struct tm * localtime_r(const time_t *t,struct tm * tm_ptr);
+extern void tzset(void);
 
 /****************************************************************************/
 
