@@ -135,13 +135,13 @@ struct stat
 
 /****************************************************************************/
 
-extern int stat(const char * path_name, struct stat * buffer);
-extern int fstat(int file_descriptor, struct stat * buffer);
-extern int lstat(const char * path_name, struct stat * buffer);
-extern int chmod(const char * path_name, mode_t mode);
-extern int fchmod(int file_descriptor, mode_t mode);
-extern int mkdir(const char * path_name, mode_t mode);
-extern int rmdir(const char * path_name);
+extern __stdargs int stat(const char * path_name, struct stat * buffer);
+extern __stdargs int fstat(int file_descriptor, struct stat * buffer);
+extern __stdargs int lstat(const char * path_name, struct stat * buffer);
+extern __stdargs int chmod(const char * path_name, mode_t mode);
+extern __stdargs int fchmod(int file_descriptor, mode_t mode);
+extern __stdargs int mkdir(const char * path_name, mode_t mode);
+extern __stdargs int rmdir(const char * path_name);
 
 /*
  * The following prototypes may clash with the bsdsocket.library or
@@ -150,7 +150,7 @@ extern int rmdir(const char * path_name);
 
 #ifndef __NO_NET_API
 
-extern mode_t umask(mode_t new_mask);
+extern __stdargs mode_t umask(mode_t new_mask);
 
 #endif /* __NO_NET_API */
 

@@ -114,8 +114,8 @@ struct statfs
 
 /****************************************************************************/
 
-int statfs(const char *path, struct statfs *buf);
-int fstatfs(int fd, struct statfs *buf);
+extern __stdargs int statfs(const char *path, struct statfs *buf);
+extern __stdargs int fstatfs(int fd, struct statfs *buf);
 
 /****************************************************************************/
 

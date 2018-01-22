@@ -67,10 +67,10 @@ extern "C" {
 
 /****************************************************************************/
 
-extern int dlclose(void * __handle);
-extern const char * dlerror(void);
-extern void * dlopen(const char * __path_name,int __mode);
-extern void * dlsym(void * __handle,const char * __symbol_name);
+extern __stdargs int dlclose(void * __handle);
+extern __stdargs const char * dlerror(void);
+extern __stdargs void * dlopen(const char * __path_name,int __mode);
+extern __stdargs void * dlsym(void * __handle,const char * __symbol_name);
 
 /****************************************************************************/
 

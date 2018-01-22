@@ -71,7 +71,7 @@ extern "C" {
 
 /****************************************************************************/
 
-extern long sysinfo(int cmd,char *buf,long buflen);
+extern __stdargs long sysinfo(int cmd,char *buf,long buflen);
 
 /****************************************************************************/
 

@@ -85,8 +85,8 @@ struct rlimit
 
 /****************************************************************************/
 
-extern int getrlimit(int resource,struct rlimit *rlp);
-extern int setrlimit(int resource,const struct rlimit *rlp);
+extern __stdargs int getrlimit(int resource,struct rlimit *rlp);
+extern __stdargs int setrlimit(int resource,const struct rlimit *rlp);
 
 /****************************************************************************/
 

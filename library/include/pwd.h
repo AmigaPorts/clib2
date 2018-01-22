@@ -89,11 +89,11 @@ struct passwd
 
 #ifndef __NO_NET_API
 
-extern void endpwent(void);
-extern struct passwd *getpwent(void);
-extern struct passwd *getpwnam(const char *name);
-extern struct passwd *getpwuid(uid_t uid);
-extern void setpwent(void);
+extern __stdargs void endpwent(void);
+extern __stdargs struct passwd *getpwent(void);
+extern __stdargs struct passwd *getpwnam(const char *name);
+extern __stdargs struct passwd *getpwuid(uid_t uid);
+extern __stdargs void setpwent(void);
 
 #endif /* __NO_NET_API */
 

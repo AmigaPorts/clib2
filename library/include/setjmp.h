@@ -78,8 +78,8 @@ typedef struct __jmp_buf jmp_buf[1];
 
 /****************************************************************************/
 
-extern int setjmp(jmp_buf env);
-extern void longjmp(jmp_buf env,int status);
+extern __stdargs int setjmp(jmp_buf env);
+extern __stdargs void longjmp(jmp_buf env,int status);
 
 /****************************************************************************/
 

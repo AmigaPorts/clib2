@@ -138,7 +138,7 @@ struct timezone
 
 /****************************************************************************/
 
-int gettimeofday(struct timeval *tp, struct timezone *tzp);
+extern __stdargs int gettimeofday(struct timeval *tp, struct timezone *tzp);
 
 /****************************************************************************/
 

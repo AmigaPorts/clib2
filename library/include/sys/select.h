@@ -106,7 +106,7 @@ typedef	struct fd_set
 
 #ifndef __NO_NET_API
 
-extern int select(int nfds, fd_set *readfds,fd_set *writefds, fd_set *errorfds,struct timeval *timeout);
+extern __stdargs int select(int nfds, fd_set *readfds,fd_set *writefds, fd_set *errorfds,struct timeval *timeout);
 
 /* This is a special select() function which takes an extra Amiga signal
    bit mask pointer parameter. This function works like select(), but it will
@@ -121,7 +121,7 @@ extern int select(int nfds, fd_set *readfds,fd_set *writefds, fd_set *errorfds,s
    function. */
 
 #ifndef __NO_WAITSELECT
-extern int waitselect(int num_fds,fd_set *read_fds,fd_set *write_fds,fd_set *except_fds,struct timeval *timeout,unsigned long * signal_mask);
+extern __stdargs int waitselect(int num_fds,fd_set *read_fds,fd_set *write_fds,fd_set *except_fds,struct timeval *timeout,unsigned long * signal_mask);
 #endif /* __NO_WAITSELECT */
 
 #endif /* __NO_NET_API */

@@ -86,11 +86,11 @@ struct group
 
 #ifndef __NO_NET_API
 
-extern void endgrent(void);
-extern struct group *getgrent(void);
-extern struct group *getgrgid(gid_t gid);
-extern struct group *getgrnam(const char *name);
-extern void setgrent(void);
+extern __stdargs void endgrent(void);
+extern __stdargs struct group *getgrent(void);
+extern __stdargs struct group *getgrgid(gid_t gid);
+extern __stdargs struct group *getgrnam(const char *name);
+extern __stdargs void setgrent(void);
 
 #endif /* __NO_NET_API */
 

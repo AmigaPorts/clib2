@@ -60,35 +60,35 @@ typedef long wctrans_t; /* ZZZ */
 
 /****************************************************************************/
 
-extern int iswalnum(wint_t c);
-extern int iswalpha(wint_t c);
-extern int iswcntrl(wint_t c);
+extern __stdargs int iswalnum(wint_t c);
+extern __stdargs int iswalpha(wint_t c);
+extern __stdargs int iswcntrl(wint_t c);
 
-extern int iswdigit(wint_t c);
-extern int iswxdigit(wint_t c);
+extern __stdargs int iswdigit(wint_t c);
+extern __stdargs int iswxdigit(wint_t c);
 
-extern int iswgraph(wint_t c);
-extern int iswpunct(wint_t c);
-extern int iswprint(wint_t c);
+extern __stdargs int iswgraph(wint_t c);
+extern __stdargs int iswpunct(wint_t c);
+extern __stdargs int iswprint(wint_t c);
 
-extern int iswlower(wint_t c);
-extern int iswupper(wint_t c);
+extern __stdargs int iswlower(wint_t c);
+extern __stdargs int iswupper(wint_t c);
 
-extern int iswspace(wint_t c);
-extern int iswblank(wint_t c);
+extern __stdargs int iswspace(wint_t c);
+extern __stdargs int iswblank(wint_t c);
 
-extern wint_t towlower(wint_t c);
-extern wint_t towupper(wint_t c);
-
-/****************************************************************************/
-
-extern wctype_t wctype(const char *property);
-extern int iswctype(wint_t c, wctype_t desc);
+extern __stdargs wint_t towlower(wint_t c);
+extern __stdargs wint_t towupper(wint_t c);
 
 /****************************************************************************/
 
-extern wctrans_t wctrans(const char *property);
-extern wint_t towctrans(wint_t c, wctrans_t desc);
+extern __stdargs wctype_t wctype(const char *property);
+extern __stdargs int iswctype(wint_t c, wctype_t desc);
+
+/****************************************************************************/
+
+extern __stdargs wctrans_t wctrans(const char *property);
+extern __stdargs wint_t towctrans(wint_t c, wctrans_t desc);
 
 /****************************************************************************/
 

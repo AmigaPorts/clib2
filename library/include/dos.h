@@ -119,7 +119,7 @@ extern BOOL __check_abort_enabled;
  * You can replace this function with your own and perform your own
  * Ctrl+C checking.
  */
-extern void __check_abort(void);
+extern __stdargs void __check_abort(void);
 
 /****************************************************************************/
 
@@ -155,8 +155,8 @@ extern void geta4(void);
  *
  * Note: this function may not be available for PowerPC programs.
  */
-extern unsigned long __get_a4(void);
-extern void __set_a4(unsigned long value);
+extern __stdargs unsigned long __get_a4(void);
+extern __stdargs void __set_a4(unsigned long value);
 
 /****************************************************************************/
 
@@ -168,7 +168,7 @@ extern void __set_a4(unsigned long value);
  * error code, too). Put a pointer to the file handle variable you
  * want to be filled in into the second parameter to this function.
  */
-extern int __get_default_file(int file_descriptor,long * file_ptr);
+extern __stdargs int __get_default_file(int file_descriptor,long * file_ptr);
 
 /****************************************************************************/
 
@@ -226,7 +226,7 @@ extern ULONG __free_memory_threshold;
  * Parameters called with NULL instead of pointer to the counters to
  * be filled in will be ignored.
  */
-extern void __get_mem_stats(size_t * current_memory,size_t * max_memory,
+extern __stdargs void __get_mem_stats(size_t * current_memory,size_t * max_memory,
 	size_t * current_chunks,size_t * max_chunks);
 
 /*
@@ -234,7 +234,7 @@ extern void __get_mem_stats(size_t * current_memory,size_t * max_memory,
  * of memory used" and "maximum number of chunks used" to the figures
  * for the current memory usage.
  */
-extern void __reset_max_mem_stats(void);
+extern __stdargs void __reset_max_mem_stats(void);
 
 /****************************************************************************/
 
@@ -256,7 +256,7 @@ extern void __reset_max_mem_stats(void);
  * must return NULL. That function is expected to print an error message
  * and to call abort().
  */
-extern void (*__alloca_trap)(void);
+extern __stdargs void (*__alloca_trap)(void);
 
 /****************************************************************************/
 
@@ -377,8 +377,8 @@ extern BOOL __open_locale;
  *
  * __locale_exit() releases the default locale and closes locale.library.
  */
-extern int __locale_init(void);
-extern void __locale_exit(void);
+extern __stdargs int __locale_init(void);
+extern __stdargs void __locale_exit(void);
 
 /****************************************************************************/
 
@@ -404,11 +404,11 @@ struct name_translation_info
 
 /****************************************************************************/
 
-extern int __translate_relative_path_name(char const ** name_ptr,char *replace,size_t max_replace_len);
-extern void __restore_path_name(char const ** name_ptr,struct name_translation_info * nti);
-extern int __translate_amiga_to_unix_path_name(char const ** name_ptr,struct name_translation_info * nti);
-extern int __translate_unix_to_amiga_path_name(char const ** name_ptr,struct name_translation_info * nti);
-extern int __translate_io_error_to_errno(LONG io_error);
+extern __stdargs int __translate_relative_path_name(char const ** name_ptr,char *replace,size_t max_replace_len);
+extern __stdargs void __restore_path_name(char const ** name_ptr,struct name_translation_info * nti);
+extern __stdargs int __translate_amiga_to_unix_path_name(char const ** name_ptr,struct name_translation_info * nti);
+extern __stdargs int __translate_unix_to_amiga_path_name(char const ** name_ptr,struct name_translation_info * nti);
+extern __stdargs int __translate_io_error_to_errno(LONG io_error);
 
 /****************************************************************************/
 
@@ -439,8 +439,8 @@ extern int __translate_io_error_to_errno(LONG io_error);
  * Both functions are only available as part of the thread-safe clib2
  * linker library.
  */
-extern VOID __lib_exit(VOID);
-extern BOOL __lib_init(struct Library * _SysBase);
+extern __stdargs VOID __lib_exit(VOID);
+extern __stdargs BOOL __lib_init(struct Library * _SysBase);
 
 /****************************************************************************/
 
@@ -537,8 +537,8 @@ extern const char * __default_path;
  */
 extern char ** environ;
 
-extern int __execve_environ_init(char * const envp[]);
-extern void __execve_environ_exit(char * const envp[]);
+extern __stdargs int __execve_environ_init(char * const envp[]);
+extern __stdargs void __execve_environ_exit(char * const envp[]);
 
 /****************************************************************************/
 
@@ -551,7 +551,7 @@ extern void __execve_environ_exit(char * const envp[]);
  * instead.
  */
 
-extern void __execve_exit(int return_code);
+extern __stdargs void __execve_exit(int return_code);
 
 /****************************************************************************/
 

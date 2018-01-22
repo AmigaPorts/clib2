@@ -181,86 +181,86 @@ extern struct iob ** __iob;
 
 /****************************************************************************/
 
-extern void perror(const char * s);
+extern __stdargs void perror(const char * s);
 
 /****************************************************************************/
 
-extern FILE *fopen(const char *filename, const char *mode);
-extern int fclose(FILE *stream);
-extern int fflush(FILE *stream);
-extern FILE *freopen(const char *filename, const char *mode, FILE *stream);
-extern int setvbuf(FILE *stream,char *buf,int bufmode,size_t size);
-extern void setbuf(FILE *stream, char *buf);
+extern __stdargs FILE *fopen(const char *filename, const char *mode);
+extern __stdargs int fclose(FILE *stream);
+extern __stdargs int fflush(FILE *stream);
+extern __stdargs FILE *freopen(const char *filename, const char *mode, FILE *stream);
+extern __stdargs int setvbuf(FILE *stream,char *buf,int bufmode,size_t size);
+extern __stdargs void setbuf(FILE *stream, char *buf);
 
 /****************************************************************************/
 
-extern int fseek(FILE *stream, long int offset, int wherefrom);
-extern long int ftell(FILE *stream);
-extern void rewind(FILE *stream);
-extern int fgetpos(FILE *stream, fpos_t *pos);
-extern int fsetpos(FILE *stream, fpos_t *pos);
+extern __stdargs int fseek(FILE *stream, long int offset, int wherefrom);
+extern __stdargs long int ftell(FILE *stream);
+extern __stdargs void rewind(FILE *stream);
+extern __stdargs int fgetpos(FILE *stream, fpos_t *pos);
+extern __stdargs int fsetpos(FILE *stream, fpos_t *pos);
 
 /****************************************************************************/
 
-extern int fgetc(FILE *stream);
-extern int getc(FILE *stream);
-extern int getchar(void);
-extern int ungetc(int c,FILE *stream);
+extern __stdargs int fgetc(FILE *stream);
+extern __stdargs int getc(FILE *stream);
+extern __stdargs int getchar(void);
+extern __stdargs int ungetc(int c,FILE *stream);
 
 /****************************************************************************/
 
-extern int fputc(int c,FILE *stream);
-extern int putc(int c,FILE *stream);
-extern int putchar(int c);
+extern __stdargs int fputc(int c,FILE *stream);
+extern __stdargs int putc(int c,FILE *stream);
+extern __stdargs int putchar(int c);
 
 /****************************************************************************/
 
-extern char *fgets(char *s,int n,FILE *stream);
-extern char *gets(char *s);
+extern __stdargs char *fgets(char *s,int n,FILE *stream);
+extern __stdargs char *gets(char *s);
 
 /****************************************************************************/
 
-extern int fscanf(FILE *stream, const char *format, ...);
-extern int scanf(const char *format, ...);
-extern int sscanf(const char *s,const char *format, ...);
+extern __stdargs int fscanf(FILE *stream, const char *format, ...);
+extern __stdargs int scanf(const char *format, ...);
+extern __stdargs int sscanf(const char *s,const char *format, ...);
 
 /****************************************************************************/
 
-extern int fputs(const char *s, FILE *stream);
-extern int puts(const char *s);
+extern __stdargs int fputs(const char *s, FILE *stream);
+extern __stdargs int puts(const char *s);
 
 /****************************************************************************/
 
-extern int fprintf(FILE *stream,const char *format,...);
-extern int printf(const char *format, ...);
-extern int sprintf(char *s, const char *format, ...);
+extern __stdargs int fprintf(FILE *stream,const char *format,...);
+extern __stdargs int printf(const char *format, ...);
+extern __stdargs int sprintf(char *s, const char *format, ...);
 
 /****************************************************************************/
 
-extern int vfprintf(FILE *stream,const char *format,va_list arg);
-extern int vprintf(const char *format,va_list arg);
-extern int vsprintf(char *s, const char *format,va_list arg);
+extern __stdargs int vfprintf(FILE *stream,const char *format,va_list arg);
+extern __stdargs int vprintf(const char *format,va_list arg);
+extern __stdargs int vsprintf(char *s, const char *format,va_list arg);
 
 /****************************************************************************/
 
-extern size_t fread(void *ptr,size_t element_size,size_t count,FILE *stream);
-extern size_t fwrite(const void *ptr,size_t element_size,size_t count,FILE *stream);
+extern __stdargs size_t fread(void *ptr,size_t element_size,size_t count,FILE *stream);
+extern __stdargs size_t fwrite(const void *ptr,size_t element_size,size_t count,FILE *stream);
 
 /****************************************************************************/
 
-extern int feof(FILE *stream);
-extern int ferror(FILE *stream);
-extern void clearerr(FILE *stream);
+extern __stdargs int feof(FILE *stream);
+extern __stdargs int ferror(FILE *stream);
+extern __stdargs void clearerr(FILE *stream);
 
 /****************************************************************************/
 
-extern int rename(const char *oldname,const char *newname);
-extern int remove(const char *filename);
+extern __stdargs int rename(const char *oldname,const char *newname);
+extern __stdargs int remove(const char *filename);
 
 /****************************************************************************/
 
-extern FILE *tmpfile(void);
-extern char *tmpnam(char *buf);
+extern __stdargs FILE *tmpfile(void);
+extern __stdargs char *tmpnam(char *buf);
 
 /****************************************************************************/
 
@@ -361,7 +361,7 @@ extern char *tmpnam(char *buf);
 
 /****************************************************************************/
 
-extern char *ctermid(char *);
+extern __stdargs char *ctermid(char *);
 
 /****************************************************************************/
 
@@ -370,7 +370,7 @@ extern char *ctermid(char *);
  * in case of success and EOF in case of failure. This is used by the
  * __putc_unlocked() macro defined above.
  */
-extern int __flush(FILE *stream);
+extern __stdargs int __flush(FILE *stream);
 
 /****************************************************************************/
 
@@ -378,14 +378,14 @@ extern int __flush(FILE *stream);
  * A special function which returns the input character. This is used by
  * the __getc_unlocked() macro defined above.
  */
-extern int __unlockfile(FILE *stream,int c);
+extern __stdargs int __unlockfile(FILE *stream,int c);
 
 /****************************************************************************/
 
-extern int getc_unlocked(FILE *stream);
-extern int getchar_unlocked(void);
-extern int putc_unlocked(int c,FILE *stream);
-extern int putchar_unlocked(int c);
+extern __stdargs int getc_unlocked(FILE *stream);
+extern __stdargs int getchar_unlocked(void);
+extern __stdargs int putc_unlocked(int c,FILE *stream);
+extern __stdargs int putchar_unlocked(int c);
 
 /****************************************************************************/
 
@@ -397,14 +397,14 @@ extern int putchar_unlocked(int c);
 
 /****************************************************************************/
 
-extern FILE * fdopen(int file_descriptor, const char * type);
-extern int fileno(FILE * file);
-extern int asprintf(char **ret, const char *format, ...);
-extern int vsnprintf(char *s,size_t size,const char *format,va_list arg);
-extern int pclose(FILE *stream);
-extern FILE * popen(const char *command, const char *type);
-extern int fseeko(FILE *stream, off_t offset, int wherefrom);
-extern off_t ftello(FILE *stream);
+extern __stdargs FILE * fdopen(int file_descriptor, const char * type);
+extern __stdargs int fileno(FILE * file);
+extern __stdargs int asprintf(char **ret, const char *format, ...);
+extern __stdargs int vsnprintf(char *s,size_t size,const char *format,va_list arg);
+extern __stdargs int pclose(FILE *stream);
+extern __stdargs FILE * popen(const char *command, const char *type);
+extern __stdargs int fseeko(FILE *stream, off_t offset, int wherefrom);
+extern __stdargs off_t ftello(FILE *stream);
 
 /****************************************************************************/
 
@@ -412,9 +412,9 @@ extern off_t ftello(FILE *stream);
 
 /****************************************************************************/
 
-extern void flockfile(FILE * file);
-extern void funlockfile(FILE * file);
-extern int ftrylockfile(FILE * file);
+extern __stdargs void flockfile(FILE * file);
+extern __stdargs void funlockfile(FILE * file);
+extern __stdargs int ftrylockfile(FILE * file);
 
 /****************************************************************************/
 
@@ -432,10 +432,10 @@ extern int ftrylockfile(FILE * file);
 
 /****************************************************************************/
 
-extern int vasprintf(char **ret,const char *format,va_list arg);
+extern __stdargs int vasprintf(char **ret,const char *format,va_list arg);
 
 #ifdef __MEM_DEBUG
-extern int __vasprintf(const char *file,int line,char **ret,const char *format,va_list arg);
+extern __stdargs int __vasprintf(const char *file,int line,char **ret,const char *format,va_list arg);
 
 #define vasprintf(ret,format,arg) __vasprintf(__FILE__,__LINE__,(ret),(format),(arg))
 #endif /* __MEM_DEBUG */
@@ -447,10 +447,10 @@ extern int __vasprintf(const char *file,int line,char **ret,const char *format,v
 
 /****************************************************************************/
 
-extern int vfscanf(FILE *stream, const char *format, va_list arg);
-extern int vsscanf(const char *s, const char *format, va_list arg);
-extern int vscanf(const char *format,va_list arg);
-extern int snprintf(char *s,size_t size,const char *format,...);
+extern __stdargs int vfscanf(FILE *stream, const char *format, va_list arg);
+extern __stdargs int vsscanf(const char *s, const char *format, va_list arg);
+extern __stdargs int vscanf(const char *format,va_list arg);
+extern __stdargs int snprintf(char *s,size_t size,const char *format,...);
 
 /****************************************************************************/
 

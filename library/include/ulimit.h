@@ -60,7 +60,7 @@ extern "C" {
 
 /****************************************************************************/
 
-extern long ulimit(int cmd,long newlimit);
+extern __stdargs long ulimit(int cmd,long newlimit);
 
 /****************************************************************************/
 

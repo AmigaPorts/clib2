@@ -314,18 +314,18 @@ typedef struct { long quot; long rem; } imaxdiv_t;
 
 /****************************************************************************/
 
-extern intmax_t imaxabs(intmax_t x);
-extern imaxdiv_t imaxdiv(intmax_t n,intmax_t d);
+extern __stdargs intmax_t imaxabs(intmax_t x);
+extern __stdargs imaxdiv_t imaxdiv(intmax_t n,intmax_t d);
 
 /****************************************************************************/
 
-extern intmax_t strtoimax(const char *str, char **ptr, int base);
-extern uintmax_t strtoumax(const char *str, char **ptr, int base);
+extern __stdargs intmax_t strtoimax(const char *str, char **ptr, int base);
+extern __stdargs uintmax_t strtoumax(const char *str, char **ptr, int base);
 
 /****************************************************************************/
 
-extern intmax_t wcstoimax(const wchar_t *str, char **ptr, int base);
-extern uintmax_t wcstoumax(const wchar_t *str, char **ptr, int base);
+extern __stdargs intmax_t wcstoimax(const wchar_t *str, char **ptr, int base);
+extern __stdargs uintmax_t wcstoumax(const wchar_t *str, char **ptr, int base);
 
 /****************************************************************************/
 

@@ -58,7 +58,7 @@
 /****************************************************************************/
 
 #ifdef __cplusplus
-extern "C" {
+extern __stdargs "C" {
 #endif /* __cplusplus */
 
 /****************************************************************************/
@@ -70,7 +70,7 @@ extern "C" {
 
 #ifndef __NO_NET_API
 
-extern int ioctl(int fildes, int request, ... /* arg */);
+extern __stdargs int ioctl(int fildes, int request, ... /* arg */);
 
 #endif /* __NO_NET_API */
 

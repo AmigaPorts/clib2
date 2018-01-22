@@ -64,8 +64,8 @@ extern "C" {
 
 /****************************************************************************/
 
-extern void (*signal(int sig, void (*)(int)))(int);
-extern int raise(int sig);
+extern __stdargs void (*signal(int sig, void (*)(int)))(int);
+extern __stdargs int raise(int sig);
 
 /****************************************************************************/
 
@@ -102,13 +102,13 @@ typedef int sigset_t;
 
 /****************************************************************************/
 
-extern int sigmask(int signum);
-extern int sigblock(int signal_mask);
-extern int sigsetmask(int signal_mask);
-extern int sigprocmask(int how, const sigset_t *set, sigset_t *oset);
-extern int sigemptyset(sigset_t * set);
-extern int sigaddset(sigset_t * set,int sig);
-extern int kill(pid_t pid, int signal_number);
+extern __stdargs int sigmask(int signum);
+extern __stdargs int sigblock(int signal_mask);
+extern __stdargs int sigsetmask(int signal_mask);
+extern __stdargs int sigprocmask(int how, const sigset_t *set, sigset_t *oset);
+extern __stdargs int sigemptyset(sigset_t * set);
+extern __stdargs int sigaddset(sigset_t * set,int sig);
+extern __stdargs int kill(pid_t pid, int signal_number);
 
 /****************************************************************************/
 

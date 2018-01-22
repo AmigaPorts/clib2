@@ -83,21 +83,21 @@ extern "C" {
 
 /****************************************************************************/
 
-extern double creal(double complex z);
-extern float crealf(float complex z);
-extern long double creall(long double complex z);
+extern __stdargs double creal(double complex z);
+extern __stdargs float crealf(float complex z);
+extern __stdargs long double creall(long double complex z);
 
-extern double cimag(double complex z);
-extern float cimagf(float complex z);
-extern long double cimagl(long double complex z);
+extern __stdargs double cimag(double complex z);
+extern __stdargs float cimagf(float complex z);
+extern __stdargs long double cimagl(long double complex z);
 
-extern double complex conj(double complex z);
-extern float complex conjf(float complex z);
-extern long double complex conjl(long double complex z);
+extern __stdargs double complex conj(double complex z);
+extern __stdargs float complex conjf(float complex z);
+extern __stdargs long double complex conjl(long double complex z);
 
-extern double carg(double complex z);
-extern float cargf(float complex z);
-extern long double cargl(long double complex z);
+extern __stdargs double carg(double complex z);
+extern __stdargs float cargf(float complex z);
+extern __stdargs long double cargl(long double complex z);
 
 /****************************************************************************/
 

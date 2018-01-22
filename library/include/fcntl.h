@@ -112,13 +112,13 @@ struct flock
 
 /****************************************************************************/
 
-extern int open(const char *path_name, int open_flag, ... /* mode_t mode */ );
-extern int creat(const char * path_name, mode_t mode);
-extern int close(int file_descriptor);
-extern off_t lseek(int file_descriptor, off_t offset, int mode);
-extern ssize_t read(int file_descriptor, void * buffer, size_t num_bytes);
-extern ssize_t write(int file_descriptor, const void * buffer, size_t num_bytes);
-extern int fcntl(int file_descriptor, int cmd, ... /* int arg */ );
+extern __stdargs int open(const char *path_name, int open_flag, ... /* mode_t mode */ );
+extern __stdargs int creat(const char * path_name, mode_t mode);
+extern __stdargs int close(int file_descriptor);
+extern __stdargs off_t lseek(int file_descriptor, off_t offset, int mode);
+extern __stdargs ssize_t read(int file_descriptor, void * buffer, size_t num_bytes);
+extern __stdargs ssize_t write(int file_descriptor, const void * buffer, size_t num_bytes);
+extern __stdargs int fcntl(int file_descriptor, int cmd, ... /* int arg */ );
 
 /****************************************************************************/
 

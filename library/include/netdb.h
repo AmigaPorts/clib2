@@ -148,15 +148,15 @@ extern int h_errno;
 
 #ifndef __NO_NET_API
 
-extern struct hostent *gethostbyaddr(const void *addr, socklen_t len, int type);
-extern struct hostent *gethostbyname(const char *name);
-extern struct netent *getnetbyaddr(in_addr_t net, int type);
-extern struct netent *getnetbyname(const char *name);
-extern struct protoent *getprotobyname(const char *name);
-extern struct protoent *getprotobynumber(int proto);
-extern struct servent *getservbyname(const char *name, const char *proto);
-extern struct servent *getservbyport(int port, const char *proto);
-extern const char *hstrerror(int err);
+extern __stdargs struct hostent *gethostbyaddr(const void *addr, socklen_t len, int type);
+extern __stdargs struct hostent *gethostbyname(const char *name);
+extern __stdargs struct netent *getnetbyaddr(in_addr_t net, int type);
+extern __stdargs struct netent *getnetbyname(const char *name);
+extern __stdargs struct protoent *getprotobyname(const char *name);
+extern __stdargs struct protoent *getprotobynumber(int proto);
+extern __stdargs struct servent *getservbyname(const char *name, const char *proto);
+extern __stdargs struct servent *getservbyport(int port, const char *proto);
+extern __stdargs const char *hstrerror(int err);
 
 #endif /* __NO_NET_API */
 

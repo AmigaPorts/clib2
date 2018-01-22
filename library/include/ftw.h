@@ -95,8 +95,8 @@ struct FTW
 
 /****************************************************************************/
 
-extern int ftw(const char *path,int (*func)(const char *,const struct stat *,int),int depth);
-extern int nftw(const char *path,int (*func)(const char *,const struct stat *,int,struct FTW *),int depth,int flags);
+extern __stdargs int ftw(const char *path,int (*func)(const char *,const struct stat *,int),int depth);
+extern __stdargs int nftw(const char *path,int (*func)(const char *,const struct stat *,int,struct FTW *),int depth,int flags);
 
 /****************************************************************************/
 

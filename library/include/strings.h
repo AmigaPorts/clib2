@@ -60,9 +60,9 @@ extern "C" {
 /****************************************************************************/
 
 /* These come from 4.4BSD. */
-extern int strcasecmp(const char *s1, const char *s2);
-extern int strncasecmp(const char *s1, const char *s2, size_t len);
-extern int ffs(int i);
+extern __stdargs int strcasecmp(const char *s1, const char *s2);
+extern __stdargs int strncasecmp(const char *s1, const char *s2, size_t len);
+extern __stdargs int ffs(int i);
 
 /****************************************************************************/
 

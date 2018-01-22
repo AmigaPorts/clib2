@@ -192,17 +192,17 @@ enum {
 
 /* Prototypes. */
 
-extern int tcgetattr(int file_descriptor,struct termios *tios_p);
-extern int tcsetattr(int file_descriptor,int action,struct termios *tios_p);
-extern int tcsendbreak(int file_descriptor,int duration);
-extern int tcdrain(int file_descriptor);
-extern int tcflush(int file_descriptor,int what);
-extern int tcflow(int file_descriptor,int action);
-extern int cfmakeraw(struct termios *tios_p);
-extern speed_t cfgetispeed(struct termios *tios_p);
-extern speed_t cfgetospeed(struct termios *tios_p);
-extern int cfsetispeed(struct termios *tios_p,speed_t input_speed);
-extern int cfsetospeed(struct termios *tios_p,speed_t output_speed);
+extern __stdargs int tcgetattr(int file_descriptor,struct termios *tios_p);
+extern __stdargs int tcsetattr(int file_descriptor,int action,struct termios *tios_p);
+extern __stdargs int tcsendbreak(int file_descriptor,int duration);
+extern __stdargs int tcdrain(int file_descriptor);
+extern __stdargs int tcflush(int file_descriptor,int what);
+extern __stdargs int tcflow(int file_descriptor,int action);
+extern __stdargs int cfmakeraw(struct termios *tios_p);
+extern __stdargs speed_t cfgetispeed(struct termios *tios_p);
+extern __stdargs speed_t cfgetospeed(struct termios *tios_p);
+extern __stdargs int cfsetispeed(struct termios *tios_p,speed_t input_speed);
+extern __stdargs int cfsetospeed(struct termios *tios_p,speed_t output_speed);
 
 /****************************************************************************/
 

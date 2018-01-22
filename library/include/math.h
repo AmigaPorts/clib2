@@ -63,28 +63,28 @@ extern double __huge_val;
 
 /****************************************************************************/
 
-extern double acos(double x);
-extern double asin(double x);
-extern double atan(double x);
-extern double atan2(double y,double x);
-extern double ceil(double x);
-extern double cos(double x);
-extern double cosh(double x);
-extern double exp(double x);
-extern double fabs(double x);
-extern double floor(double x);
-extern double fmod(double x,double y);
-extern double frexp(double x,int *nptr);
-extern double ldexp(double x,int n);
-extern double log(double x);
-extern double log10(double x);
-extern double modf(double x,double *nptr);
-extern double pow(double x,double y);
-extern double sin(double x);
-extern double sinh(double x);
-extern double sqrt(double x);
-extern double tan(double x);
-extern double tanh(double x);
+extern __stdargs double acos(double x);
+extern __stdargs double asin(double x);
+extern __stdargs double atan(double x);
+extern __stdargs double atan2(double y,double x);
+extern __stdargs double ceil(double x);
+extern __stdargs double cos(double x);
+extern __stdargs double cosh(double x);
+extern __stdargs double exp(double x);
+extern __stdargs double fabs(double x);
+extern __stdargs double floor(double x);
+extern __stdargs double fmod(double x,double y);
+extern __stdargs double frexp(double x,int *nptr);
+extern __stdargs double ldexp(double x,int n);
+extern __stdargs double log(double x);
+extern __stdargs double log10(double x);
+extern __stdargs double modf(double x,double *nptr);
+extern __stdargs double pow(double x,double y);
+extern __stdargs double sin(double x);
+extern __stdargs double sinh(double x);
+extern __stdargs double sqrt(double x);
+extern __stdargs double tan(double x);
+extern __stdargs double tanh(double x);
 
 /****************************************************************************/
 
@@ -148,12 +148,12 @@ extern float __nan;
 
 /****************************************************************************/
 
-extern int __fpclassify_float(float x);
-extern int __fpclassify_double(double x);
-extern int __isfinite_float(float x);
-extern int __isfinite_double(double x);
-extern int __signbit_float(float x);
-extern int __signbit_double(double x);
+extern __stdargs int __fpclassify_float(float x);
+extern __stdargs int __fpclassify_double(double x);
+extern __stdargs int __isfinite_float(float x);
+extern __stdargs int __isfinite_double(double x);
+extern __stdargs int __signbit_float(float x);
+extern __stdargs int __signbit_double(double x);
 
 /****************************************************************************/
 
@@ -192,9 +192,9 @@ extern int __signbit_double(double x);
 
 /****************************************************************************/
 
-extern int __isunordered_float(float x,float y);
-extern int __isunordered_float_double(float x,double y);
-extern int __isunordered_double(double x,double y);
+extern __stdargs int __isunordered_float(float x,float y);
+extern __stdargs int __isunordered_float_double(float x,double y);
+extern __stdargs int __isunordered_double(double x,double y);
 
 /****************************************************************************/
 
@@ -224,101 +224,101 @@ extern int __isunordered_double(double x,double y);
 
 /****************************************************************************/
 
-extern float acosf(float x);
-extern float asinf(float x);
-extern float atanf(float x);
-extern float atan2f(float y, float x);
-extern float ceilf(float x);
-extern float cosf(float x);
-extern float coshf(float x);
-extern float expf(float x);
-extern float fabsf(float x);
-extern float floorf(float x);
-extern float fmodf(float x, float y);
-extern float frexpf(float x, int *eptr);
-extern float ldexpf(float x,int exp);
-extern float logf(float x);
-extern float log10f(float x);
-extern float modff(float x, float *iptr);
-extern float powf(float x, float y);
-extern float sinf(float x);
-extern float sinhf(float x);
-extern float sqrtf(float x);
-extern float tanf(float x);
-extern float tanhf(float x);
+extern __stdargs float acosf(float x);
+extern __stdargs float asinf(float x);
+extern __stdargs float atanf(float x);
+extern __stdargs float atan2f(float y, float x);
+extern __stdargs float ceilf(float x);
+extern __stdargs float cosf(float x);
+extern __stdargs float coshf(float x);
+extern __stdargs float expf(float x);
+extern __stdargs float fabsf(float x);
+extern __stdargs float floorf(float x);
+extern __stdargs float fmodf(float x, float y);
+extern __stdargs float frexpf(float x, int *eptr);
+extern __stdargs float ldexpf(float x,int exp);
+extern __stdargs float logf(float x);
+extern __stdargs float log10f(float x);
+extern __stdargs float modff(float x, float *iptr);
+extern __stdargs float powf(float x, float y);
+extern __stdargs float sinf(float x);
+extern __stdargs float sinhf(float x);
+extern __stdargs float sqrtf(float x);
+extern __stdargs float tanf(float x);
+extern __stdargs float tanhf(float x);
 
 /****************************************************************************/
 
-extern float acoshf(float x);
-extern float asinhf(float x);
-extern float atanhf(float x);
-extern float cbrtf(float x);
-extern float copysignf(float x, float y);
-extern float erfcf(float x);
-extern float erff(float x);
-extern float expm1f(float x);
-extern float fdimf(float x,float y);
-extern float fmaf(float x,float y,float z);
-extern float fmaxf(float x,float y);
-extern float fminf(float x,float y);
-extern float hypotf(float x, float y);
-extern float lgammaf(float x);
-extern float log1pf(float x);
-extern float logbf(float x);
-extern long int lrintf(float x);
-extern long int lroundf(float x);
-extern float nanf(const char *tagp);
-extern float nearbyintf(float x);
-extern float nextafterf(float x,float y);
-extern float remainderf(float x, float p);
-extern float remquof(float x,float y,int * quo);
-extern float rintf(float x);
-extern float roundf(float x);
-extern float scalbnf (float x, int n);
-extern float tgammaf(float x);
-extern float truncf(float x);
-extern int ilogbf(float x);
+extern __stdargs float acoshf(float x);
+extern __stdargs float asinhf(float x);
+extern __stdargs float atanhf(float x);
+extern __stdargs float cbrtf(float x);
+extern __stdargs float copysignf(float x, float y);
+extern __stdargs float erfcf(float x);
+extern __stdargs float erff(float x);
+extern __stdargs float expm1f(float x);
+extern __stdargs float fdimf(float x,float y);
+extern __stdargs float fmaf(float x,float y,float z);
+extern __stdargs float fmaxf(float x,float y);
+extern __stdargs float fminf(float x,float y);
+extern __stdargs float hypotf(float x, float y);
+extern __stdargs float lgammaf(float x);
+extern __stdargs float log1pf(float x);
+extern __stdargs float logbf(float x);
+extern __stdargs long int lrintf(float x);
+extern __stdargs long int lroundf(float x);
+extern __stdargs float nanf(const char *tagp);
+extern __stdargs float nearbyintf(float x);
+extern __stdargs float nextafterf(float x,float y);
+extern __stdargs float remainderf(float x, float p);
+extern __stdargs float remquof(float x,float y,int * quo);
+extern __stdargs float rintf(float x);
+extern __stdargs float roundf(float x);
+extern __stdargs float scalbnf (float x, int n);
+extern __stdargs float tgammaf(float x);
+extern __stdargs float truncf(float x);
+extern __stdargs int ilogbf(float x);
 
 /****************************************************************************/
 
-extern double acosh(double x);
-extern double asinh(double x);
-extern double atanh(double x);
-extern double cbrt(double x);
-extern double copysign(double x, double y);
-extern double erf(double x);
-extern double erfc(double x);
-extern double expm1(double x);
-extern double fdim(double x,double y);
-extern double fma(double x,double y,double z);
-extern double fmax(double x,double y);
-extern double fmin(double x,double y);
-extern double hypot(double x,double y);
-extern double lgamma(double x);
-extern double log1p(double x);
-extern double logb(double x);
-extern long long int llrint(double x);
-extern long int lrint(double x);
-extern long int lround(double x);
-extern double nan(const char *tagp);
-extern double nearbyint(double x);
-extern double nextafter(double x,double y);
-extern double remainder(double x, double p);
-extern double remquo(double x,double y,int * quo);
-extern double rint(double x);
-extern double round(double x);
-extern double scalbn (double x, int n);
-extern double tgamma(double x);
-extern double trunc(double x);
-extern int ilogb(double x);
+extern __stdargs double acosh(double x);
+extern __stdargs double asinh(double x);
+extern __stdargs double atanh(double x);
+extern __stdargs double cbrt(double x);
+extern __stdargs double copysign(double x, double y);
+extern __stdargs double erf(double x);
+extern __stdargs double erfc(double x);
+extern __stdargs double expm1(double x);
+extern __stdargs double fdim(double x,double y);
+extern __stdargs double fma(double x,double y,double z);
+extern __stdargs double fmax(double x,double y);
+extern __stdargs double fmin(double x,double y);
+extern __stdargs double hypot(double x,double y);
+extern __stdargs double lgamma(double x);
+extern __stdargs double log1p(double x);
+extern __stdargs double logb(double x);
+extern __stdargs long long int llrint(double x);
+extern __stdargs long int lrint(double x);
+extern __stdargs long int lround(double x);
+extern __stdargs double nan(const char *tagp);
+extern __stdargs double nearbyint(double x);
+extern __stdargs double nextafter(double x,double y);
+extern __stdargs double remainder(double x, double p);
+extern __stdargs double remquo(double x,double y,int * quo);
+extern __stdargs double rint(double x);
+extern __stdargs double round(double x);
+extern __stdargs double scalbn (double x, int n);
+extern __stdargs double tgamma(double x);
+extern __stdargs double trunc(double x);
+extern __stdargs int ilogb(double x);
 
 /****************************************************************************/
 
-extern float exp2f(float x);
-extern double exp2(double x);
+extern __stdargs float exp2f(float x);
+extern __stdargs double exp2(double x);
 
-extern double log2(double x);
-extern float log2f(float x);
+extern __stdargs double log2(double x);
+extern __stdargs float log2f(float x);
 
 /****************************************************************************/
 

@@ -81,24 +81,24 @@ typedef struct { long quot; long rem; } ldiv_t;
 
 /****************************************************************************/
 
-extern int mblen(const char *s, size_t n);
-extern int mbtowc(wchar_t *pwc, const char *s, size_t n);
-extern int wctomb(char *s, wchar_t wchar);
-extern size_t mbstowcs(wchar_t *pwcs, const char *s, size_t n);
-extern size_t wcstombs(char *s, const wchar_t *pwcs, size_t n);
+extern __stdargs int mblen(const char *s, size_t n);
+extern __stdargs int mbtowc(wchar_t *pwc, const char *s, size_t n);
+extern __stdargs int wctomb(char *s, wchar_t wchar);
+extern __stdargs size_t mbstowcs(wchar_t *pwcs, const char *s, size_t n);
+extern __stdargs size_t wcstombs(char *s, const wchar_t *pwcs, size_t n);
 
 /****************************************************************************/
 
-extern void *malloc(size_t size);
-extern void *calloc(size_t num_elements,size_t element_size);
-extern void free(void *ptr);
-extern void *realloc(void *ptr,size_t size);
+extern __stdargs void *malloc(size_t size);
+extern __stdargs void *calloc(size_t num_elements,size_t element_size);
+extern __stdargs void free(void *ptr);
+extern __stdargs void *realloc(void *ptr,size_t size);
 
 #ifdef __MEM_DEBUG
-extern void *__malloc(size_t size,const char *file,int line);
-extern void *__calloc(size_t num_elements,size_t element_size,const char *file,int line);
-extern void __free(void *ptr,const char *file,int line);
-extern void *__realloc(void *ptr,size_t size,const char *file,int line);
+extern __stdargs void *__malloc(size_t size,const char *file,int line);
+extern __stdargs void *__calloc(size_t num_elements,size_t element_size,const char *file,int line);
+extern __stdargs void __free(void *ptr,const char *file,int line);
+extern __stdargs void *__realloc(void *ptr,size_t size,const char *file,int line);
 
 #define malloc(size) __malloc((size),__FILE__,__LINE__)
 #define calloc(num_elements,element_size) __calloc((num_elements),(element_size),__FILE__,__LINE__)
@@ -108,51 +108,51 @@ extern void *__realloc(void *ptr,size_t size,const char *file,int line);
 
 /****************************************************************************/
 
-extern int abs(int x);
-extern long labs(long x);
-extern div_t div(int n,int d);
-extern ldiv_t ldiv(long n,long d);
+extern __stdargs int abs(int x);
+extern __stdargs long labs(long x);
+extern __stdargs div_t div(int n,int d);
+extern __stdargs ldiv_t ldiv(long n,long d);
 
 /****************************************************************************/
 
-extern int rand(void);
-extern void srand(unsigned seed);
+extern __stdargs int rand(void);
+extern __stdargs void srand(unsigned seed);
 
 /****************************************************************************/
 
-extern int system(const char *command);
+extern __stdargs int system(const char *command);
 
 /****************************************************************************/
 
-extern void exit(int status);
-extern void abort(void);
+extern __stdargs void exit(int status);
+extern __stdargs void abort(void);
 
 /****************************************************************************/
 
-extern int atexit(void (*)(void));
+extern __stdargs int atexit(void (*)(void));
 
 /****************************************************************************/
 
-extern char * getenv(const char *name);
+extern __stdargs char * getenv(const char *name);
 
 /****************************************************************************/
 
-extern void * bsearch(const void *key, const void *base, size_t count, size_t size,
+extern __stdargs void * bsearch(const void *key, const void *base, size_t count, size_t size,
 	int (*compare)(const void * key,const void * value));
-extern void qsort(void *base,size_t count,size_t size,
+extern __stdargs void qsort(void *base,size_t count,size_t size,
 	int (*compare)(const void * element1,const void * element2));
 
 /****************************************************************************/
 
-extern double strtod(const char *str, char ** ptr);
-extern long strtol(const char *str, char **ptr, int base);
-extern unsigned long strtoul(const char *str, char **ptr, int base);
+extern __stdargs double strtod(const char *str, char ** ptr);
+extern __stdargs long strtol(const char *str, char **ptr, int base);
+extern __stdargs unsigned long strtoul(const char *str, char **ptr, int base);
 
 /****************************************************************************/
 
-extern double atof(const char *str);
-extern int atoi(const char *str);
-extern long atol(const char *str);
+extern __stdargs double atof(const char *str);
+extern __stdargs int atoi(const char *str);
+extern __stdargs long atol(const char *str);
 
 /****************************************************************************/
 
@@ -160,8 +160,8 @@ extern long atol(const char *str);
 
 /****************************************************************************/
 
-extern void _exit(int status);
-extern int rand_r(unsigned int * seed);
+extern __stdargs void _exit(int status);
+extern __stdargs int rand_r(unsigned int * seed);
 
 /****************************************************************************/
 
@@ -175,7 +175,7 @@ extern int rand_r(unsigned int * seed);
  * unsigned long __slab_max_size = 4096;
  */
 
-extern unsigned long __slab_max_size;
+extern __stdargs unsigned long __slab_max_size;
 
 /*
  * The slab allocator will periodically free all currently unused memory.
@@ -188,7 +188,7 @@ extern unsigned long __slab_max_size;
  * unsigned long __slab_purge_threshold = 512 * 1024;
  */
 
-extern unsigned long __slab_purge_threshold;
+extern __stdargs unsigned long __slab_purge_threshold;
 
 /****************************************************************************/
 
@@ -201,7 +201,7 @@ extern unsigned long __slab_purge_threshold;
  * allocation system and is not safe to call from interrupt code. It may
  * break a Forbid() or Disable() condition.
  */
-extern void __free_unused_slabs(void);
+extern __stdargs void __free_unused_slabs(void);
 
 /****************************************************************************/
 
@@ -216,7 +216,7 @@ extern void __free_unused_slabs(void);
  * allocation system and is not safe to call from interrupt code. It may
  * break a Forbid() or Disable() condition.
  */
-extern void __decay_unused_slabs(void);
+extern __stdargs void __decay_unused_slabs(void);
 
 /****************************************************************************/
 
@@ -382,7 +382,7 @@ typedef int (* __slab_status_callback)(void * user_data, const char * line, size
 
 /****************************************************************************/
 
-extern void __get_slab_stats(void * user_data, __slab_status_callback callback);
+extern __stdargs void __get_slab_stats(void * user_data, __slab_status_callback callback);
 
 /****************************************************************************/
 
@@ -403,10 +403,10 @@ extern void __get_slab_stats(void * user_data, __slab_status_callback callback);
 #if defined(__GNUC__) && !defined(__USE_CLIB2_ALLOCA)
  #define alloca(size) __builtin_alloca(size)
 #else
- extern void * alloca(size_t size);
+ extern __stdargs void * alloca(size_t size);
 
  #ifdef __MEM_DEBUG
-  extern void * __alloca(size_t size,const char *file,int line);
+  extern __stdargs void * __alloca(size_t size,const char *file,int line);
 
   #define alloca(size) __alloca((size),__FILE__,__LINE__)
  #else
@@ -418,12 +418,12 @@ extern void __get_slab_stats(void * user_data, __slab_status_callback callback);
 
 /****************************************************************************/
 
-extern int setenv(const char *name, const char *value, int overwrite);
-extern int putenv(const char *string);
-extern int unsetenv(const char *name);
-extern char * mktemp(char * name_template);
-extern int mkstemp(char *name_template);
-extern char * mkdtemp(char *name_template);
+extern __stdargs int setenv(const char *name, const char *value, int overwrite);
+extern __stdargs int putenv(const char *string);
+extern __stdargs int unsetenv(const char *name);
+extern __stdargs char * mktemp(char * name_template);
+extern __stdargs int mkstemp(char *name_template);
+extern __stdargs char * mkdtemp(char *name_template);
 
 /****************************************************************************/
 
@@ -436,9 +436,9 @@ extern char * mkdtemp(char *name_template);
 
 /****************************************************************************/
 
-extern long long strtoll(const char *str, char **ptr, int base);
-extern unsigned long long strtoull(const char *str, char **ptr, int base);
-extern long long atoll(const char *str);
+extern __stdargs long long strtoll(const char *str, char **ptr, int base);
+extern __stdargs unsigned long long strtoull(const char *str, char **ptr, int base);
+extern __stdargs long long atoll(const char *str);
 
 /****************************************************************************/
 
@@ -446,13 +446,13 @@ typedef struct { long long quot; long long rem; } lldiv_t;
 
 /****************************************************************************/
 
-extern long long llabs(long long x);
-extern lldiv_t lldiv(long long n,long long d);
+extern __stdargs long long llabs(long long x);
+extern __stdargs lldiv_t lldiv(long long n,long long d);
 
 /****************************************************************************/
 
-extern int mbtowc(wchar_t *restrict pwc, const char *restrict s, size_t n);
-extern int wctomb(char *s, wchar_t wchar);
+extern __stdargs int mbtowc(wchar_t *restrict pwc, const char *restrict s, size_t n);
+extern __stdargs int wctomb(char *s, wchar_t wchar);
 
 /****************************************************************************/
 
@@ -460,11 +460,11 @@ extern int wctomb(char *s, wchar_t wchar);
 
 /****************************************************************************/
 
-extern float strtof(const char *str, char ** ptr);
+extern __stdargs float strtof(const char *str, char ** ptr);
 
 /****************************************************************************/
 
-extern void _Exit(int status);
+extern __stdargs void _Exit(int status);
 
 /****************************************************************************/
 

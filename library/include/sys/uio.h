@@ -77,8 +77,8 @@ typedef struct iovec
 
 /****************************************************************************/
 
-extern ssize_t readv(int file_descriptor,const struct iovec *iov,int vec_count);
-extern ssize_t writev(int file_descriptor,const struct iovec *iov,int vec_count);
+extern __stdargs ssize_t readv(int file_descriptor,const struct iovec *iov,int vec_count);
+extern __stdargs ssize_t writev(int file_descriptor,const struct iovec *iov,int vec_count);
 
 /****************************************************************************/
 

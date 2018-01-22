@@ -55,44 +55,44 @@ extern "C" {
 
 /****************************************************************************/
 
-extern char *strerror(int error_number);
-extern char *strcat(char *dest, const char *src);
-extern char *strncat(char *dest, const char *src, size_t n);
-extern int strcmp(const char *s1, const char * s2);
-extern int strncmp(const char *s1, const char *s2, size_t n);
-extern char *strcpy(char *dest, const char *src);
-extern char *strncpy(char *dest, const char *src, size_t n);
-extern size_t strnlen(const char *s, size_t maxlen);
-extern size_t strlen(const char *s);
-extern char *strchr(const char *s, int c);
-extern char *strrchr(const char *s, int c);
-extern size_t strspn(const char *s, const char *set);
-extern size_t strcspn(const char *s, const char *set);
-extern char *strpbrk(const char *s, const char *set);
-extern char *strtok(char *str, const char *set);
-extern char *strstr(const char *src, const char *sub);
+extern __stdargs char *strerror(int error_number);
+extern __stdargs char *strcat(char *dest, const char *src);
+extern __stdargs char *strncat(char *dest, const char *src, size_t n);
+extern __stdargs int strcmp(const char *s1, const char * s2);
+extern __stdargs int strncmp(const char *s1, const char *s2, size_t n);
+extern __stdargs char *strcpy(char *dest, const char *src);
+extern __stdargs char *strncpy(char *dest, const char *src, size_t n);
+extern __stdargs size_t strnlen(const char *s, size_t maxlen);
+extern __stdargs size_t strlen(const char *s);
+extern __stdargs char *strchr(const char *s, int c);
+extern __stdargs char *strrchr(const char *s, int c);
+extern __stdargs size_t strspn(const char *s, const char *set);
+extern __stdargs size_t strcspn(const char *s, const char *set);
+extern __stdargs char *strpbrk(const char *s, const char *set);
+extern __stdargs char *strtok(char *str, const char *set);
+extern __stdargs char *strstr(const char *src, const char *sub);
 
 /****************************************************************************/
 
-extern int strcoll(const char *s1, const char *s2);
-extern size_t strxfrm(char *dest, const char *src, size_t len);
+extern __stdargs int strcoll(const char *s1, const char *s2);
+extern __stdargs size_t strxfrm(char *dest, const char *src, size_t len);
 
 /****************************************************************************/
 
-extern void *memmove(void *dest, const void * src, size_t len);
-extern void *memchr(const void * ptr, int val, size_t len);
+extern __stdargs void *memmove(void *dest, const void * src, size_t len);
+extern __stdargs void *memchr(const void * ptr, int val, size_t len);
 
 /* This is ugly: GCC 2.95.x assumes that 'unsigned long' is used in the built-in
    memcmp/memcpy/memset functions instead of 'size_t'. This can produce warnings
    where none are necessary. */
 #if defined(__GNUC__) && (__GNUC__ < 3)
-extern int memcmp(const void *ptr1, const void *ptr2, unsigned long len);
-extern void *memcpy(void *dest, const void *src, unsigned long len);
-extern void *memset(void *ptr, int val, unsigned long len);
+extern __stdargs int memcmp(const void *ptr1, const void *ptr2, unsigned long len);
+extern __stdargs void *memcpy(void *dest, const void *src, unsigned long len);
+extern __stdargs void *memset(void *ptr, int val, unsigned long len);
 #else
-extern int memcmp(const void *ptr1, const void *ptr2, size_t len);
-extern void *memcpy(void *dest, const void *src, size_t len);
-extern void *memset(void *ptr, int val, size_t len);
+extern __stdargs int memcmp(const void *ptr1, const void *ptr2, size_t len);
+extern __stdargs void *memcpy(void *dest, const void *src, size_t len);
+extern __stdargs void *memset(void *ptr, int val, size_t len);
 #endif /* __GNUC__ && __GNUC__ < 3 */
 
 /****************************************************************************/
@@ -107,34 +107,34 @@ extern void *memset(void *ptr, int val, size_t len);
 
 /****************************************************************************/
 
-extern int strerror_r(int error,char * buffer,size_t buffer_size);
-extern char * index(const char *s, int c);
-extern char * rindex(const char *s, int c);
+extern __stdargs int strerror_r(int error,char * buffer,size_t buffer_size);
+extern __stdargs char * index(const char *s, int c);
+extern __stdargs char * rindex(const char *s, int c);
 
 /****************************************************************************/
 
-extern char * strdup(const char *s);
+extern __stdargs char * strdup(const char *s);
 
 #ifdef __MEM_DEBUG
-extern char * __strdup(const char *s,const char *file,int line);
+extern __stdargs char * __strdup(const char *s,const char *file,int line);
 
 #define strdup(s) __strdup((s),__FILE__,__LINE__)
 #endif /* __MEM_DEBUG */
 
 /****************************************************************************/
 
-extern void bcopy(const void *from,void *to,size_t len);
-extern void bzero(void *m,size_t len);
-extern int bcmp(const void *a,const void *b,size_t len);
+extern __stdargs void bcopy(const void *from,void *to,size_t len);
+extern __stdargs void bzero(void *m,size_t len);
+extern __stdargs int bcmp(const void *a,const void *b,size_t len);
 
 /****************************************************************************/
 
-extern size_t strlcpy(char *dst, const char *src, size_t siz);
-extern size_t strlcat(char *dst, const char *src, size_t siz);
+extern __stdargs size_t strlcpy(char *dst, const char *src, size_t siz);
+extern __stdargs size_t strlcat(char *dst, const char *src, size_t siz);
 
 /****************************************************************************/
 
-extern char * strtok_r(char *str, const char *separator_set,char ** state_ptr);
+extern __stdargs char * strtok_r(char *str, const char *separator_set,char ** state_ptr);
 
 /****************************************************************************/
 

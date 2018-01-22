@@ -50,7 +50,7 @@
 /****************************************************************************/
 
 #ifdef __cplusplus
-extern "C" {
+extern __stdargs "C" {
 #endif /* __cplusplus */
 
 /****************************************************************************/
@@ -66,13 +66,13 @@ extern "C" {
 
 #ifndef __NO_NET_API
 
-extern in_addr_t inet_addr(const char *cp);
-extern int inet_aton(const char *cp, struct in_addr *pin);
-extern in_addr_t inet_lnaof(struct in_addr in);
-extern struct in_addr inet_makeaddr(in_addr_t net, in_addr_t lna);
-extern in_addr_t inet_netof(struct in_addr in);
-extern in_addr_t inet_network(const char *cp);
-extern char *inet_ntoa(struct in_addr in);
+extern __stdargs in_addr_t inet_addr(const char *cp);
+extern __stdargs int inet_aton(const char *cp, struct in_addr *pin);
+extern __stdargs in_addr_t inet_lnaof(struct in_addr in);
+extern __stdargs struct in_addr inet_makeaddr(in_addr_t net, in_addr_t lna);
+extern __stdargs in_addr_t inet_netof(struct in_addr in);
+extern __stdargs in_addr_t inet_network(const char *cp);
+extern __stdargs char *inet_ntoa(struct in_addr in);
 
 #endif /* __NO_NET_API */
 

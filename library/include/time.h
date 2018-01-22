@@ -83,21 +83,21 @@ struct tm
 
 /****************************************************************************/
 
-extern clock_t clock(void);
-extern time_t time(time_t * t);
-extern char *asctime(const struct tm *tm);
-extern char *ctime(const time_t *t);
-extern struct tm *gmtime(const time_t *t);
-extern struct tm *localtime(const time_t *t);
-extern time_t mktime(struct tm *tm);
+extern __stdargs clock_t clock(void);
+extern __stdargs time_t time(time_t * t);
+extern __stdargs char *asctime(const struct tm *tm);
+extern __stdargs char *ctime(const time_t *t);
+extern __stdargs struct tm *gmtime(const time_t *t);
+extern __stdargs struct tm *localtime(const time_t *t);
+extern __stdargs time_t mktime(struct tm *tm);
 
 /****************************************************************************/
 
-extern double difftime(time_t t1,time_t t0);
+extern __stdargs double difftime(time_t t1,time_t t0);
 
 /****************************************************************************/
 
-extern size_t strftime(char *s, size_t maxsize, const char *format,
+extern __stdargs size_t strftime(char *s, size_t maxsize, const char *format,
 	const struct tm *tm);
 
 /****************************************************************************/
@@ -119,11 +119,11 @@ struct timespec
 
 /****************************************************************************/
 
-extern char * asctime_r(const struct tm *tm,char * buffer);
-extern char * ctime_r(const time_t *tptr,char * buffer);
-extern struct tm * gmtime_r(const time_t *t,struct tm * tm_ptr);
-extern struct tm * localtime_r(const time_t *t,struct tm * tm_ptr);
-extern void tzset(void);
+extern __stdargs char * asctime_r(const struct tm *tm,char * buffer);
+extern __stdargs char * ctime_r(const time_t *tptr,char * buffer);
+extern __stdargs struct tm * gmtime_r(const time_t *t,struct tm * tm_ptr);
+extern __stdargs struct tm * localtime_r(const time_t *t,struct tm * tm_ptr);
+extern __stdargs void tzset(void);
 
 /****************************************************************************/
 

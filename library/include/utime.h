@@ -67,7 +67,7 @@ struct utimbuf
 
 /****************************************************************************/
 
-extern int utime(const char * path_name,const struct utimbuf * times);
+extern __stdargs int utime(const char * path_name,const struct utimbuf * times);
 
 /****************************************************************************/
 

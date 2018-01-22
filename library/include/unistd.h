@@ -101,45 +101,45 @@ extern char * optarg;
 
 /****************************************************************************/
 
-extern int isatty(int file_descriptor);
-extern int dup(int file_descriptor);
-extern int dup2(int file_descriptor1, int file_descriptor2);
-extern int access(const char * path_name, int mode);
-extern int chown(const char * path_name, uid_t owner, gid_t group);
-extern int fchown(int file_descriptor, uid_t owner, gid_t group);
-extern int lchown(const char * path_name, uid_t owner, gid_t group);
-extern int truncate(const char * path_name, off_t length);
-extern int ftruncate(int file_descriptor, off_t length);
-extern int link(const char * existing_path,const char * new_path);
-extern int unlink(const char * path_name);
-extern int symlink(const char * actual_path, const char * symbolic_path);
-extern int readlink(const char * path_name, char * buffer, int buffer_size);
-extern int chdir(const char * path_name);
-extern int lockf(int file_descriptor, int function, off_t size);
-extern unsigned int sleep(unsigned int seconds);
-extern void usleep(unsigned long microseconds);
-extern int getopt(int argc, char * const argv[], const char *opts);
-extern pid_t getpid(void);
-extern char *realpath(const char *file_name, char *resolved_name);
-extern int fsync(int file_descriptor);
-extern int fdatasync(int file_descriptor);
-extern char *ttyname(int);
-extern int ttyname_r(int file_descriptor,char *name,size_t buflen);
-extern int ttyname_t(int,char *,size_t);
-extern int execl(const char *path,const char *arg0,...);
-extern int execle(const char *path,const char *arg0,...);
-extern int execlp(const char *path,const char *arg0,...);
-extern int execv(const char *path,char * const argv[]);
-extern int execve(const char *path,char *const argv[],char *const envp[]);
-extern int execvp(const char *command,char * const argv[]);
-extern int profil(unsigned short *buffer, size_t bufSize, size_t offset, unsigned int scale);
+extern __stdargs int isatty(int file_descriptor);
+extern __stdargs int dup(int file_descriptor);
+extern __stdargs int dup2(int file_descriptor1, int file_descriptor2);
+extern __stdargs int access(const char * path_name, int mode);
+extern __stdargs int chown(const char * path_name, uid_t owner, gid_t group);
+extern __stdargs int fchown(int file_descriptor, uid_t owner, gid_t group);
+extern __stdargs int lchown(const char * path_name, uid_t owner, gid_t group);
+extern __stdargs int truncate(const char * path_name, off_t length);
+extern __stdargs int ftruncate(int file_descriptor, off_t length);
+extern __stdargs int link(const char * existing_path,const char * new_path);
+extern __stdargs int unlink(const char * path_name);
+extern __stdargs int symlink(const char * actual_path, const char * symbolic_path);
+extern __stdargs int readlink(const char * path_name, char * buffer, int buffer_size);
+extern __stdargs int chdir(const char * path_name);
+extern __stdargs int lockf(int file_descriptor, int function, off_t size);
+extern __stdargs unsigned int sleep(unsigned int seconds);
+extern __stdargs void usleep(unsigned long microseconds);
+extern __stdargs int getopt(int argc, char * const argv[], const char *opts);
+extern __stdargs pid_t getpid(void);
+extern __stdargs char *realpath(const char *file_name, char *resolved_name);
+extern __stdargs int fsync(int file_descriptor);
+extern __stdargs int fdatasync(int file_descriptor);
+extern __stdargs char *ttyname(int);
+extern __stdargs int ttyname_r(int file_descriptor,char *name,size_t buflen);
+extern __stdargs int ttyname_t(int,char *,size_t);
+extern __stdargs int execl(const char *path,const char *arg0,...);
+extern __stdargs int execle(const char *path,const char *arg0,...);
+extern __stdargs int execlp(const char *path,const char *arg0,...);
+extern __stdargs int execv(const char *path,char * const argv[]);
+extern __stdargs int execve(const char *path,char *const argv[],char *const envp[]);
+extern __stdargs int execvp(const char *command,char * const argv[]);
+extern __stdargs int profil(unsigned short *buffer, size_t bufSize, size_t offset, unsigned int scale);
 
 /****************************************************************************/
 
-extern char * getcwd(char * buffer, size_t buffer_size);
+extern __stdargs char * getcwd(char * buffer, size_t buffer_size);
 
 #ifdef __MEM_DEBUG
-extern char * __getcwd(char * buffer,size_t buffer_size,const char *file,int line);
+extern __stdargs char * __getcwd(char * buffer,size_t buffer_size,const char *file,int line);
 
 #define getcwd(buffer,buffer_size) __getcwd((buffer),(buffer_size),__FILE__,__LINE__)
 #endif /* __MEM_DEBUG */
@@ -153,24 +153,24 @@ extern char * __getcwd(char * buffer,size_t buffer_size,const char *file,int lin
 
 #ifndef __NO_NET_API
 
-extern long gethostid(void);
-extern int gethostname(const char *name, size_t namelen);
-extern char *crypt(const char *key, const char *salt);
-extern gid_t getegid(void);
-extern uid_t geteuid(void);
-extern gid_t getgid(void);
-extern int getgroups(int gidsetsize, gid_t grouplist[]);
-extern char * getpass(const char *prompt);
-extern uid_t getuid(void);
-extern int initgroups(const char *name, gid_t basegid);
-extern int setegid(gid_t gid);
-extern int seteuid(uid_t uid);
-extern int setgid(gid_t gid);
-extern int setgroups(int ngroups, const gid_t *gidset);
-extern int setregid(gid_t rgid, gid_t egid);
-extern int setreuid(uid_t ruid, uid_t euid);
-extern pid_t setsid(void);
-extern int setuid(uid_t uid);
+extern __stdargs long gethostid(void);
+extern __stdargs int gethostname(const char *name, size_t namelen);
+extern __stdargs char *crypt(const char *key, const char *salt);
+extern __stdargs gid_t getegid(void);
+extern __stdargs uid_t geteuid(void);
+extern __stdargs gid_t getgid(void);
+extern __stdargs int getgroups(int gidsetsize, gid_t grouplist[]);
+extern __stdargs char * getpass(const char *prompt);
+extern __stdargs uid_t getuid(void);
+extern __stdargs int initgroups(const char *name, gid_t basegid);
+extern __stdargs int setegid(gid_t gid);
+extern __stdargs int seteuid(uid_t uid);
+extern __stdargs int setgid(gid_t gid);
+extern __stdargs int setgroups(int ngroups, const gid_t *gidset);
+extern __stdargs int setregid(gid_t rgid, gid_t egid);
+extern __stdargs int setreuid(uid_t ruid, uid_t euid);
+extern __stdargs pid_t setsid(void);
+extern __stdargs int setuid(uid_t uid);
 
 #endif /* __NO_NET_API */
 
@@ -207,8 +207,8 @@ extern int setuid(uid_t uid);
 
 /****************************************************************************/
 
-extern long pathconf(const char *path,int name);
-extern long fpathconf(int file_descriptor,int name);
+extern __stdargs long pathconf(const char *path,int name);
+extern __stdargs long fpathconf(int file_descriptor,int name);
 
 /****************************************************************************/
 

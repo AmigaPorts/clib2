@@ -71,10 +71,10 @@ struct option
 
 /****************************************************************************/
 
-extern int getopt_long(int argc, const char **argv, const char *optstring,
+extern __stdargs int getopt_long(int argc, const char **argv, const char *optstring,
 		const struct option *longopts, int *longindex);
 
-/*extern int getopt_long_only(int argc, const char **argv, const char *optstring,
+/*extern __stdargs int getopt_long_only(int argc, const char **argv, const char *optstring,
 		const struct option *longopts, int *longindex);
 */
 extern int optreset;

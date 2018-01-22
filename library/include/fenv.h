@@ -68,10 +68,10 @@ typedef int fenv_t;
 
 /****************************************************************************/
 
-extern int fegetenv(fenv_t * envp);
-extern int fesetenv(fenv_t * envp);
-extern int feholdexcept(fenv_t * envp);
-extern int feupdateenv(const fenv_t * envp);
+extern __stdargs int fegetenv(fenv_t * envp);
+extern __stdargs int fesetenv(fenv_t * envp);
+extern __stdargs int feholdexcept(fenv_t * envp);
+extern __stdargs int feupdateenv(const fenv_t * envp);
 
 /****************************************************************************/
 
@@ -88,11 +88,11 @@ typedef int fexcept_t;
 
 /****************************************************************************/
 
-extern int fegetexceptflag(fexcept_t *flagp,int excepts);
-extern int fesetexceptflag(const fexcept_t *flagp,int excepts);
-extern int fetestexcept(int excepts);
-extern int feraiseexcept(int excepts);
-extern int feclearexcept(int excepts);
+extern __stdargs int fegetexceptflag(fexcept_t *flagp,int excepts);
+extern __stdargs int fesetexceptflag(const fexcept_t *flagp,int excepts);
+extern __stdargs int fetestexcept(int excepts);
+extern __stdargs int feraiseexcept(int excepts);
+extern __stdargs int feclearexcept(int excepts);
 
 /****************************************************************************/
 
@@ -103,8 +103,8 @@ extern int feclearexcept(int excepts);
 
 /****************************************************************************/
 
-extern int fegetround(void);
-extern int fetestround(int rounds);
+extern __stdargs int fegetround(void);
+extern __stdargs int fetestround(int rounds);
 
 /****************************************************************************/
 

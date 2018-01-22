@@ -79,10 +79,10 @@ struct dirent
 
 /****************************************************************************/
 
-extern DIR * opendir(const char * path_name);
-extern struct dirent * readdir(DIR * directory_pointer);
-extern void rewinddir(DIR * directory_pointer);
-extern int closedir(DIR * directory_pointer);
+extern __stdargs DIR * opendir(const char * path_name);
+extern __stdargs struct dirent * readdir(DIR * directory_pointer);
+extern __stdargs void rewinddir(DIR * directory_pointer);
+extern __stdargs int closedir(DIR * directory_pointer);
 
 /****************************************************************************/
 

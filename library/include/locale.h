@@ -112,8 +112,8 @@ struct lconv
 
 /****************************************************************************/
 
-extern char *setlocale(int category, const char *locale);
-extern struct lconv *localeconv(void);
+extern __stdargs char *setlocale(int category, const char *locale);
+extern __stdargs struct lconv *localeconv(void);
 
 /****************************************************************************/
 
