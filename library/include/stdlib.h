@@ -175,7 +175,7 @@ extern __stdargs int rand_r(unsigned int * seed);
  * unsigned long __slab_max_size = 4096;
  */
 
-extern __stdargs unsigned long __slab_max_size;
+extern unsigned long __slab_max_size;
 
 /*
  * The slab allocator will periodically free all currently unused memory.
@@ -188,7 +188,7 @@ extern __stdargs unsigned long __slab_max_size;
  * unsigned long __slab_purge_threshold = 512 * 1024;
  */
 
-extern __stdargs unsigned long __slab_purge_threshold;
+extern unsigned long __slab_purge_threshold;
 
 /****************************************************************************/
 
@@ -291,11 +291,11 @@ struct __slab_usage_information
 
 /****************************************************************************/
 
-typedef int (*__slab_usage_callback)(const struct __slab_usage_information * sui);
+typedef __stdargs int (*__slab_usage_callback)(const struct __slab_usage_information * sui);
 
 /****************************************************************************/
 
-void __get_slab_usage(__slab_usage_callback callback);
+extern __stdargs void __get_slab_usage(__slab_usage_callback callback);
 
 /****************************************************************************/
 
@@ -353,11 +353,11 @@ struct __slab_allocation_information
 
 /****************************************************************************/
 
-typedef int (*__slab_allocation_callback)(const struct __slab_allocation_information * sui);
+typedef __stdargs int (*__slab_allocation_callback)(const struct __slab_allocation_information * sui);
 
 /****************************************************************************/
 
-void __get_slab_allocations(__slab_allocation_callback callback);
+extern __stdargs void __get_slab_allocations(__slab_allocation_callback callback);
 
 /****************************************************************************/
 
@@ -378,7 +378,7 @@ void __get_slab_allocations(__slab_allocation_callback callback);
  * break a Forbid() or Disable() condition.
  */
 
-typedef int (* __slab_status_callback)(void * user_data, const char * line, size_t line_length);
+typedef __stdargs int (* __slab_status_callback)(void * user_data, const char * line, size_t line_length);
 
 /****************************************************************************/
 
