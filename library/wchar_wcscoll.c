@@ -1,5 +1,5 @@
 /*
- * $Id: wchar_wmemchr.c,v 1.3 2006-01-08 12:04:27 obarthel Exp $
+ * $Id: wchar_wscoll.c,v 1.3 2006-01-08 12:04:27 obarthel Exp $
  *
  * :ts=4
  *
@@ -37,11 +37,9 @@
 
 /****************************************************************************/
 
-/* Implementation based on musl */
-
-wchar_t *
-wmemchr(const wchar_t *ptr, wchar_t val, size_t len)
+int
+wcscoll(const wchar_t *ws1, const wchar_t *ws2)
 {
-	for (; len && *ptr != val; len--, ptr++);
-	return len ? (wchar_t *)ptr : 0;
+	/* ZZZ unimplemented */
+	return(0);
 }
