@@ -83,9 +83,10 @@ no_bss:
 	jmp	__main
 
 |-----------------------------------------------------------------------------
-
+	.globl ___restore_a4
 	.globl	_geta4
 
+___restore_a4:
 _geta4:
 
 #if defined(SMALL_DATA)
