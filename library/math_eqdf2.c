@@ -73,3 +73,13 @@ ___eqdf2:
 /****************************************************************************/
 
 #endif /* IEEE_FLOATING_POINT_SUPPORT */
+
+
+#include "stabs.h"
+
+ALIAS(__cmpdf2,__eqdf2);
+ALIAS(__gedf2,__eqdf2);
+ALIAS(__nedf2,__eqdf2);
+ALIAS(__gtdf2,__eqdf2);
+ALIAS(__ltdf2,__eqdf2);
+ALIAS(__ledf2,__eqdf2);

@@ -52,7 +52,9 @@ extern "C" {
 extern int errno;
 
 /****************************************************************************/
-
+#define _REENT_ONLY
+#include_next <errno.h>
+#if 0
 #define EPERM			1	/* Operation not permitted */
 #define ENOENT			2	/* No such file or directory */
 #define ESRCH			3	/* No such process */
@@ -165,7 +167,7 @@ extern int errno;
 #define EOVERFLOW		84	/* Value too large to be stored in data type. */
 
 #define EILSEQ			85	/* Encoding error detected */
-
+#endif
 /****************************************************************************/
 
 #ifdef __cplusplus

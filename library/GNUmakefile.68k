@@ -487,7 +487,19 @@ C_LIB = \
 	unistd_unlink_retries.o \
 	unistd_usleep.o \
 	utime_utime.o \
-	utsname_uname.o
+	utsname_uname.o \
+	wchar_btowc.o     wchar_mbrlen.o     wchar_vwprintf.o  wchar_wcsncmp.o    wchar_wcsxfrm.o   wctype_iswalnum.o  wctype_iswupper.o \
+	wchar_fgetwc.o    wchar_mbrtowc.o    wchar_wcrtomb.o   wchar_wcsncpy.o    wchar_wctob.o     wctype_iswalpha.o  wctype_iswxdigit.o \
+	wchar_fgetws.o    wchar_mbsinit.o    wchar_wcscat.o    wchar_wcspbrk.o    wchar_wmemchr.o   wctype_iswblank.o  wctype_towctrans.o \
+	wchar_fputwc.o    wchar_mbsrtowcs.o  wchar_wcschr.o    wchar_wcsrtombs.o  wchar_wmemcmp.o   wctype_iswcntrl.o  wctype_towlower.o \
+	wchar_fputws.o    wchar_putwc.o      wchar_wcscmp.o    wchar_wcsspn.o     wchar_wmemcpy.o   wctype_iswctype.o  wctype_towupper.o \
+	wchar_fwide.o     wchar_putwchar.o   wchar_wcscoll.o   wchar_wcstod.o     wchar_wmemmove.o  wctype_iswdigit.o  wctype_wctrans.o \
+	wchar_fwprintf.o  wchar_swprintf.o   wchar_wcscpy.o    wchar_wcstok.o     wchar_wmemset.o   wctype_iswgraph.o  wctype_wctype.o \
+	wchar_fwscanf.o   wchar_swscanf.o    wchar_wcscspn.o   wchar_wcstol.o     wchar_wprintf.o   wctype_iswlower.o \
+	wchar_getwc.o     wchar_ungetwc.o    wchar_wcsftime.o  wchar_wcstoll.o    wchar_wscanf.o    wctype_iswprint.o \
+	wchar_getwchar.o  wchar_vfwprintf.o  wchar_wcslen.o    wchar_wcstoul.o    wchar_wscoll.o    wctype_iswpunc.o \
+	wchar_vswprintf.o  wchar_wcsncat.o   wchar_wcstoull.o  wctype_iswspace.o
+	
 
 UNIX_LIB = \
 	unix.lib_rev.o \

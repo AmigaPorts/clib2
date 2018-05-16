@@ -162,3 +162,8 @@ setlocale(int category, const char *locale)
 	RETURN(result);
 	return(result);
 }
+
+
+int __locale_mb_cur_max (void) {
+	return 0xff;
+}

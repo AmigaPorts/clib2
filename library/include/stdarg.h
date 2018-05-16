@@ -53,7 +53,22 @@ extern "C" {
 
 /****************************************************************************/
 
-typedef char * va_list;
+#ifndef __GNUC_VA_LIST
+#define __GNUC_VA_LIST
+typedef __builtin_va_list __gnuc_va_list;
+#endif 
+
+#ifndef __VALIST
+#ifdef __GNUC__
+#define __VALIST __gnuc_va_list
+#else
+#define __VALIST char*
+#endif
+#endif 
+
+#ifndef __va_list__
+typedef void * va_list; 
+#endif
 
 /****************************************************************************/
 

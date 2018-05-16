@@ -63,6 +63,20 @@
 extern "C" {
 #endif /* __cplusplus */
 
+#ifndef __machine_mbstate_t_defined
+/* Conversion state information.  */
+typedef struct
+{
+  int __count;
+  union
+  {
+    wint_t __wch;
+    unsigned char __wchb[4];
+  } __value;		/* Value so far.  */
+} _mbstate_t;
+#define __machine_mbstate_t_defined
+#endif 
+
 /****************************************************************************/
 
 typedef char * caddr_t;

@@ -125,7 +125,7 @@ typedef long fpos_t;
  * change in future library releases. However, the private portion of this
  * data structure may change.
  */
-typedef struct
+typedef struct __FILE
 {
 	unsigned long	flags;				/* See below for some of the public
 										   flag bits defined; this is by no

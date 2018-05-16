@@ -71,8 +71,14 @@ typedef	signed char				int_least8_t;
 typedef	signed short			int_least16_t;
 typedef	signed int				int_least32_t;
 typedef	unsigned char			uint_least8_t;
-typedef	unsigned short			uint_least16_t;
+#ifdef __UINT_LEAST16_TYPE__
+typedef	__UINT_LEAST16_TYPE__		uint_least16_t;
+#undef __UINT_LEAST16_TYPE__
+#endif
+#ifdef __UINT_LEAST32_TYPE__
 typedef	unsigned int			uint_least32_t;
+#undef __UINT_LEAST32_TYPE__
+#endif
 
 /* This is mostly guesswork. */
 typedef	signed char				int_fast8_t;

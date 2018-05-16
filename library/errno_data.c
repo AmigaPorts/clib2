@@ -38,3 +38,15 @@
 /****************************************************************************/
 
 int errno;
+
+int *__errno (void) {
+	return &errno;
+}
+
+ struct _reent *_impure_ptr __ATTRIBUTE_IMPURE_PTR__;
+ 
+ int __stdargs
+ ioctl (int fd, unsigned long cmd, ...)
+ {
+   return -1;
+ }

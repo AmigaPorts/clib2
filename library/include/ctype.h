@@ -77,14 +77,6 @@ extern __stdargs int toupper(int c);
  * 'C' locale rules.
  */
 
-#ifdef __C_MACROS__
-
-/****************************************************************************/
-
-extern const unsigned char __ctype_table[];
-
-/****************************************************************************/
-
 #define __CTYPE_CONTROL		0x01	/* This is a control character */
 #define __CTYPE_DIGIT		0x02	/* This is a 'decimal' digit */
 #define __CTYPE_HEX_DIGIT	0x04	/* This is a hexadecimal digit */
@@ -93,6 +85,38 @@ extern const unsigned char __ctype_table[];
 #define __CTYPE_WHITE_SPACE	0x20	/* This is a blank space character */
 #define __CTYPE_LOWER_CASE	0x40	/* This is a lower case letter */
 #define __CTYPE_UPPER_CASE	0x80	/* This is an upper case letter */
+
+#if 0
+// or this one?
+#define	_U	01
+#define	_L	02
+#define	_N	04
+#define	_S	010
+#define _P	020
+#define _C	040
+#define _X	0100
+#define	_B	0200 
+
+#else
+
+#define	_U	__CTYPE_UPPER_CASE
+#define	_L	__CTYPE_LOWER_CASE
+#define	_N	__CTYPE_DIGIT
+#define	_S	__CTYPE_WHITE_SPACE
+#define _P	__CTYPE_PUNCTUATION
+#define _C	__CTYPE_CONTROL
+#define _X	__CTYPE_HEX_DIGIT
+#define _B	__CTYPE_PRINTABLE
+#endif
+
+
+#ifdef __C_MACROS__
+
+/****************************************************************************/
+
+extern const unsigned char __ctype_table[];
+
+/****************************************************************************/
 
 /****************************************************************************/
 

@@ -59,13 +59,23 @@ extern "C" {
 
 /****************************************************************************/
 
-typedef int ptrdiff_t;
-typedef unsigned int size_t;
+typedef __PTRDIFF_TYPE__ ptrdiff_t;
+typedef __SIZE_TYPE__ size_t;
 
 /* wchar_t is a built-in type in C++ */
 #ifndef __cplusplus
 typedef unsigned short wchar_t;
 #endif
+
+#ifndef _WINT_T
+#define _WINT_T
+
+#ifndef __WINT_TYPE__
+#define __WINT_TYPE__ unsigned int
+#endif
+typedef __WINT_TYPE__ wint_t;
+#endif
+#undef __need_wint_t
 
 /****************************************************************************/
 

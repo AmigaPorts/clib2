@@ -176,3 +176,5 @@ const unsigned char __ctype_table[2 * 128] =
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 };
+
+const unsigned char * const _ctype_= __ctype_table;
