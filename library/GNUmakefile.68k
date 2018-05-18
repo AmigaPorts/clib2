@@ -498,7 +498,8 @@ C_LIB = \
 	wchar_fwscanf.o   wchar_swscanf.o    wchar_wcscspn.o   wchar_wcstol.o     wchar_wprintf.o   wctype_iswlower.o \
 	wchar_getwc.o     wchar_ungetwc.o    wchar_wcsftime.o  wchar_wcstoll.o    wchar_wscanf.o    wctype_iswprint.o \
 	wchar_getwchar.o  wchar_vfwprintf.o  wchar_wcslen.o    wchar_wcstoul.o    wchar_wscoll.o    wctype_iswpunc.o \
-	wchar_vswprintf.o  wchar_wcsncat.o   wchar_wcstoull.o  wctype_iswspace.o
+	wchar_vswprintf.o  wchar_wcsncat.o   wchar_wcstoull.o  wctype_iswspace.o \
+	sys_ioctl.o
 	
 
 UNIX_LIB = \
