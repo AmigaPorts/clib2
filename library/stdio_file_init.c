@@ -30,7 +30,7 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-
+#define _ERRNO_H
 #ifndef _STDIO_HEADERS_H
 #include "stdio_headers.h"
 #endif /* _STDIO_HEADERS_H */
@@ -396,6 +396,12 @@ FILE_CONSTRUCTOR(stdio_file_init)
 		PROFILE_ON();
 	}
 	#endif /* __THREAD_SAFE */
+
+	// errno has stdin,stdout,stderr attached for a minimal newlib compatibility
+	extern int errno[4];
+	errno[1] = (int)__fd[STDIN_FILENO];
+	errno[2] = (int)__fd[STDOUT_FILENO];
+	errno[3] = (int)__fd[STDERR_FILENO];
 
 	success = TRUE;
 

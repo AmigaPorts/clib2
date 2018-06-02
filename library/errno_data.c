@@ -31,14 +31,18 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _ERRNO_H
-#include <errno.h>
-#endif /* _ERRNO_H */
+//#ifndef _ERRNO_H
+//#include <errno.h>
+//#endif /* _ERRNO_H */
 
 /****************************************************************************/
 
-int errno;
+// errno has stdin,stdout,stderr attached for a minimal newlib compatibility
+int errno[4];
 
 int *__errno (void) {
-	return &errno;
+	return &errno[0];
 }
+
+// provide a minimal reent structure.
+int * _impure_ptr = &errno[0];
