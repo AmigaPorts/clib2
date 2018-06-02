@@ -50,13 +50,13 @@
 /*#define USE_LONG_DOUBLE*/
 
 /****************************************************************************/
-
+#if 0
 #if defined(USE_LONG_DOUBLE)
  typedef long double __long_double_t;
 #else
  typedef double __long_double_t;
 #endif /* USE_LONG_DOUBLE */
-
+#endif
 /****************************************************************************/
 
 /* 'Portable' raw representations of three IEEE floating point formats. */

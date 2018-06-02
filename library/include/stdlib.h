@@ -62,16 +62,19 @@ extern "C" {
 /****************************************************************************/
 
 /* Maximum number of bytes in a multibyte character */
+#undef  MB_CUR_MAX
 #define MB_CUR_MAX 2
 
 /****************************************************************************/
 
 /* The maximum value that can be returned by the rand() function */
+#undef  RAND_MAX
 #define RAND_MAX 2147483647
 
 /****************************************************************************/
 
 /* Return values to be passed to exit() */
+#undef  EXIT_FAILURE
 #define EXIT_FAILURE 20
 #define EXIT_SUCCESS 0
 
