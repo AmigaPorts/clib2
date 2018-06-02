@@ -39,6 +39,8 @@
  */
 
 #ifndef _STDLIB_H
+#include <sys/types.h>
+#include_next <stdlib.h>
 #define _STDLIB_H
 
 /****************************************************************************/
@@ -76,8 +78,8 @@ extern "C" {
 /****************************************************************************/
 
 /* Data structures used by the div() and ldiv() functions */
-typedef struct { int quot; int rem; } div_t;
-typedef struct { long quot; long rem; } ldiv_t;
+//typedef struct { int quot; int rem; } div_t;
+//typedef struct { long quot; long rem; } ldiv_t;
 
 /****************************************************************************/
 
@@ -442,7 +444,7 @@ extern __stdargs long long atoll(const char *str);
 
 /****************************************************************************/
 
-typedef struct { long long quot; long long rem; } lldiv_t;
+//typedef struct { long long quot; long long rem; } lldiv_t;
 
 /****************************************************************************/
 
