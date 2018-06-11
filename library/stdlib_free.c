@@ -522,7 +522,8 @@ __free_memory(void * ptr,BOOL force,const char * file,int line)
 {
 	struct MemoryNode * mn;
 
-	assert(ptr != NULL);
+	if (!ptr)
+		return;
 
 	SHOWPOINTER(ptr);
 	SHOWVALUE(force);
