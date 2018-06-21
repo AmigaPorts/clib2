@@ -178,3 +178,9 @@ const unsigned char __ctype_table[2 * 128] =
 };
 
 const unsigned char * const _ctype_= __ctype_table;
+
+const unsigned char *
+__locale_ctype_ptr (void)
+{
+  return __ctype_table;
+}
