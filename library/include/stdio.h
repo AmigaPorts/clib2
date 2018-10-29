@@ -127,13 +127,6 @@ typedef long fpos_t;
  */
 typedef struct __FILE
 {
-	unsigned long	flags;				/* See below for some of the public
-										   flag bits defined; this is by no
-										   means a complete list, though! */
-	unsigned char *	buffer;				/* Points to the first byte of the
-										   buffer; this could be NULL! */
-	long			size;				/* How many bytes will fit into the
-										   buffer; this could be 0! */
 	long			position;			/* Current buffer position, which is
 										   usually a number between 0 and
 										   size-1 */
@@ -142,6 +135,14 @@ typedef struct __FILE
 	long			num_write_bytes;	/* How many bytes have been copied
 										   to the buffer which have not been
 										   written back yet; this can be 0! */
+	unsigned short	flags;				/* See below for some of the public
+										   flag bits defined; this is by no
+										   means a complete list, though! */
+	short _file;
+	unsigned char *	buffer;				/* Points to the first byte of the
+										   buffer; this could be NULL! */
+	long			size;				/* How many bytes will fit into the
+										   buffer; this could be 0! */
 
 	/* Private fields follow... */
 } FILE;
@@ -150,11 +151,11 @@ typedef struct __FILE
 
 /* Field and flag definitions for the getc/putc macros below. */
 #define __FILE_BUFFER_MASK	3		/* Masks off the buffering mode */
-#define __FILE_EOF			(1<<2)	/* EOF reached */
-#define __FILE_READABLE		(1<<3)	/* File is readable */
-#define __FILE_WRITABLE		(1<<4)	/* File is writable */
-#define __FILE_IN_USE		(1<<5)	/* File is in use */
-#define __FILE_ERROR		(1<<6)	/* Error detected */
+#define __FILE_EOF			0x20	/* (1<<2)	/ * EOF reached */
+#define __FILE_READABLE		0x04	/* (1<<3)	/ * File is readable */
+#define __FILE_WRITABLE		0x08	/* (1<<4)	/ * File is writable */
+#define __FILE_IN_USE		0x800	/* (1<<5)	/ * File is in use */
+#define __FILE_ERROR		0x40	/* (1<<6)	/ * Error detected */
 
 /****************************************************************************/
 
