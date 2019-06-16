@@ -64,7 +64,7 @@ typedef __SIZE_TYPE__ size_t;
 
 /* wchar_t is a built-in type in C++ */
 #ifndef __cplusplus
-typedef unsigned short wchar_t;
+typedef unsigned int wchar_t;
 #endif
 
 #ifndef _WINT_T
