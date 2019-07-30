@@ -107,77 +107,77 @@ extern __stdargs long double cargl(long double complex z);
 
 #if 0
 
-extern double complex cacos(double complex z);
-extern float complex cacosf(float complex z);
-extern long double complex cacosl(long double complex z);
+extern __stdargs double complex cacos(double complex z);
+extern __stdargs float complex cacosf(float complex z);
+extern __stdargs long double complex cacosl(long double complex z);
 
-extern double complex casin(double complex z);
-extern float complex casinf(float complex z);
-extern long double complex casinl(long double complex z);
+extern __stdargs double complex casin(double complex z);
+extern __stdargs float complex casinf(float complex z);
+extern __stdargs long double complex casinl(long double complex z);
 
-extern double complex catan(double complex z);
-extern float complex catanf(float complex z);
-extern long double complex catanl(long double complex z);
+extern __stdargs double complex catan(double complex z);
+extern __stdargs float complex catanf(float complex z);
+extern __stdargs long double complex catanl(long double complex z);
 
-extern double complex ccos(double complex z);
-extern float complex ccosf(float complex z);
-extern long double complex ccosl(long double complex z);
+extern __stdargs double complex ccos(double complex z);
+extern __stdargs float complex ccosf(float complex z);
+extern __stdargs long double complex ccosl(long double complex z);
 
-extern double complex csin(double complex z);
-extern float complex csinf(float complex z);
-extern long double complex csinl(long double complex z);
+extern __stdargs double complex csin(double complex z);
+extern __stdargs float complex csinf(float complex z);
+extern __stdargs long double complex csinl(long double complex z);
 
-extern double complex ctan(double complex z);
-extern float complex ctanf(float complex z);
-extern long double complex ctanl(long double complex z);
+extern __stdargs double complex ctan(double complex z);
+extern __stdargs float complex ctanf(float complex z);
+extern __stdargs long double complex ctanl(long double complex z);
 
-extern double complex cacosh(double complex z);
-extern float complex cacoshf(float complex z);
-extern long double complex cacoshl(long double complex z);
+extern __stdargs double complex cacosh(double complex z);
+extern __stdargs float complex cacoshf(float complex z);
+extern __stdargs long double complex cacoshl(long double complex z);
 
-extern double complex casinh(double complex z);
-extern float complex casinhf(float complex z);
-extern long double complex casinhl(long double complex z);
+extern __stdargs double complex casinh(double complex z);
+extern __stdargs float complex casinhf(float complex z);
+extern __stdargs long double complex casinhl(long double complex z);
 
-extern double complex catanh(double complex z);
-extern float complex catanhf(float complex z);
-extern long double complex catanhl(long double complex z);
+extern __stdargs double complex catanh(double complex z);
+extern __stdargs float complex catanhf(float complex z);
+extern __stdargs long double complex catanhl(long double complex z);
 
-extern double complex ccosh(double complex z);
-extern float complex ccoshf(float complex z);
-extern long double complex ccoshl(long double complex z);
+extern __stdargs double complex ccosh(double complex z);
+extern __stdargs float complex ccoshf(float complex z);
+extern __stdargs long double complex ccoshl(long double complex z);
 
-extern double complex csinh(double complex z);
-extern float complex csinhf(float complex z);
-extern long double complex csinhl(long double complex z);
+extern __stdargs double complex csinh(double complex z);
+extern __stdargs float complex csinhf(float complex z);
+extern __stdargs long double complex csinhl(long double complex z);
 
-extern double complex ctanh(double complex z);
-extern float complex ctanhf(float complex z);
-extern long double complex ctanhl(long double complex z);
+extern __stdargs double complex ctanh(double complex z);
+extern __stdargs float complex ctanhf(float complex z);
+extern __stdargs long double complex ctanhl(long double complex z);
 
-extern double complex cexp(double complex z);
-extern float complex cexpf(float complex z);
-extern long double complex cexpl(long double complex z);
+extern __stdargs double complex cexp(double complex z);
+extern __stdargs float complex cexpf(float complex z);
+extern __stdargs long double complex cexpl(long double complex z);
 
-extern double complex clog(double complex z);
-extern float complex clogf(float complex z);
-extern long double complex clogl(long double complex z);
+extern __stdargs double complex clog(double complex z);
+extern __stdargs float complex clogf(float complex z);
+extern __stdargs long double complex clogl(long double complex z);
 
-extern double cabs(double complex z);
-extern float cabsf(float complex z);
-extern long double cabsl(long double complex z);
+extern __stdargs double cabs(double complex z);
+extern __stdargs float cabsf(float complex z);
+extern __stdargs long double cabsl(long double complex z);
 
-extern double complex cpow(double complex z);
-extern float complex cpowf(float complex z);
-extern long double complex cpowl(long double complex z);
+extern __stdargs double complex cpow(double complex z);
+extern __stdargs float complex cpowf(float complex z);
+extern __stdargs long double complex cpowl(long double complex z);
 
-extern double complex csqrt(double complex z);
-extern float complex csqrtf(float complex z);
-extern long double complex csqrtl(long double complex z);
+extern __stdargs double complex csqrt(double complex z);
+extern __stdargs float complex csqrtf(float complex z);
+extern __stdargs long double complex csqrtl(long double complex z);
 
-extern double complex cproj(double complex z);
-extern float complex cprojf(float complex z);
-extern long double complex cprojl(long double complex z);
+extern __stdargs double complex cproj(double complex z);
+extern __stdargs float complex cprojf(float complex z);
+extern __stdargs long double complex cprojl(long double complex z);
 
 #endif
 
