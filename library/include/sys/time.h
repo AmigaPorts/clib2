@@ -106,8 +106,14 @@ extern "C" {
 /* We will have to make our own... */
 struct timeval
 {
+  union {
+	unsigned long tv_sec;
 	unsigned long tv_secs;
+  };
+  union {
+	unsigned long tv_usecs;
 	unsigned long tv_micro;
+  };
 };
 
 /* Make sure that the 'struct timeval' is not redefined, should
@@ -119,14 +125,6 @@ struct timeval
 #endif /* !__TIMEVAL_ALREADY_DEFINED */
 
 /****************************************************************************/
-
-#ifndef tv_sec
-#define tv_sec tv_secs
-#endif /* tv_sec */
-
-#ifndef tv_usec
-#define tv_usec tv_micro
-#endif /* tv_usec */
 
 /****************************************************************************/
 
