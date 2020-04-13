@@ -105,8 +105,6 @@ extern __stdargs size_t strftime(char *s, size_t maxsize, const char *format,
 /* The following is not part of the ISO 'C' (1994) standard. */
 
 /****************************************************************************/
-#ifndef _TIMEVAL_DEFINED
-#define _TIMEVAL_DEFINED
 
 /* Timespec declaration */
 struct timespec
@@ -117,7 +115,7 @@ struct timespec
   };
 	long tv_nsec;
 };
-#endif
+
 /****************************************************************************/
 
 extern __stdargs char * asctime_r(const struct tm *tm,char * buffer);
