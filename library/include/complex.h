@@ -66,9 +66,10 @@
 
 /****************************************************************************/
 
-#if !defined(__STDC_VERSION__) || (__GNUC__ < 3 && __STDC_VERSION__ < 199901L)
+#if (!defined(__STDC_VERSION__) && __GCC_IEC_559_COMPLEX < 1) || \
+    (__GNUC__ < 3 && __STDC_VERSION__ < 199901L)
 #error Complex numbers are not supported by/for this compiler.
-#endif /* __GNUC__ && __STDC_VERSION__ */
+#endif /* __GNUC__ && __STDC_VERSION__ || __GCC_IEC_559_COMPLEX */
 
 /****************************************************************************/
 
