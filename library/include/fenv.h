@@ -110,6 +110,7 @@ extern __stdargs int feclearexcept(int excepts);
 /****************************************************************************/
 
 extern __stdargs int fegetround(void);
+extern __stdargs int fesetround(int mode);
 extern __stdargs int fetestround(int rounds);
 
 /****************************************************************************/

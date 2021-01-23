@@ -40,6 +40,7 @@ MATH_LIB := \
 	fenv_feraiseexcept.o \
 	fenv_fesetenv.o \
 	fenv_fesetexceptflag.o \
+	fenv_fesetround.o \
 	fenv_fetestexcept.o \
 	fenv_fetestround.o \
 	fenv_feupdateenv.o \
