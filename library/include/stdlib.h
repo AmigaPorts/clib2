@@ -157,6 +157,7 @@ extern __stdargs void qsort(void *base,size_t count,size_t size,
 
 extern __stdargs double strtod(const char *str, char ** ptr);
 extern __stdargs long strtol(const char *str, char **ptr, int base);
+extern __stdargs long double strtold(const char *str, char **ptr);
 extern __stdargs unsigned long strtoul(const char *str, char **ptr, int base);
 
 /****************************************************************************/

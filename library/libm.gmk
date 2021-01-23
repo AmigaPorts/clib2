@@ -252,6 +252,7 @@ MATH_LIB := \
 	stdlib_atof.o \
 	stdlib_strtod.o \
 	stdlib_strtof.o \
+	stdlib_strtold.o \
 	time_difftime.o
 
 ##############################################################################

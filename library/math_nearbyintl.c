@@ -12,7 +12,7 @@
 
 /****************************************************************************/
 
-#if LDBL_MANT_DIG == DBL_MANT_DIG && LDBL_MAX_EXP == DBL_MANT_DIG
+#if LDBL_MANT_DIG == DBL_MANT_DIG && LDBL_MAX_EXP == DBL_MAX_EXP
 
 /****************************************************************************/
 
@@ -24,7 +24,7 @@ nearbyintl(long double x)
 
 /****************************************************************************/
 
-#endif /* LDBL_MANT_DIG == DBL_MANT_DIG && LDBL_MAX_EXP == DBL_MANT_DIG */
+#endif /* LDBL_MANT_DIG == DBL_MANT_DIG && LDBL_MAX_EXP == DBL_MAX_EXP */
 
 /****************************************************************************/
 

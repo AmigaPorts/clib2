@@ -12,19 +12,19 @@
 
 /****************************************************************************/
 
-#if LDBL_MANT_DIG == DBL_MANT_DIG && LDBL_MAX_EXP == DBL_MANT_DIG
+#if LDBL_MANT_DIG == DBL_MANT_DIG && LDBL_MAX_EXP == DBL_MAX_EXP
 
 /****************************************************************************/
 
 long double
 frexpl(long double x, int *nptr)
 {
-    return frexp(x, y);
+    return frexp(x, nptr);
 }
 
 /****************************************************************************/
 
-#endif /* LDBL_MANT_DIG == DBL_MANT_DIG && LDBL_MAX_EXP == DBL_MANT_DIG */
+#endif /* LDBL_MANT_DIG == DBL_MANT_DIG && LDBL_MAX_EXP == DBL_MAX_EXP */
 
 /****************************************************************************/
 
