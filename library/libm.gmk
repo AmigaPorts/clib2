@@ -56,6 +56,9 @@ MATH_LIB := \
 	complex_csin.o \
 	complex_csinf.o \
 	complex_csinl.o \
+	complex_csinh.o \
+	complex_csinhf.o \
+	complex_csinhl.o \
 	fenv_feclearexcept.o \
 	fenv_fegetenv.o \
 	fenv_fegetexceptflag.o \

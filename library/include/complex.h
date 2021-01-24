@@ -142,6 +142,10 @@ extern double complex ctan(double complex z);
 extern float complex ctanf(float complex z);
 extern long double complex ctanl(long double complex z);
 
+extern double complex csinh(double complex z);
+extern float complex csinhf(float complex z);
+extern long double complex csinhl(long double complex z);
+
 /****************************************************************************/
 
 /* Unimplemented functions (so far)... */
@@ -161,10 +165,6 @@ extern __stdargs long double complex catanhl(long double complex z);
 extern __stdargs double complex ccosh(double complex z);
 extern __stdargs float complex ccoshf(float complex z);
 extern __stdargs long double complex ccoshl(long double complex z);
-
-extern __stdargs double complex csinh(double complex z);
-extern __stdargs float complex csinhf(float complex z);
-extern __stdargs long double complex csinhl(long double complex z);
 
 extern __stdargs double complex ctanh(double complex z);
 extern __stdargs float complex ctanhf(float complex z);
