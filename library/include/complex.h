@@ -178,19 +178,9 @@ extern double complex csqrt(double complex z);
 extern float complex csqrtf(float complex z);
 extern long double complex csqrtl(long double complex z);
 
-/****************************************************************************/
-
-/* Unimplemented functions (so far)... */
-
-/****************************************************************************/
-
-#if 0
-
 extern __stdargs double complex cproj(double complex z);
 extern __stdargs float complex cprojf(float complex z);
 extern __stdargs long double complex cprojl(long double complex z);
-
-#endif
 
 /****************************************************************************/
 
