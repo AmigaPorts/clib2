@@ -13,7 +13,7 @@
 /****************************************************************************/
 
 extern float
-complex cacosf(float complex z)
+complex ccosf(float complex z)
 {
     return ccoshf(CMPLXF(-cimagf(z), crealf(z)));
 }

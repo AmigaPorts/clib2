@@ -13,7 +13,7 @@
 /****************************************************************************/
 
 extern double
-complex cacos(double complex z)
+complex ccos(double complex z)
 {
     return ccosh(CMPLX(-cimag(z), creal(z)));
 }
