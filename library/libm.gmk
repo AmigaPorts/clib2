@@ -65,6 +65,9 @@ MATH_LIB := \
 	complex_conj.o \
 	complex_conjf.o \
 	complex_conjl.o \
+	complex_cpow.o \
+	complex_cpowf.o \
+	complex_cpowl.o \
 	complex_creal.o \
 	complex_crealf.o \
 	complex_creall.o \
