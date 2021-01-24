@@ -38,6 +38,9 @@ MATH_LIB := \
 	complex_catan.o \
 	complex_catan.o \
 	complex_catanl.o \
+	complex_catanh.o \
+	complex_catanh.o \
+	complex_catanhl.o \
 	complex_ctan.o \
 	complex_ctan.o \
 	complex_ctanl.o \

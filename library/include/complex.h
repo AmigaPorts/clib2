@@ -150,6 +150,10 @@ extern double complex casinh(double complex z);
 extern float complex casinhf(float complex z);
 extern long double complex casinhl(long double complex z);
 
+extern double complex catanh(double complex z);
+extern float complex catanhf(float complex z);
+extern long double complex catanhl(long double complex z);
+
 /****************************************************************************/
 
 /* Unimplemented functions (so far)... */
@@ -157,10 +161,6 @@ extern long double complex casinhl(long double complex z);
 /****************************************************************************/
 
 #if 0
-
-extern __stdargs double complex catanh(double complex z);
-extern __stdargs float complex catanhf(float complex z);
-extern __stdargs long double complex catanhl(long double complex z);
 
 extern __stdargs double complex ccosh(double complex z);
 extern __stdargs float complex ccoshf(float complex z);
