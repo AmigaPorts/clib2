@@ -32,6 +32,9 @@ MATH_LIB := \
 	complex_cacosh.o \
 	complex_cacoshf.o \
 	complex_cacoshl.o \
+	complex_casin.o \
+	complex_casinf.o \
+	complex_casinl.o \
 	complex_ccos.o \
 	complex_ccosf.o \
 	complex_ccosl.o \
