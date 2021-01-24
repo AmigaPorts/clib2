@@ -42,8 +42,11 @@ MATH_LIB := \
 	complex_catanh.o \
 	complex_catanhl.o \
 	complex_ctan.o \
-	complex_ctan.o \
+	complex_ctanf.o \
 	complex_ctanl.o \
+	complex_ctanh.o \
+	complex_ctanhf.o \
+	complex_ctanhl.o \
 	complex_ccos.o \
 	complex_ccosf.o \
 	complex_ccosl.o \
