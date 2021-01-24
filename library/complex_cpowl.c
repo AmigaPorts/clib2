@@ -17,7 +17,7 @@
 /****************************************************************************/
 
 long double complex
-cpowl(long double complex z, long double c)
+cpowl(long double complex z, long double complex c)
 {
     return cpow(z, c);
 }
