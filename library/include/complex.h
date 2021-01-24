@@ -118,6 +118,10 @@ extern double complex csin(double complex z);
 extern float complex csinf(float complex z);
 extern long double complex csinl(long double complex z);
 
+extern double complex cacos(double complex z);
+extern float complex cacosf(float complex z);
+extern long double complex cacosl(long double complex z);
+
 /****************************************************************************/
 
 /* Unimplemented functions (so far)... */
@@ -125,10 +129,6 @@ extern long double complex csinl(long double complex z);
 /****************************************************************************/
 
 #if 0
-
-extern __stdargs double complex cacos(double complex z);
-extern __stdargs float complex cacosf(float complex z);
-extern __stdargs long double complex cacosl(long double complex z);
 
 extern __stdargs double complex casin(double complex z);
 extern __stdargs float complex casinf(float complex z);

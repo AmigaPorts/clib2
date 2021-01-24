@@ -26,6 +26,9 @@ MATH_LIB := \
 	complex_cabs.o \
 	complex_cabsf.o \
 	complex_cabsl.o \
+	complex_cacos.o \
+	complex_cacosf.o \
+	complex_cacosl.o \
 	complex_cimag.o \
 	complex_cimagf.o \
 	complex_cimagl.o \
