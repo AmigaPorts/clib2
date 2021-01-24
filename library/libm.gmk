@@ -59,6 +59,9 @@ MATH_LIB := \
 	complex_cimag.o \
 	complex_cimagf.o \
 	complex_cimagl.o \
+	complex_clog.o \
+	complex_clogf.o \
+	complex_clogl.o \
 	complex_conj.o \
 	complex_conjf.o \
 	complex_conjl.o \
