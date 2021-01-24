@@ -47,6 +47,9 @@ MATH_LIB := \
 	complex_ccos.o \
 	complex_ccosf.o \
 	complex_ccosl.o \
+	complex_ccosh.o \
+	complex_ccoshf.o \
+	complex_ccoshl.o \
 	complex_cimag.o \
 	complex_cimagf.o \
 	complex_cimagl.o \
