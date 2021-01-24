@@ -122,6 +122,10 @@ extern double complex cacos(double complex z);
 extern float complex cacosf(float complex z);
 extern long double complex cacosl(long double complex z);
 
+extern double complex ccos(double complex z);
+extern float complex ccosf(float complex z);
+extern long double complex ccosl(long double complex z);
+
 /****************************************************************************/
 
 /* Unimplemented functions (so far)... */
@@ -138,9 +142,6 @@ extern __stdargs double complex catan(double complex z);
 extern __stdargs float complex catanf(float complex z);
 extern __stdargs long double complex catanl(long double complex z);
 
-extern __stdargs double complex ccos(double complex z);
-extern __stdargs float complex ccosf(float complex z);
-extern __stdargs long double complex ccosl(long double complex z);
 
 extern __stdargs double complex ctan(double complex z);
 extern __stdargs float complex ctanf(float complex z);
