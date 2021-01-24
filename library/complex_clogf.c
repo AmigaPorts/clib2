@@ -15,7 +15,7 @@
 float complex
 clogf(float complex z)
 {
-    return CMPLX(logf(cabsf(z)), cargf(z));
+    return CMPLXF(logf(cabsf(z)), cargf(z));
 }
 
 /****************************************************************************/
