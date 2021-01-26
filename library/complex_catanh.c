@@ -15,8 +15,8 @@
 double complex
 catanh(double complex z)
 {
-    z = catan(CMPLX(-cimag(z), creal(z)));
-    return CMPLX(cimag(z), -creal(z));
+    double complex zp = catan(CMPLX(-cimag(z), creal(z)));
+    return CMPLX(cimag(zp), -creal(zp));
 }
 
 /****************************************************************************/

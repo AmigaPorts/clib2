@@ -15,8 +15,8 @@
 extern float
 complex cacosf(float complex z)
 {
-    z = casinf(z);
-    return CMPLXF((float) M_PI_2 - crealf(z), -cimagf(z));
+    float complex zp = casinf(z);
+    return CMPLXF((float) M_PI_2 - crealf(zp), -cimagf(zp));
 }
 
 /****************************************************************************/

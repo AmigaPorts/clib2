@@ -15,7 +15,9 @@
 extern double complex
 cacosh(double complex z)
 {
-    return CMPLX(0.0, 0.0);
+    double complex zp = cacos(z);
+    return signbit(cimag(z)) ? CMPLX(cimag(zp), -creal(zp))
+                             : CMPLX(-cimag(zp), creal(zp));
 }
 
 /****************************************************************************/

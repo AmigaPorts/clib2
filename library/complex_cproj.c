@@ -16,7 +16,7 @@ double complex
 cproj(double complex z)
 {
    return (isinf(creal(z)) || isinf(cimag(z))) ?
-           CMPLX(INFINITY, copysign(0.0, creal(z))) : z;
+          CMPLX(INFINITY, copysign(0.0, creal(z))) : z;
 }
 
 /****************************************************************************/

@@ -15,8 +15,8 @@
 double complex
 casinh(double complex z)
 {
-    z = casin(CMPLX(-cimag(z), creal(z)));
-    return CMPLX(cimag(z), -creal(z));
+    double complex zp = casin(CMPLX(-cimag(z), creal(z)));
+    return CMPLX(cimag(zp), -creal(zp));
 }
 
 /****************************************************************************/

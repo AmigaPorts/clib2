@@ -15,8 +15,8 @@
 extern double
 complex cacos(double complex z)
 {
-    z = casin(z);
-    return CMPLX(M_PI_2 - creal(z), -cimag(z));
+    double complex zp = casin(z);
+    return CMPLX(M_PI_2 - creal(zp), -cimag(zp));
 }
 
 /****************************************************************************/

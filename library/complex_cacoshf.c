@@ -15,7 +15,9 @@
 extern float complex
 cacoshf(float complex z)
 {
-    return CMPLXF(0.0, 0.0);
+    float complex zp = cacosf(z);
+    return signbit(cimagf(z)) ? CMPLXF(cimagf(zp), -crealf(zp))
+                              : CMPLXF(-cimagf(zp), crealf(zp));
 }
 
 /****************************************************************************/

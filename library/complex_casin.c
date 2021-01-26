@@ -10,10 +10,13 @@
 
 #if defined(COMPLEX_SUPPORT)
 
-double
-cabs(double complex z)
+double complex
+casin(double complex z)
 {
-    return CMPLX(0.0, 0.0);
+    double x = creal(z), y = cimag(z);
+    double complex w = CMPLX(1.0 - (x - y) * (x + y), -2.0 * x * y),
+                   r = clog(CMPLX(-y, x) + csqrt(w));
+    return CMPLX(cimag(r), -creal(r));
 }
 
 /****************************************************************************/

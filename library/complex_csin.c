@@ -15,8 +15,8 @@
 double complex
 csin(double complex z)
 {
-    z = csinh(CMPLX(-cimag(z), creal(z)));
-    return CMPLX(cimag(z), -creal(z));
+    double complex zp = csinh(CMPLX(-cimag(z), creal(z)));
+    return CMPLX(cimag(zp), -creal(zp));
 }
 
 /****************************************************************************/
