@@ -36,10 +36,10 @@ MATH_LIB := \
 	complex_casinf.o \
 	complex_casinl.o \
 	complex_catan.o \
-	complex_catan.o \
+	complex_catanf.o \
 	complex_catanl.o \
 	complex_catanh.o \
-	complex_catanh.o \
+	complex_catanhf.o \
 	complex_catanhl.o \
 	complex_ctan.o \
 	complex_ctanf.o \
