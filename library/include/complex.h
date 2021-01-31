@@ -85,9 +85,13 @@ extern "C" {
 /****************************************************************************/
 
 /* Constants / macros */
-#define _Complex_I (__extension__ 0.0+1.0fi)
+#define _Complex_I (__extension__ 0.0f+1.0fi)
 #define I _Complex_I
-#define __CMPLX(x, y, t) (+(_Complex t) { (t) (x), (t) (y) })
+#if defined(_Imaginary_I)
+#define __CMPLX(x, y, t) ((t)(x) + _Imaginary_I*(t)(y))
+#else
+#define __CMPLX(x, y, t) (__builtin_complex((t)(x), (t)(y)))
+#endif
 #define CMPLX(x, y) __CMPLX(x, y, double)
 #define CMPLXF(x, y) __CMPLX(x, y, float)
 #define CMPLXL(x, y) __CMPLX(x, y, long double)
