@@ -243,19 +243,7 @@ __sqrt(double x)
 double
 sqrt(double x)
 {
-	double result;
-
-	if(x >= 0.0)
-	{
-		result = __sqrt(x);
-	}
-	else
-	{
-		result = 0;
-		__set_errno(EDOM);
-	}
-
-	return(result);
+    return x < 0 ? NAN : __sqrt(x);
 }
 
 /****************************************************************************/
