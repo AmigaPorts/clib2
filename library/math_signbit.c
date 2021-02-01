@@ -49,14 +49,8 @@
 int
 __signbit_float(float number)
 {
-	union ieee_single x;
-	int result;
-
-	x.value = number;
-
-	result = ((x.raw[0] = 0x80000000) != 0);
-
-	return(result);
+	union { float f; uint32_t i; } y = { number };
+	return y.i >> 31;
 }
 
 /****************************************************************************/
@@ -64,14 +58,8 @@ __signbit_float(float number)
 int
 __signbit_double(double number)
 {
-	union ieee_double x;
-	int result;
-
-	x.value = number;
-
-	result = ((x.raw[0] = 0x80000000) != 0);
-
-	return(result);
+	union { double d; uint64_t i; } y = { number };
+	return y.i >> 63;
 }
 
 /****************************************************************************/
