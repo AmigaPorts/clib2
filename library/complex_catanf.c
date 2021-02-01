@@ -1,8 +1,4 @@
 /*
- * Experimental: Not a part of clib2 from Olaf Barthel
- */
-
-/*
  * Copyright (c) 2008 Stephen L. Moshier <steve@moshier.net>
  *
  * Permission to use, copy, modify, and distribute this software for any
@@ -18,7 +14,6 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  *
  * Imported and modified 2021/01/25
- * Ola Soder <rolfkopman@gmail.com>
  */
 
 #ifndef _COMPLEX_HEADERS_H

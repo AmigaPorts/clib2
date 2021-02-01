@@ -1,8 +1,5 @@
 /*
- * Experimental: Not a part of clib2 from Olaf Barthel
- */
-
-/* Copyright (c) 2007 The NetBSD Foundation, Inc.
+ * Copyright (c) 2007 The NetBSD Foundation, Inc.
  * All rights reserved.
  *
  * This code is derived from software written by Stephen L. Moshier.
@@ -29,9 +26,8 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  *
- * Imported and modified for inclusion in clib2 2021/01/25
- * Ola Soder <rolfkopman@gmail.com>
- */
+ * Imported and modified 2021/01/25
+*/
 
 #ifndef _COMPLEX_HEADERS_H
 #include "complex_headers.h"
