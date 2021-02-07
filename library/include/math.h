@@ -151,6 +151,8 @@ extern float __nan;
 #define FP_SUBNORMAL	3	/* very small floating point number; special
 							   case of IEEE 754 */
 #define FP_ZERO			4	/* exponent/fraction are zero */
+#define FP_ILOGB0		0
+#define FP_ILOGBNAN		NAN
 
 /****************************************************************************/
 
