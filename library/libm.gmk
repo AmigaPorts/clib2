@@ -258,6 +258,7 @@ MATH_LIB := \
 	math_rintl.o \
 	math_round.o \
 	math_roundf.o \
+	math_roundl.o \
 	math_scalbln.o \
 	math_scalblnf.o \
 	math_scalblnl.o \
