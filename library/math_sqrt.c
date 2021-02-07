@@ -243,7 +243,15 @@ __sqrt(double x)
 double
 sqrt(double x)
 {
-    return x < 0 ? NAN : __sqrt(x);
+    double result;
+
+	if(x >= 0.0)
+	{
+		return __sqrt(x);
+	}
+
+	__set_errno(EDOM);
+	return NAN;
 }
 
 /****************************************************************************/
