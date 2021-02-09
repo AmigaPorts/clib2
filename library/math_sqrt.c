@@ -243,8 +243,6 @@ __sqrt(double x)
 double
 sqrt(double x)
 {
-    double result;
-
 	if(x >= 0.0)
 	{
 		return __sqrt(x);
