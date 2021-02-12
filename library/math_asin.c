@@ -229,19 +229,13 @@ __asin(double x)
 double
 asin(double x)
 {
-	double result;
-
 	if(-1.0 <= x && x <= 1.0)
 	{
-		result = __asin(x);
-	}
-	else
-	{
-		result = 0;
-		__set_errno(EDOM);
+		return __asin(x);
 	}
 
-	return(result);
+	__set_errno(EDOM);
+	return NAN;
 }
 
 /****************************************************************************/
