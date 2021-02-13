@@ -31,7 +31,7 @@
 long double
 truncl(long double x)
 {
-    return trunc(x);
+	return trunc(x);
 }
 
 /****************************************************************************/

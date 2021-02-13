@@ -24,12 +24,12 @@
 /****************************************************************************/
 
 wchar_t *
-wcschr(const wchar_t *s, wchar_t c)
+wcschr(const wchar_t *p, wchar_t c)
 {
 	while (*p && *p != c)
-    {
+	{
 		++p;
-    }
+	}
 
 	return *p == c ? (wchar_t *) p : NULL;
 }

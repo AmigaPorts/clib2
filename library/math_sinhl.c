@@ -31,7 +31,7 @@
 long double
 sinhl(long double x)
 {
-    return sinh(x);
+	return sinh(x);
 }
 
 /****************************************************************************/

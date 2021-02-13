@@ -57,7 +57,7 @@ static const float one = 1.0, shuge = 1.0e37;
 
 float
 sinhf(float x)
-{	
+{
 	float t,w,h;
 	LONG ix,jx;
 
@@ -65,7 +65,7 @@ sinhf(float x)
 	ix = jx&0x7fffffff;
 
     /* x is INF or NaN */
-	if(ix>=0x7f800000) return x+x;	
+	if(ix>=0x7f800000) return x+x;
 
 	h = 0.5;
 	if (jx<0) h = -h;

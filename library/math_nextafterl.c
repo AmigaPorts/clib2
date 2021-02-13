@@ -31,7 +31,7 @@
 long double
 nextafterl(long double x, long double y)
 {
-    return nextafter(x, y);
+	return nextafter(x, y);
 }
 
 /****************************************************************************/

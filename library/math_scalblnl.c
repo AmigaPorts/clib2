@@ -31,7 +31,7 @@
 long double
 scalblnl(long double x, long int n)
 {
-    return scalbln(x, n);
+	return scalbln(x, n);
 }
 
 /****************************************************************************/

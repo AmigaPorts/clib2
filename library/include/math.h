@@ -273,7 +273,7 @@ extern __stdargs float hypotf(float x, float y);
 extern __stdargs float lgammaf(float x);
 extern __stdargs float log1pf(float x);
 extern __stdargs float logbf(float x);
-extern __stdargs long int llrintf(float x);
+extern __stdargs long long int llrintf(float x);
 extern __stdargs long int lrintf(float x);
 extern __stdargs long long int llroundf(float x);
 extern __stdargs long int lroundf(float x);

@@ -31,7 +31,7 @@
 long double
 nearbyintl(long double x)
 {
-    return nearbyint(x);
+	return nearbyint(x);
 }
 
 /****************************************************************************/

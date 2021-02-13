@@ -143,17 +143,17 @@ INLINE STATIC double
 __sqrt(double x)
 {
 	double z;
-	unsigned int sign = (unsigned int)0x80000000; 
+	unsigned int sign = (unsigned int)0x80000000;
 	unsigned int r,t1,s1,ix1,q1;
 	int ix0,s0,q,m,t,i;
 
 	EXTRACT_WORDS(ix0,ix1,x);
 
     /* take care of Inf and NaN */
-	if((ix0&0x7ff00000)==0x7ff00000) {			
+	if((ix0&0x7ff00000)==0x7ff00000) {
 	    return x*x+x;		/* sqrt(NaN)=NaN, sqrt(+inf)=+inf
 					   sqrt(-inf)=sNaN */
-	} 
+	}
     /* take care of zero */
 	if(ix0<=0) {
 	    if(((ix0&(~sign))|ix1)==0) return x;/* sqrt(+-0) = +-0 */
@@ -187,12 +187,12 @@ __sqrt(double x)
 	r = 0x00200000;		/* r = moving bit from right to left */
 
 	while(r!=0) {
-	    t = s0+r; 
-	    if(t<=ix0) { 
-		s0   = t+r; 
-		ix0 -= t; 
-		q   += r; 
-	    } 
+	    t = s0+r;
+	    if(t<=ix0) {
+		s0   = t+r;
+		ix0 -= t;
+		q   += r;
+	    }
 	    ix0 += ix0 + ((ix1&sign)>>31);
 	    ix1 += ix1;
 	    r>>=1;
@@ -200,9 +200,9 @@ __sqrt(double x)
 
 	r = sign;
 	while(r!=0) {
-	    t1 = s1+r; 
+	    t1 = s1+r;
 	    t  = s0;
-	    if((t<ix0)||((t==ix0)&&(t1<=ix1))) { 
+	    if((t<ix0)||((t==ix0)&&(t1<=ix1))) {
 		s1  = t1+r;
 		if(((t1&sign)==sign)&&(s1&sign)==0) s0 += 1;
 		ix0 -= t;
@@ -223,7 +223,7 @@ __sqrt(double x)
 	        if (q1==(unsigned int)0xffffffff) { q1=0; q += 1;}
 		else if (z>one) {
 		    if (q1==(unsigned int)0xfffffffe) q+=1;
-		    q1+=2; 
+		    q1+=2;
 		} else
 	            q1 += (q1&1);
 	    }

@@ -31,7 +31,7 @@ wcsncat(wchar_t *p, const wchar_t *q, size_t n)
 		wchar_t *s = p;
 
 		while(*s)
-	    {
+		{
 			++s;
 		}
 

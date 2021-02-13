@@ -31,7 +31,7 @@
 long double
 ldexpl(long double x, int n)
 {
-    return scalbn(x, n);
+	return scalbn(x, n);
 }
 
 /****************************************************************************/

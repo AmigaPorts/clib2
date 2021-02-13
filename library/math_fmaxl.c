@@ -31,7 +31,7 @@
 long double
 fmaxl(long double x, long double y)
 {
-    return fmax(x, y);
+	return fmax(x, y);
 }
 
 /****************************************************************************/

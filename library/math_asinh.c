@@ -57,7 +57,7 @@ huge=  1.00000000000000000000e+300;
 
 double
 asinh(double x)
-{	
+{
 	double t,w;
 	LONG hx,ix;
 	GET_HIGH_WORD(hx,x);
@@ -65,7 +65,7 @@ asinh(double x)
 	if(ix>=0x7ff00000) return x+x;	/* x is inf or NaN */
 	if(ix< 0x3e300000) {	/* |x|<2**-28 */
 	    if(huge+x>one) return x;	/* return x inexact except 0 */
-	} 
+	}
 	if(ix>0x41b00000) {	/* |x| > 2**28 */
 	    w = log(fabs(x))+ln2;
 	} else if (ix>0x40000000) {	/* 2**28 > |x| > 2.0 */

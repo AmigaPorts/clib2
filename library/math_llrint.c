@@ -69,7 +69,7 @@ llrint(double x)
   double t;
   volatile double w;
   long long int result;
-  
+
   EXTRACT_WORDS(i0,i1,x);
 
   /* Extract sign bit. */
@@ -77,7 +77,7 @@ llrint(double x)
 
   /* Extract exponent field. */
   j0 = ((i0 & 0x7ff00000) >> 20) - 1023;
-  
+
   if(j0 < 20)
     {
       if(j0 < -1)
@@ -100,7 +100,7 @@ llrint(double x)
   else if (j0 < (int)(8 * sizeof (long long int)) - 1)
     {
       if (j0 >= 52)
-        result = ((long long int) ((i0 & 0x000fffff) | 0x0010000) << (j0 - 20)) | 
+        result = ((long long int) ((i0 & 0x000fffff) | 0x0010000) << (j0 - 20)) |
                    (i1 << (j0 - 52));
       else
         {
@@ -117,12 +117,10 @@ llrint(double x)
     {
       return (long long int) x;
     }
-  
+
   return sx ? -result : result;
 }
 
 /****************************************************************************/
 
 #endif /* FLOATING_POINT_SUPPORT */
-
- 	  	 

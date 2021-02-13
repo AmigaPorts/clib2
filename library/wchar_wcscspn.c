@@ -36,9 +36,9 @@ wcscspn(const wchar_t *p, const wchar_t *q)
 		while (*t)
 		{
 			if (*t == c)
-		    {
-	            return s - p;
-		    }
+			{
+				return s - p;
+			}
 			++t;
 		}
 

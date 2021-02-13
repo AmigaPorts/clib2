@@ -82,7 +82,7 @@ double __expm1(double x)
                 if(hx>=0x7ff00000) {
 		    unsigned int low;
 		    GET_LOW_WORD(low,x);
-		    if(((hx&0xfffff)|low)!=0) 
+		    if(((hx&0xfffff)|low)!=0)
 		         return x+x; 	 /* NaN */
 		    else return (xsb==0)? x:-1.0;/* exp(+-inf)={inf,-1} */
 	        }
@@ -95,7 +95,7 @@ double __expm1(double x)
 	}
 
     /* argument reduction */
-	if(hx > 0x3fd62e42) {		/* if  |x| > 0.5 ln2 */ 
+	if(hx > 0x3fd62e42) {		/* if  |x| > 0.5 ln2 */
 	    if(hx < 0x3FF0A2B2) {	/* and |x| < 1.5 ln2 */
 		if(xsb==0)
 		    {hi = x - ln2_hi; lo =  ln2_lo;  k =  1;}
@@ -109,10 +109,10 @@ double __expm1(double x)
 	    }
 	    x  = hi - lo;
 	    c  = (hi-x)-lo;
-	} 
+	}
 	else if(hx < 0x3c900000) {  	/* when |x|<2**-54, return x */
 	    t = huge+x;	/* return x with inexact flags when x!=0 */
-	    return x - (t-(huge+x));	
+	    return x - (t-(huge+x));
 	}
 	else k = 0;
 

@@ -65,7 +65,7 @@ coshf(float x)
 	ix &= 0x7fffffff;
 
     /* x is INF or NaN */
-	if(ix>=0x7f800000) return x*x;	
+	if(ix>=0x7f800000) return x*x;
 
     /* |x| in [0,0.5*ln2], return 1+expm1(|x|)^2/(2*exp(|x|)) */
 	if(ix<0x3eb17218) {

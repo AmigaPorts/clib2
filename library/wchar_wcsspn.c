@@ -26,8 +26,8 @@
 size_t
 wcsspn(const wchar_t *p, const wchar_t *q)
 {
-    (void) p;
-    (void) q;
+	(void) p;
+	(void) q;
 
 	return 0;
 }

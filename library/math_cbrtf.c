@@ -76,7 +76,7 @@ cbrtf(float x)
 	sign=hx&0x80000000U; 		/* sign= sign(x) */
 	hx  ^=sign;
 	if(hx>=0x7f800000) return(x+x); /* cbrt(NaN,INF) is itself */
-	if(hx==0) 
+	if(hx==0)
 	    return(x);		/* cbrt(0) is itself */
 
 	SET_FLOAT_WORD(x,hx);	/* x <- |x| */
@@ -91,7 +91,7 @@ cbrtf(float x)
     /* new cbrt to 23 bits */
 	r=t*t/x;
 	s=C+r*t;
-	t*=G+F/(s+E+D/s);	
+	t*=G+F/(s+E+D/s);
 
     /* retore the sign bit */
 	GET_FLOAT_WORD(high,t);

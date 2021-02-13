@@ -26,7 +26,7 @@
 wchar_t *
 wcspbrk(const wchar_t *p, const wchar_t *q)
 {
-    wchar_t c;
+	wchar_t c;
 
 	while ((c = *p) != 0)
 	{
@@ -35,9 +35,9 @@ wcspbrk(const wchar_t *p, const wchar_t *q)
 		while (*s)
 		{
 			if (*s == c)
-		    {
+			{
 				return (wchar_t *)p;
-		    }
+			}
 
 			++s;
 		}

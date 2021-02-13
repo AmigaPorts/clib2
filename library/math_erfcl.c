@@ -31,7 +31,7 @@
 long double
 erfcl(long double x)
 {
-    return erfc(x);
+	return erfc(x);
 }
 
 /****************************************************************************/

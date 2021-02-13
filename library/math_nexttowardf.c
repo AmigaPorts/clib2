@@ -31,7 +31,7 @@
 float
 nexttowardf(float x, long double y)
 {
-    return nextafterf(x, y);
+	return nextafterf(x, y);
 }
 
 /****************************************************************************/

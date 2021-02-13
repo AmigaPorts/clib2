@@ -57,7 +57,7 @@ lround(double x)
   /* Most significant word, least significant word. */
   ULONG msw, lsw;
   long int result;
-  
+
   EXTRACT_WORDS(msw, lsw, x);
 
   /* Extract sign. */

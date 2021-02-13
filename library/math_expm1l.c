@@ -31,7 +31,7 @@
 long double
 expm1l(long double x)
 {
-    return expm1(x);
+	return expm1(x);
 }
 
 /****************************************************************************/

@@ -26,8 +26,8 @@
 wchar_t *
 wcstok(wchar_t *p, const wchar_t *q)
 {
-    (void) p;
-    (void) q;
+	(void) p;
+	(void) q;
 
 	return NULL;
 }

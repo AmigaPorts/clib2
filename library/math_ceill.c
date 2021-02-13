@@ -31,7 +31,7 @@
 long double
 ceill(long double x)
 {
-    return ceil(x);
+	return ceil(x);
 }
 
 /****************************************************************************/

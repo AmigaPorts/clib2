@@ -31,7 +31,7 @@
 long double
 atanl(long double x)
 {
-    return atan(x);
+	return atan(x);
 }
 
 /****************************************************************************/

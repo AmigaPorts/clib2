@@ -31,7 +31,7 @@
 long double
 floorl(long double x)
 {
-    return floor(x);
+	return floor(x);
 }
 
 /****************************************************************************/

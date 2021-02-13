@@ -28,8 +28,8 @@
 double
 wcstod(const wchar_t *p, wchar_t **q)
 {
-    (void) p;
-    (void) q;
+	(void) p;
+	(void) q;
 
 	return 0;
 }

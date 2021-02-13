@@ -75,11 +75,11 @@ scalbnf (float x, int n)
             if ((ix&0x7fffffff)==0) return x; /* +-0 */
 	    x *= two25;
 	    GET_FLOAT_WORD(ix,x);
-	    k = ((ix&0x7f800000)>>23) - 25; 
+	    k = ((ix&0x7f800000)>>23) - 25;
             if (n< -50000) return tiny*x; 	/*underflow*/
 	    }
         if (k==0xff) return x+x;		/* NaN or Inf */
-        k = k+n; 
+        k = k+n;
         if (k >  0xfe) return copysignf(__inff(),x); /* overflow  */
         if (k > 0) 				/* normal result */
 	    {SET_FLOAT_WORD(x,(ix&0x807fffffU)|(k<<23)); return x;}

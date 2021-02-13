@@ -31,7 +31,7 @@
 long double
 lgammal(long double x)
 {
-    return lgamma(x);
+	return lgamma(x);
 }
 
 /****************************************************************************/

@@ -31,7 +31,7 @@
 long double
 fdiml(long double x, long double y)
 {
-    return fdim(x, y);
+	return fdim(x, y);
 }
 
 /****************************************************************************/

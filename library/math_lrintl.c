@@ -31,7 +31,7 @@
 long int
 lrintl(long double x)
 {
-    return lrint(x);
+	return lrint(x);
 }
 
 /****************************************************************************/

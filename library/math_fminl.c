@@ -31,7 +31,7 @@
 long double
 fminl(long double x, long double y)
 {
-    return fmin(x, y);
+	return fmin(x, y);
 }
 
 /****************************************************************************/

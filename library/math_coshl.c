@@ -31,7 +31,7 @@
 long double
 coshl(long double x)
 {
-    return cosh(x);
+	return cosh(x);
 }
 
 /****************************************************************************/

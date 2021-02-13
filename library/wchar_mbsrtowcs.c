@@ -32,7 +32,7 @@ mbsrtowcs(wchar_t *p, const char **sp, size_t n, mbstate_t *ps)
 	if (p == NULL)
 	{
 		n = (size_t) -1;
-    }
+	}
 
 	while (r < n)
 	{
@@ -54,9 +54,9 @@ mbsrtowcs(wchar_t *p, const char **sp, size_t n, mbstate_t *ps)
 		if (c == 0)
 		{
 			if (p)
-		    {
+			{
 				s = NULL;
-		    }
+			}
 
 			break;
 		}

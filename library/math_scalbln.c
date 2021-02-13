@@ -31,7 +31,7 @@
 double
 scalbln(double x, long n)
 {
-    return scalbn(x, n > INT_MAX ? INT_MAX : n < INT_MIN ? INT_MIN : n);
+	return scalbn(x, n > INT_MAX ? INT_MAX : n < INT_MIN ? INT_MIN : n);
 }
 
 /****************************************************************************/

@@ -31,7 +31,7 @@
 double
 nexttoward(double x, long double y)
 {
-    return nextafter(x, y);
+	return nextafter(x, y);
 }
 
 /****************************************************************************/

@@ -31,7 +31,7 @@
 long double
 acosl(long double x)
 {
-    return acos(x);
+	return acos(x);
 }
 
 /****************************************************************************/

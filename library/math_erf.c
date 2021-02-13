@@ -73,7 +73,7 @@ qq3  =  5.08130628187576562776e-03, /* 0x3F74D022, 0xC4D36B0F */
 qq4  =  1.32494738004321644526e-04, /* 0x3F215DC9, 0x221C1A10 */
 qq5  = -3.96022827877536812320e-06, /* 0xBED09C43, 0x42A26120 */
 /*
- * Coefficients for approximation to  erf  in [0.84375,1.25] 
+ * Coefficients for approximation to  erf  in [0.84375,1.25]
  */
 pa0  = -2.36211856075265944077e-03, /* 0xBF6359B8, 0xBEF77538 */
 pa1  =  4.14856118683748331666e-01, /* 0x3FDA8D00, 0xAD92B34D */
@@ -126,7 +126,7 @@ sb6  =  4.74528541206955367215e+02, /* 0x407DA874, 0xE79FE763 */
 sb7  = -2.24409524465858183362e+01; /* 0xC03670E2, 0x42712D62 */
 
 double
-erf(double x) 
+erf(double x)
 {
 	LONG hx,ix,i;
 	double R,S,P,Q,s,y,z,r;
@@ -139,7 +139,7 @@ erf(double x)
 
 	if(ix < 0x3feb0000) {		/* |x|<0.84375 */
 	    if(ix < 0x3e300000) { 	/* |x|<2**-28 */
-	        if (ix < 0x00800000) 
+	        if (ix < 0x00800000)
 		    return 0.125*(8.0*x+efx8*x);  /*avoid underflow */
 		return x + efx*x;
 	    }
@@ -171,7 +171,7 @@ erf(double x)
 	    S=one+s*(sb1+s*(sb2+s*(sb3+s*(sb4+s*(
 				sb5+s*(sb6+s*sb7))))));
 	}
-	z  = x;  
+	z  = x;
 	SET_LOW_WORD(z,0);
 	r  =  exp(-z*z-0.5625)*exp((z-x)*(z+x)+R/S);
 	if(hx>=0) return one-r/x; else return  r/x-one;

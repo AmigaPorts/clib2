@@ -31,7 +31,7 @@
 long double
 nanl(const char *tagp)
 {
-    return nan(tagp);
+	return nan(tagp);
 }
 
 /****************************************************************************/

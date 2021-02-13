@@ -26,7 +26,7 @@
 int
 wscanf(const wchar_t *format, ...)
 {
-    (void) format;
+	(void) format;
 
 	return 0;
 }

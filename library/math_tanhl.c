@@ -31,7 +31,7 @@
 long double
 tanhl(long double x)
 {
-    return tanh(x);
+	return tanh(x);
 }
 
 /****************************************************************************/

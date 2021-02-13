@@ -31,7 +31,7 @@
 long double
 log1pl(long double x)
 {
-    return log1p(x);
+	return log1p(x);
 }
 
 /****************************************************************************/

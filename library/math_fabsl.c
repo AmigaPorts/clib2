@@ -31,7 +31,7 @@
 long double
 fabsl(long double x)
 {
-    return fabs(x);
+	return fabs(x);
 }
 
 /****************************************************************************/

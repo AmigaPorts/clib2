@@ -107,7 +107,7 @@ extern __stdargs int wcsncmp(const wchar_t *p, const wchar_t *q, size_t n);
 extern __stdargs wchar_t * wcscpy(wchar_t *p, const wchar_t *q);
 extern __stdargs wchar_t * wcsncpy(wchar_t *p, const wchar_t *q, size_t n);
 extern __stdargs size_t wcslen(const wchar_t *s);
-extern __stdargs wchar_t * wcschr(const wchar_t *s, wchar_t c);
+extern __stdargs wchar_t * wcschr(const wchar_t *p, wchar_t c);
 extern __stdargs size_t wcsspn(const wchar_t *p, const wchar_t *q);
 extern __stdargs wchar_t *wcspbrk(const wchar_t *p, const wchar_t *q);
 extern __stdargs wchar_t *wcstok(wchar_t *p, const wchar_t *q);
@@ -115,9 +115,13 @@ extern __stdargs wchar_t *wcsstr(const wchar_t *src, const wchar_t *sub);
 
 /****************************************************************************/
 
+extern __stdargs float wcstof(const wchar_t *p, wchar_t **q);
 extern __stdargs double wcstod(const wchar_t *p, wchar_t **q);
+extern __stdargs long double wcstold(const wchar_t *p, wchar_t **q);
 extern __stdargs long wcstol(const wchar_t *p, wchar_t **q, int base);
+extern __stdargs long long wcstoll(const wchar_t *p, wchar_t **q, int base);
 extern __stdargs unsigned long wcstoul(const wchar_t *p, wchar_t **q, int base);
+extern __stdargs unsigned long long wcstoull(const wchar_t *p, wchar_t **q, int base);
 
 /****************************************************************************/
 
@@ -150,8 +154,11 @@ extern __stdargs wchar_t *fgetws(wchar_t *p, int n, FILE *f);
 /****************************************************************************/
 
 extern __stdargs int fwscanf(FILE *f, const wchar_t *format, ...);
+extern __stdargs int vfwscanf(FILE *f, const wchar_t *format, ...);
 extern __stdargs int wscanf(const wchar_t *format, ...);
+extern __stdargs int vwscanf(const wchar_t *format, ...);
 extern __stdargs int swscanf(wchar_t *s, const wchar_t *format, ...);
+extern __stdargs int vswscanf(wchar_t *s, const wchar_t *format, ...);
 
 /****************************************************************************/
 
@@ -168,7 +175,6 @@ extern __stdargs wint_t fputws(const wchar_t *s, FILE *f);
 extern __stdargs int fwprintf(FILE *f, const wchar_t *format, ...);
 extern __stdargs int wprintf(const wchar_t *format, ...);
 extern __stdargs int swprintf(wchar_t *s, const wchar_t *format, ...);
-
 /****************************************************************************/
 
 extern __stdargs int vfwprintf(FILE *f, const wchar_t *format, va_list arg);

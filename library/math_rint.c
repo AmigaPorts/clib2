@@ -61,7 +61,7 @@
 double
 rint(double x)
 {
-	return floor ( x+0.5 );
+	return floor( x+0.5 );
 }
 
 /****************************************************************************/
@@ -91,7 +91,7 @@ rint(double x)
 	GET_LOW_WORD(i1,x);
 	j0 = ((i0>>20)&0x7ff)-0x3ff;
 	if(j0<20) {
-	    if(j0<0) { 	
+	    if(j0<0) {
 		if(((i0&0x7fffffff)|i1)==0) return x;
 		i1 |= (i0&0x0fffff);
 		i0 &= 0xfffe0000;
@@ -120,7 +120,7 @@ rint(double x)
 	    i>>=1;
 	    if((i1&i)!=0) i1 = (i1&(~i))|((0x40000000)>>(j0-20));
 	}
-	
+
 	SET_HIGH_WORD(x,i0);
 	SET_LOW_WORD(x,i1);
 	w = TWO52[sx]+x;

@@ -31,7 +31,7 @@
 long double
 fmal(long double x, long double y, long double z)
 {
-    return fma(x, y, z);
+	return fma(x, y, z);
 }
 
 /****************************************************************************/

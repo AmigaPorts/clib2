@@ -31,7 +31,7 @@ fgetws(wchar_t *p, int n, FILE *f)
 	if (n <= 0)
 	{
 		return NULL;
-    }
+	}
 
 	while (--n != 0)
 	{

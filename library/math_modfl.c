@@ -31,11 +31,11 @@
 long double
 modfl(long double x, long double *iptr)
 {
-    double d;
-    long double r = modf(x, &d);
-    *iptr = d;
+	double d;
+	long double r = modf(x, &d);
+	*iptr = d;
 
-    return r;
+	return r;
 }
 
 /****************************************************************************/

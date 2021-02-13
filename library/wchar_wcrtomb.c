@@ -33,13 +33,13 @@ wcrtomb(char *p, wchar_t c, mbstate_t *ps)
 		r = 1;
 	}
 	else
-    if (c & ~0x1fffff)
+	if (c & ~0x1fffff)
 	{
 		r = -1;
 		errno = EILSEQ;
 	}
 	else
-    if (c & ~0xffff)
+	if (c & ~0xffff)
 	{
 		r = 4;
 		p[0] = 0xf0 | ((c >> 18) & 0x07);
@@ -48,7 +48,7 @@ wcrtomb(char *p, wchar_t c, mbstate_t *ps)
 		p[3] = 0x80 | (c & 0x3f);
 	}
 	else
-    if (c & ~0x7ff)
+	if (c & ~0x7ff)
 	{
 		r = 3;
 		p[0] = 0xe0 | ((c >> 12) & 0x0f);
@@ -56,7 +56,7 @@ wcrtomb(char *p, wchar_t c, mbstate_t *ps)
 		p[2] = 0x80 | (c & 0x3f);
 	}
 	else
-    if (c & ~0x7f)
+	if (c & ~0x7f)
 	{
 		r = 2;
 		p[0] = 0xc0 | ((c >> 6) & 0x1f);

@@ -26,9 +26,9 @@
 long
 wcstol(const wchar_t *p, wchar_t **q, int base)
 {
-    (void) p;
-    (void) q;
-    (void) base;
+	(void) p;
+	(void) q;
+	(void) base;
 
 	return 0;
 }

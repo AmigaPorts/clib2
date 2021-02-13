@@ -65,7 +65,7 @@ ceilf(float x)
 	if(j_0<23) {
 	    if(j_0<0) { 	/* raise inexact if x != 0 */
 		if(huge+x>(float)0.0) {/* return 0*sign(x) if |x|<1 */
-		    if(i0<0) {i0=0x80000000U;} 
+		    if(i0<0) {i0=0x80000000U;}
 		    else if(i0!=0) { i0=0x3f800000;}
 		}
 	    } else {

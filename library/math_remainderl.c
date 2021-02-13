@@ -31,7 +31,7 @@
 long double
 remainderl(long double x, long double p)
 {
-    return remainder(x, p);
+	return remainder(x, p);
 }
 
 /****************************************************************************/

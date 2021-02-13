@@ -31,7 +31,7 @@
 long double
 cbrtl(long double x)
 {
-    return cbrt(x);
+	return cbrt(x);
 }
 
 /****************************************************************************/

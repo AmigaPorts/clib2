@@ -31,7 +31,7 @@
 long double
 copysignl(long double x, long double y)
 {
-    return copysign(x, y);
+	return copysign(x, y);
 }
 
 /****************************************************************************/

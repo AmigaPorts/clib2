@@ -31,7 +31,7 @@
 long double
 sqrtl(long double x)
 {
-    return sqrt(x);
+	return sqrt(x);
 }
 
 /****************************************************************************/

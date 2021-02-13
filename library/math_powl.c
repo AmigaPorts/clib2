@@ -31,7 +31,7 @@
 long double
 powl(long double x, long double y)
 {
-    return pow(x, y);
+	return pow(x, y);
 }
 
 /****************************************************************************/

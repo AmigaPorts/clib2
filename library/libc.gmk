@@ -385,6 +385,7 @@ C_LIB := \
 	wchar_fwide.o \
 	wchar_fwprintf.o \
 	wchar_fwscanf.o \
+	wchar_vfwscanf.o \
 	wchar_getwc.o \
 	wchar_getwchar.o \
 	wchar_mbrlen.o \
@@ -395,6 +396,7 @@ C_LIB := \
 	wchar_putwchar.o \
 	wchar_swprintf.o \
 	wchar_swscanf.o \
+	wchar_vswscanf.o \
 	wchar_ungetwc.o \
 	wchar_vfwprintf.o \
 	wchar_vswprintf.o \
@@ -415,7 +417,9 @@ C_LIB := \
 	wchar_wcspbrk.o \
 	wchar_wcsrtombs.o \
 	wchar_wcsspn.o \
+	wchar_wcstof.o \
 	wchar_wcstod.o \
+	wchar_wcstold.o \
 	wchar_wcstok.o \
 	wchar_wcstol.o \
 	wchar_wcstoll.o \
@@ -430,6 +434,7 @@ C_LIB := \
 	wchar_wmemset.o \
 	wchar_wprintf.o \
 	wchar_wscanf.o \
+	wchar_vwscanf.o \
 	wchar_wscoll.o \
 	wctype_iswalnum.o \
 	wctype_iswalpha.o \

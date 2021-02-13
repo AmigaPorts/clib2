@@ -31,7 +31,7 @@
 long double
 logbl(long double x)
 {
-    return logb(x);
+	return logb(x);
 }
 
 /****************************************************************************/

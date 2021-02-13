@@ -31,7 +31,7 @@
 float
 scalblnf(float x, long n)
 {
-    return scalbnf(x, n > INT_MAX ? INT_MAX : n < INT_MIN ? INT_MIN : n);
+	return scalbnf(x, n > INT_MAX ? INT_MAX : n < INT_MIN ? INT_MIN : n);
 }
 
 /****************************************************************************/

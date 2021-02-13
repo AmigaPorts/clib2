@@ -31,7 +31,7 @@
 long double
 asinhl(long double x)
 {
-    return asinh(x);
+	return asinh(x);
 }
 
 /****************************************************************************/
