@@ -1,34 +1,20 @@
 /*
- * $Id: wchar_mbrlen.c,v 1.3 2006-01-08 12:04:27 obarthel Exp $
+ * Copyright (C) 2021 ixemul.library contributors
  *
- * :ts=4
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
  *
- * Portable ISO 'C' (1994) runtime library for the Amiga computer
- * Copyright (c) 2002-2015 by Olaf Barthel <obarthel (at) gmx.net>
- * All rights reserved.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions
- * are met:
- *
- *   - Redistributions of source code must retain the above copyright
- *     notice, this list of conditions and the following disclaimer.
- *
- *   - Neither the name of Olaf Barthel nor the names of contributors
- *     may be used to endorse or promote products derived from this
- *     software without specific prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
- * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
- * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
- * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
- * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
- * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
- * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
- * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
- * POSSIBILITY OF SUCH DAMAGE.
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
+ * MA 02110-1301, USA.
  */
 
 #ifndef _WCHAR_HEADERS_H
@@ -37,28 +23,126 @@
 
 /****************************************************************************/
 
-/* Mostly non-working stub based on bionic */
-
-#if defined(__STDC_VERSION__) && (__STDC_VERSION__ >= 199901L)
 size_t
-mbrtowc(wchar_t *restrict pwc, const char *restrict s, size_t n, mbstate_t *restrict ps)
+mbrtowc(wchar_t *wcp, const char *s, size_t n, mbstate_t *ps)
 {
+	int r = -1;
+	wchar_t c = 0;
+
 	if (s == NULL)
 	{
+		wcp = NULL;
 		s = "";
-		pwc = NULL;
+		n = 1;
 	}
 
 	if (n == 0)
 	{
-		if (pwc)
-			*pwc = 0;
-		return 0;
+		r = -2;
+	}
+	else
+	{
+		int c1 = *s++;
+
+		if ((c1 & 0x80) == 0)
+		{
+			c = c1;
+			r = 1;
+		}
+		else
+        if ((c1 & 0xc0) != 0xc0)
+		{
+			// Invalid
+		}
+		else
+        if (n == 1)
+		{
+			r = -2;
+		}
+		else
+		{
+			int c2 = *s++;
+
+			if ((c2 & 0xc0) != 0x80)
+			{
+				// Invalid
+			}
+			else
+            if ((c1 & 0x20) == 0)
+			{
+				c = ((c1 & 0x1f) << 6) | (c2 & 0x3f);
+				r = 2;
+			}
+			else
+            if (n == 2)
+			{
+				r = -2;
+			}
+			else
+			{
+				int c3 = *s++;
+
+				if ((c3 & 0xc0) != 0x80)
+				{
+					// Invalid
+				}
+				else
+                if ((c1 & 0x10) == 0)
+				{
+					c = ((c1 & 0x0f) << 12) | ((c2 & 0x3f) << 6) | (c3 & 0x3f);
+					r = 3;
+				}
+				else
+                if (n == 3)
+				{
+					r = -2;
+				}
+				else
+				{
+					int c4 = *s;
+
+					if ((c3 & 0xc0) != 0x80)
+					{
+						// Invalid
+					}
+					else
+                    if ((c1 & 0x08) == 0)
+					{
+						c = ((c1 & 0x07) << 18) | ((c2 & 0x3f) << 12) |
+							((c3 & 0x3f) << 6) | (c4 & 0x3f);
+						r = 4;
+					}
+					else
+					{
+						// Invalid
+					}
+				}
+			}
+		}
 	}
 
-	if (pwc)
-		*pwc = *s;
+	if (r >= 0)
+	{
+		if (r == 0)
+	    {
+			c = 0;
+	    }
 
-	return (*s != 0);
+		if (c == 0)
+	    {
+			r = 0;
+	    }
+
+		if (wcp)
+	    {
+			*wcp = c;
+	    }
+	}
+	else
+    if (r == -1)
+	{
+		errno = EILSEQ;
+	}
+
+	return (size_t) r;
 }
-#endif /* __STDC_VERSION__ && __STDC_VERSION__ >= 199901L */

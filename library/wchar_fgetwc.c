@@ -1,34 +1,20 @@
 /*
- * $Id: wchar_fgetwc.c,v 1.3 2006-01-08 12:04:27 obarthel Exp $
+ * Copyright (C) 2021 ixemul.library contributors
  *
- * :ts=4
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
  *
- * Portable ISO 'C' (1994) runtime library for the Amiga computer
- * Copyright (c) 2002-2015 by Olaf Barthel <obarthel (at) gmx.net>
- * All rights reserved.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions
- * are met:
- *
- *   - Redistributions of source code must retain the above copyright
- *     notice, this list of conditions and the following disclaimer.
- *
- *   - Neither the name of Olaf Barthel nor the names of contributors
- *     may be used to endorse or promote products derived from this
- *     software without specific prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
- * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
- * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
- * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
- * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
- * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
- * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
- * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
- * POSSIBILITY OF SUCH DAMAGE.
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
+ * MA 02110-1301, USA.
  */
 
 #ifndef _WCHAR_HEADERS_H
@@ -38,8 +24,66 @@
 /****************************************************************************/
 
 wint_t
-fgetwc(FILE *stream)
+fgetwc(FILE *f)
 {
-	/* ZZZ unimplemented */
-	return(0);
+	char buf[MB_CUR_MAX];
+	size_t n, m;
+	wchar_t c;
+
+	if (!(f->_flags & (__SWCH | __SCHR)))
+	{
+		f->_flags |= __SWCH;
+    }
+
+	if (f->_r > 0)
+	{
+		n = mbrtowc(&c, f->_p, f->_r, NULL);
+
+		if (n == -1)
+		{
+			f->_flags |= __SERR;
+			return WEOF;
+		}
+		else
+        if (n == (size_t) -2) /* incomplete mbs */
+		{
+			n = f->_r;
+			memcpy(buf, f->_p, n);
+			f->_p += n;
+			f->_r = 0;
+		}
+		else
+		{
+			f->_p += n;
+			f->_r -= n;
+			return c;
+		}
+	}
+	else
+	{
+		n = 0;
+	}
+
+	do
+	{
+		int t = fgetc(f);
+
+		if (t == EOF)
+		{
+			return WEOF;
+		}
+
+		buf[n++] = (char)t;
+
+		m = mbrtowc(&c, buf, n, NULL);
+	}
+	while (m == (size_t)-2);
+
+	if (m == (size_t)-1)
+	{
+		f->_flags |= __SERR;
+		return WEOF;
+	}
+
+	return c;
 }
