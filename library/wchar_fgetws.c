@@ -24,6 +24,7 @@ wchar_t *
 fgetws(wchar_t *p, int n, FILE *f)
 {
 	(void) p;
+	(void) n;
 	(void) f;
 
 	return NULL;
