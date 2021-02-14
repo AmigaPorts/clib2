@@ -303,7 +303,7 @@ detach_cleanup(REG(d0, LONG UNUSED unused_return_code),REG(d1, BPTR segment_list
 		}
 	}
     #else
-    (void) segment_list;
+	(void) segment_list;
 	#endif /* __amigaos4__ */
 
 	close_libraries();

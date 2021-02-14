@@ -45,7 +45,7 @@
 int
 __execve_environ_init(char * const envp[])
 {
-    (void) envp;
+	(void) envp;
 
 	return(0);
 }

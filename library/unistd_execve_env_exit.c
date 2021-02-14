@@ -44,5 +44,5 @@
 void
 __execve_environ_exit(char * const envp[])
 {
-    (void) envp;
+	(void) envp;
 }
