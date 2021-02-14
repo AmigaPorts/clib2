@@ -26,8 +26,8 @@ swscanf(wchar_t *s, const wchar_t *format, ...)
 	int ret;
 	va_list ap;
 
-	va_start(ap, fmt);
-	ret = vswscanf(s, fmt, ap);
+	va_start(ap, format);
+	ret = vswscanf(s, format, ap);
 	va_end(ap);
 
 	return ret;
