@@ -38,7 +38,7 @@ wcsftime(wchar_t *s, size_t n, const wchar_t *f, const struct tm *tm)
 	wchar_t *p;
 	const char *t_mb;
 	const wchar_t *t;
-	int pad, plus;
+	int plus;
 	unsigned long width;
 	for (l=0; l<n; f++) {
 		if (!*f) {
@@ -50,8 +50,7 @@ wcsftime(wchar_t *s, size_t n, const wchar_t *f, const struct tm *tm)
 			continue;
 		}
 		f++;
-		pad = 0;
-		if (*f == '-' || *f == '_' || *f == '0') pad = *f++;
+		if (*f == '-' || *f == '_' || *f == '0') f++;
 		if ((plus = (*f == '+'))) f++;
 		width = wcstoul(f, &p, 10);
 		if (*p == 'C' || *p == 'F' || *p == 'G' || *p == 'Y') {
