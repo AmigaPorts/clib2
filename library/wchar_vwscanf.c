@@ -30,5 +30,5 @@ vwscanf(const wchar_t *format, ...)
 	ret = vfwscanf(stdin, format, ap);
 	va_end(ap);
 
-	return 0;
+	return ret;
 }
