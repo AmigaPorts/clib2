@@ -30,11 +30,11 @@
 /****************************************************************************/
 
 size_t
-mbrtowc(wchar_t *wcp, const char *s, size_t n, mbstate_t *ps)
+mbrtowc(wchar_t *wcp, const char *sp, size_t n, mbstate_t *ps)
 {
 	static unsigned internal_state;
 	unsigned c;
-	const unsigned char *s = (const void *) s;
+	const unsigned char *s = (const void *) sp;
 	const unsigned N = n;
 	wchar_t dummy;
 
