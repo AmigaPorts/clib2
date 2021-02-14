@@ -1,20 +1,26 @@
 /*
- * Copyright (C) 2021 ixemul.library contributors
+ * Copyright 2005-2020 Rich Felker, et al.
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
+ * Permission is hereby granted, free of charge, to any person obtaining
+ * a copy of this software and associated documentation files (the
+ * "Software"), to deal in the Software without restriction, including
+ * without limitation the rights to use, copy, modify, merge, publish,
+ * distribute, sublicense, and/or sell copies of the Software, and to
+ * permit persons to whom the Software is furnished to do so, subject to
+ * the following conditions:
  *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * The above copyright notice and this permission notice shall be
+ * included in all copies or substantial portions of the Software.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
- * MA 02110-1301, USA.
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+ * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+ * IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+ * CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+ * TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+ * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ *
+ * Imported and modified 2021/01/25
  */
 
 #ifndef _WCHAR_HEADERS_H
@@ -26,83 +32,58 @@
 size_t
 wcsrtombs(char *p, const wchar_t **sp, size_t n, mbstate_t *ps)
 {
-	const wchar_t* s = *sp;
-	size_t r = 0;
+	(void) ps;
 
-	while (n)
-	{
-		wchar_t c = *s;
+	const wchar_t *sp2;
+	char buf[4];
+	size_t N = n, l;
 
-		if (c & ~0x1fffff)
-		{
-			r = -1;
-			errno = EILSEQ;
-			break;
+	if (!p) {
+		for (n=0, sp2=*sp; *sp2; sp2++) {
+			if (*sp2 >= 0x80u) {
+				l = wcrtomb(buf, *sp2, 0);
+				if (!(l+1)) return -1;
+				n += l;
+			} else n++;
 		}
-		else
-        if (c & ~0xffff)
-		{
-			if (n < 4)
-			{
-				break;
-			}
-
-			*p++ = 0xf0 | ((c >> 18) & 0x07);
-			*p++ = 0x80 | ((c >> 12) & 0x3f);
-			*p++ = 0x80 | ((c >> 6) & 0x3f);
-			*p++ = 0x80 | (c & 0x3f);
-			n -= 4;
-			r += 4;
-		}
-		else
-        if (c & ~0x7ff)
-		{
-			if (n < 3)
-			{
-				break;
-			}
-
-			*p++ = 0xe0 | ((c >> 12) & 0x0f);
-			*p++ = 0x80 | ((c >> 6) & 0x3f);
-			*p++ = 0x80 | (c & 0x3f);
-			n -= 3;
-			r += 3;
-		}
-		else
-        if (c & ~0x7f)
-		{
-			if (n < 2)
-			{
-				break;
-			}
-
-			*p++ = 0xc0 | ((c >> 6) & 0x1f);
-			*p++ = 0x80 | (c & 0x3f);
-			n -= 2;
-			r += 2;
-		}
-		else
-		{
-			*p++ = c;
-			--n;
-			++r;
-		}
-
-		++s;
-
-		if (c == 0)
-		{
-			--r;
-			if (p)
-			{
-				s = NULL;
-			}
-
-			break;
-		}
+		return n;
 	}
+	while (n>=4) {
+		if (**sp-1u >= 0x7fu) {
+			if (!**sp) {
+				*p = 0;
+				*sp = 0;
+				return N-n;
+			}
+			l = wcrtomb(p, **sp, 0);
+			if (!(l+1)) return -1;
+			p += l;
+			n -= l;
+		} else {
+			*p++ = **sp;
+			n--;
+		}
+		(*sp)++;
+	}
+	while (n) {
+		if (**sp-1u >= 0x7fu) {
+			if (!**sp) {
+				*p = 0;
+				*sp = 0;
+				return N-n;
+			}
+			l = wcrtomb(buf, **sp, 0);
+			if (!(l+1)) return -1;
+			if (l>n) return N-n;
+			wcrtomb(p, **sp, 0);
+			p += l;
+			n -= l;
+		} else {
+			*p++ = **sp;
+			n--;
+		}
+		(*sp)++;
+	}
+	return N;
 
-	*sp = s;
-
-	return r;
 }

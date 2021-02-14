@@ -1,20 +1,26 @@
 /*
- * Copyright (C) 2021 ixemul.library contributors
+ * Copyright 2005-2020 Rich Felker, et al.
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
+ * Permission is hereby granted, free of charge, to any person obtaining
+ * a copy of this software and associated documentation files (the
+ * "Software"), to deal in the Software without restriction, including
+ * without limitation the rights to use, copy, modify, merge, publish,
+ * distribute, sublicense, and/or sell copies of the Software, and to
+ * permit persons to whom the Software is furnished to do so, subject to
+ * the following conditions:
  *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * The above copyright notice and this permission notice shall be
+ * included in all copies or substantial portions of the Software.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
- * MA 02110-1301, USA.
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+ * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+ * IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+ * CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+ * TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+ * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ *
+ * Imported and modified 2021/01/25
  */
 
 #ifndef _WCHAR_HEADERS_H
@@ -26,123 +32,47 @@
 size_t
 mbrtowc(wchar_t *wcp, const char *s, size_t n, mbstate_t *ps)
 {
-	int r = -1;
-	wchar_t c = 0;
+	static unsigned internal_state;
+	unsigned c;
+	const unsigned char *s = (const void *) s;
+	const unsigned N = n;
+	wchar_t dummy;
 
-	if (s == NULL)
-	{
-		wcp = NULL;
-		s = "";
-		n = 1;
+	if (!ps) ps = (void *)&internal_state;
+	c = *(unsigned *) ps;
+
+	if (!s) {
+		if (c) goto ilseq;
+		return 0;
+	} else if (!wcp) wcp = &dummy;
+
+	if (!n) return -2;
+	if (!c) {
+		if (*s < 0x80) return !!(*wcp = *s);
+		if (MB_CUR_MAX==1) return (*wcp = CODEUNIT(*s)), 1;
+		if (*s-SA > SB-SA) goto ilseq;
+		c = bittab[*s++-SA]; n--;
 	}
 
-	if (n == 0)
-	{
-		r = -2;
-	}
-	else
-	{
-		int c1 = *s++;
-
-		if ((c1 & 0x80) == 0)
-		{
-			c = c1;
-			r = 1;
-		}
-		else
-		if ((c1 & 0xc0) != 0xc0)
-		{
-			// Invalid
-		}
-		else
-		if (n == 1)
-		{
-			r = -2;
-		}
-		else
-		{
-			int c2 = *s++;
-
-			if ((c2 & 0xc0) != 0x80)
-			{
-				// Invalid
-			}
-			else
-			if ((c1 & 0x20) == 0)
-			{
-				c = ((c1 & 0x1f) << 6) | (c2 & 0x3f);
-				r = 2;
-			}
-			else
-			if (n == 2)
-			{
-				r = -2;
-			}
-			else
-			{
-				int c3 = *s++;
-
-				if ((c3 & 0xc0) != 0x80)
-				{
-					// Invalid
-				}
-				else
-				if ((c1 & 0x10) == 0)
-				{
-					c = ((c1 & 0x0f) << 12) | ((c2 & 0x3f) << 6) | (c3 & 0x3f);
-					r = 3;
-				}
-				else
-				if (n == 3)
-				{
-					r = -2;
-				}
-				else
-				{
-					int c4 = *s;
-
-					if ((c3 & 0xc0) != 0x80)
-					{
-						// Invalid
-					}
-					else
-					if ((c1 & 0x08) == 0)
-					{
-						c = ((c1 & 0x07) << 18) | ((c2 & 0x3f) << 12) |
-							((c3 & 0x3f) << 6) | (c4 & 0x3f);
-						r = 4;
-					}
-					else
-					{
-						// Invalid
-					}
-				}
-			}
-		}
-	}
-
-	if (r >= 0)
-	{
-		if (r == 0)
-		{
-			c = 0;
-		}
-
-		if (c == 0)
-		{
-			r = 0;
-		}
-
-		if (wcp)
-		{
+	if (n) {
+		if (OOB(c,*s)) goto ilseq;
+loop:
+		c = c<<6 | *s++-0x80; n--;
+		if (!(c&(1U<<31))) {
+			*((unsigned *) ps) = 0;
 			*wcp = c;
+			return N-n;
+		}
+		if (n) {
+			if (*s-0x80u >= 0x40) goto ilseq;
+			goto loop;
 		}
 	}
-	else
-	if (r == -1)
-	{
-		errno = EILSEQ;
-	}
 
-	return (size_t) r;
+	*((unsigned *) ps) = c;
+	return -2;
+ilseq:
+	*((unsigned *) ps) = 0;
+	errno = EILSEQ;
+	return -1;
 }
