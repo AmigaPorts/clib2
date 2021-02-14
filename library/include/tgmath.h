@@ -86,7 +86,7 @@
 #define asin(x) __builtin_tgmath(asinf, asin, asinl, casinf, casin, casinl, x)
 #define asinh(x) __builtin_tgmath(asinhf, asinh, asinhl, casinhf, casinh, casinhl, x)
 #define atan(x) __builtin_tgmath(atanf, atan, atanl, catanf, catan, catanl, x)
-#define atan2(x,y) __builtin_tgmath(atan2f, atan2, atan2l, catan2f, catan2, catan2l, x, y)
+#define atan2(x,y) __builtin_tgmath(atan2f, atan2, atan2l, x, y)
 #define atanh(x) __builtin_tgmath(atanhf, atanh, atanhl, catanhf, catanh, catanhl, x)
 #define carg(x) __builtin_tgmath(cargf, carg, cargl, x)
 #define cbrt(x) __builtin_tgmath(cbrtf, cbrt, cbrtl, x)
