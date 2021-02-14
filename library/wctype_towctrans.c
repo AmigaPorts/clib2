@@ -40,6 +40,8 @@
 wint_t
 towctrans(wint_t c, wctrans_t desc)
 {
-	/* ZZZ unimplemented */
+	(void) c;
+	(void) desc;
+
 	return(0);
 }
