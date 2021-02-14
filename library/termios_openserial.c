@@ -49,6 +49,10 @@
 int
 openserial(const char *device_name,int unit,int mode)
 {
+    (void) device_name;
+    (void) unit;
+    (void) mode;
+
 	__set_errno(EIO);
 
 	return(ERROR);

@@ -27,7 +27,7 @@ fwscanf(FILE *f, const wchar_t *format, ...)
 	va_list ap;
 
 	va_start(ap, format);
-	ret = vfwscanf(f, fmt, ap);
+	ret = vfwscanf(f, format, ap);
 	va_end(ap);
 
 	return ret;
