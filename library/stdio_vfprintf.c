@@ -145,7 +145,6 @@ vfprintf(FILE * stream,const char * format, va_list arg)
 	char prefix_buffer[8];
 	int argument_digits;
 	int argument_number;
-	int argument_index;
 	int result = EOF;
 	int len = 0;
 	int i;
@@ -210,7 +209,6 @@ vfprintf(FILE * stream,const char * format, va_list arg)
 		/* If a string of digits, terminated by a '$' character appears here,
 		   it indicates which argument should be accessed. We evaluate this
 		   data but for now will ignore it altogether. */
-		argument_index = argument_number = argument_digits = 0;
 
 		for(i = 0 ; format[i] != '\0' ; i++)
 		{
@@ -218,8 +216,6 @@ vfprintf(FILE * stream,const char * format, va_list arg)
 			{
 				if(argument_digits > 0)
 				{
-					argument_index = argument_number;
-
 					format = &format[i+1];
 				}
 
