@@ -48,6 +48,7 @@
 long
 ulimit(int cmd,long newlim)
 {
+    (void) newlim;
 	long ret = -1;
 
 	switch(cmd)
