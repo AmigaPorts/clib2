@@ -42,6 +42,10 @@
 int
 mbtowc(wchar_t *restrict pwc, const char *restrict s, size_t n)
 {
+    (void) pwc;
+    (void) s;
+    (void) n;
+
 	errno = EILSEQ;
 	return -1;
 }
