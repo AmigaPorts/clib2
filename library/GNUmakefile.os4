@@ -18,9 +18,13 @@
 # Note that for either set you still need the GNU make utility to build the
 # library!
 
+OS ?= $(shell uname)
+ifneq ($(OS),AmigaOS)
+
 # These are for the cross compiler, with the operating system header files
 # stored in "/V/include" and the network header files in a local directory
 # called "netinclude".
+
 SDK_INCLUDE := /V/include
 NET_INCLUDE := netinclude
 CC := ppc-amigaos-gcc
@@ -29,30 +33,36 @@ RANLIB := ppc-amigaos-ranlib
 COPY := cp -p
 DELETE := rm -rf
 MAKEDIR := mkdir -p
+
 # Enabling the LOG_COMMAND has the consequence that a rule will not
 # fail on an error because only the exit status from the tee command
 # will be considered
 #LOG_COMMAND := 2>&1 | tee -a compiler.log
-LOG_COMMAND :=
+
 # You may need to request a specific compiler version in order to
 # build the baserel versions of the library. At this time of
 # writing (2008-11-06) GCC 4.0.4 and below support the -mbaserel
 # feature, but more recent versions, including GCC 4.2.4, do not.
 #COMPILER_VERSION := -V4.0.2
 
+else
+
 # The following are for the native OS4 compiler; note that the
 # LOG_COMMAND should not be enabled unless you have a shell
 # installed which supports it.
-#SDK_INCLUDE := /SDK/Include/include_h
-#NET_INCLUDE := /SDK/Include/netinclude
-#CC := distcc gcc
-#AR := ar -q
-#RANLIB := ranlib
-#COPY := copy
-#DELETE := delete all quiet force
-#MAKEDIR := makedir all force
+
+SDK_INCLUDE := /SDK/Include/include_h
+NET_INCLUDE := /SDK/Include/netinclude
+CC := gcc
+AR := ar -q
+RANLIB := ranlib
+COPY := copy
+DELETE := delete all quiet force
+MAKEDIR := makedir all force
 #COMPILER_VERSION := -V4.0.2
 #LOG_COMMAND := *>< | tee >>compiler.log
+
+endif
 
 ##############################################################################
 
