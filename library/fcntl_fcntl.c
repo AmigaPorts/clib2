@@ -45,15 +45,17 @@ int
 fcntl(int file_descriptor, int cmd, ... /* int arg */ )
 {
 	struct file_action_message fam;
-	struct flock * l;
 	int vacant_slot;
 	int result = ERROR;
 	struct fd * fd = NULL;
 	va_list arg;
-	int error;
 	int flags;
 	int fdbase;
 	int i;
+#if defined(UNIX_PATH_SEMANTICS)
+	struct flock * l;
+	int error;
+#endif /* UNIX_PATH_SEMANTICS */
 
 	ENTER();
 
