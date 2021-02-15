@@ -52,9 +52,6 @@
 
 /****************************************************************************/
 
-#define bittab __fsmu8
-extern const uint32_t bittab[];
-
 /* Upper 6 state bits are a negative integer offset to bound-check next byte */
 /*    equivalent to: ( (b-0x80) | (b+offset) ) & ~0x3f      */
 #define OOB(c,b) (((((b)>>3)-0x10)|(((b)>>3)+((int32_t)(c)>>26))) & ~7)
