@@ -21,9 +21,10 @@
 /****************************************************************************/
 
 int
-vwprintf(const wchar_t *format, ...)
+vwprintf(const wchar_t *format, va_list arg)
 {
 	(void) format;
+	(void) arg;
 
 	return 0;
 }

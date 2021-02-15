@@ -21,10 +21,11 @@
 /****************************************************************************/
 
 int
-vfwscanf(FILE *f, const wchar_t *format, ...)
+vfwscanf(FILE *f, const wchar_t *format, va_list arg)
 {
 	(void) f;
 	(void) format;
+	(void) arg;
 
 	return 0;
 }

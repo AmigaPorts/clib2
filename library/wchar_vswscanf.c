@@ -21,10 +21,11 @@
 /****************************************************************************/
 
 int
-vswscanf(wchar_t *s, const wchar_t *format, ...)
+vswscanf(wchar_t *s, const wchar_t *format, va_list arg)
 {
 	(void) s;
 	(void) format;
+	(void) arg;
 
 	return 0;
 }

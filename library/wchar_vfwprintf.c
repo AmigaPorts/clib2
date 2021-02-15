@@ -21,10 +21,11 @@
 /****************************************************************************/
 
 int
-vfwprintf(FILE *f, const wchar_t *format, ...)
+vfwprintf(FILE *f, const wchar_t *format, va_list arg)
 {
 	(void) f;
 	(void) format;
+	(void) arg;
 
 	return 0;
 }

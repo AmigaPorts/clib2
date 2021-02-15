@@ -21,14 +21,7 @@
 /****************************************************************************/
 
 int
-vwscanf(const wchar_t *format, ...)
+vwscanf(const wchar_t *format, va_list arg)
 {
-	int ret;
-	va_list ap;
-
-	va_start(ap, format);
-	ret = vfwscanf(stdin, format, ap);
-	va_end(ap);
-
-	return ret;
+	return vfwscanf(stdin, format, arg);
 }
