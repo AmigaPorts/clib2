@@ -64,4 +64,20 @@ __signbit_double(double number)
 
 /****************************************************************************/
 
+#if LDBL_MANT_DIG == DBL_MANT_DIG && LDBL_MAX_EXP == DBL_MAX_EXP
+
+/****************************************************************************/
+
+int
+__signbit_long_double(long double number)
+{
+	return __signbit_double(number);
+}
+
+/****************************************************************************/
+
+#endif /* LDBL_MANT_DIG == DBL_MANT_DIG && LDBL_MAX_EXP == DBL_MAX_EXP */
+
+/****************************************************************************/
+
 #endif /* FLOATING_POINT_SUPPORT */

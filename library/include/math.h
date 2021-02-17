@@ -156,79 +156,106 @@ extern float __nan;
 
 /****************************************************************************/
 
+#if defined __has_builtin
+#if __has_builtin (__builtin_isunordered)
+#define isunordered(x,y) __builtin_isunordered(x,y)
+#endif /* __builtin_isunordered */
+#if __has_builtin (__builtin_isgreater)
+#define isgreater(x,y) __builtin_isgreater(x,y)
+#endif /* __builtin_isgreater */
+#if __has_builtin (__builtin_isgreaterqeual)
+#define isgreaterqeual(x,y) __builtin_isgreaterqeual(x,y)
+#endif /* __builtin_isgreaterqeual */
+#if __has_builtin (__builtin_isless)
+#define isless(x,y) __builtin_isless(x,y)
+#endif /* __builtin_isless */
+#if __has_builtin (__builtin_islessequal)
+#define islessequal(x,y) __builtin_islessequal(x,y)
+#endif /* __builtin_islessequal */
+#if __has_builtin (__builtin_islessgreater)
+#define islessgreater(x,y) __builtin_islessgreater(x,y)
+#endif /* __builtin_islessgreater */
+#if __has_builtin (__builtin_isinf)
+#define isinf(x) __builtin_isinf(x)
+#endif /* __builtin_isinf */
+#if __has_builtin (__builtin_isnan)
+#define isnan(x) __builtin_isnan(x)
+#endif /* __builtin_isnan */
+#if __has_builtin (__builtin_isnormal)
+#define isnormal(x) __builtin_isnormal(x)
+#endif /* __builtin_isnormal */
+#if __has_builtin (__builtin_fpclassify)
+#define fpclassify(x) (__builtin_fpclassify(FP_NAN, FP_INFINITE, \
+FP_NORMAL, FP_SUBNORMAL, FP_ZERO, x))
+#endif /* __builtin_fpclassify */
+#if __has_builtin (__builtin_isfinite)
+#define isfinite(x) __builtin_isfinite(x)
+#endif /* __builtin_isinfinite */
+#if __has_builtin (__builtin_signbit)
+#define signbit(x) __builtin_signbit(x)
+#endif /* __builtin_signbit */
+#if __has_builtin (__builtin_isinf)
+#define isinf(x) __builtin_isinf(x)
+#endif /* __builtin_isinf */
+#if __has_builtin (__builtin_isnan)
+#define isnan(x) __builtin_isnan(x)
+#endif /* __builtin_isnan */
+#if __has_builtin (__builtin_isnormal)
+#define isnormal(x) __builtin_isnormal(x)
+#endif /* __builtin_isnormal */
+#endif /* __has_builtin */
+
+/****************************************************************************/
+
+#ifndef fpclassify
 extern __stdargs int __fpclassify_float(float x);
 extern __stdargs int __fpclassify_double(double x);
+extern __stdargs int __fpclassify_long_double(double x);
+#define fpclassify(x) _Generic(x, float : __fpclassify_float, \
+double : __fpclassify_double, long double : __fpclassify_long_double)(x)
+#endif /* fpclassify */
+#ifndef isfinite
 extern __stdargs int __isfinite_float(float x);
 extern __stdargs int __isfinite_double(double x);
+extern __stdargs int __isfinite_long_double(double x);
+#define isfinite(x) _Generic(x, float : __isfinite_float, \
+double : __isfinite_double, long double : __isfinite_long_double)(x)
+#endif /* isfinite */
+#ifndef signbit
 extern __stdargs int __signbit_float(float x);
 extern __stdargs int __signbit_double(double x);
-
-/****************************************************************************/
-
-#define fpclassify(x) \
-	(sizeof(x) == sizeof(float) ?	\
-		__fpclassify_float(x) :		\
-		__fpclassify_double(x))
-
-#define isfinite(x) \
-	(sizeof(x) == sizeof(float) ?	\
-		__isfinite_float(x) :		\
-		__isfinite_double(x))
-
-#define isinf(x) \
-	((sizeof(x) == sizeof(float) ?	\
-		__fpclassify_float(x) :		\
-		__fpclassify_double(x))		\
-	== FP_INFINITE)
-
-#define isnan(x) \
-	((sizeof(x) == sizeof(float) ?	\
-		__fpclassify_float(x) :		\
-		__fpclassify_double(x))		\
-	== FP_NAN)
-
-#define isnormal(x) \
-	((sizeof(x) == sizeof(float) ?	\
-		__fpclassify_float(x) :		\
-		__fpclassify_double(x))		\
-	== FP_NORMAL)
-
-#define signbit(x) \
-	(sizeof(x) == sizeof(float) ?	\
-		__signbit_float(x) :		\
-		__signbit_double(x))
-
-/****************************************************************************/
-
-extern __stdargs int __isunordered_float(float x,float y);
-extern __stdargs int __isunordered_float_double(float x,double y);
-extern __stdargs int __isunordered_double(double x,double y);
-
-/****************************************************************************/
-
-#define isunordered(x,y) \
-	(sizeof(x) == sizeof(float) ?					\
-		(sizeof(y) == sizeof(float) ?				\
-			__isunordered_float((x),y) :			\
-			__isunordered_float_double((x),(y))) :	\
-		(sizeof(y) == sizeof(float) ?				\
-			__isunordered_float_double((y),(x)) :	\
-			__isunordered_double((x),(y))))
-
-#define isgreater(x,y) \
-	(isunordered(x,y) ? 0 : (x) > (y))
-
-#define isgreaterequal(x,y) \
-	(isunordered(x,y) ? 0 : (x) >= (y))
-
-#define isless(x,y) \
-	(isunordered(x,y) ? 0 : (x) < (y))
-
-#define islessequal(x,y) \
-	(isunordered(x,y) ? 0 : (x) <= (y))
-
-#define islessgreater(x,y) \
-	(isunordered(x,y) ? 0 : (x) < (y) || (x) > (y))	/* ZZZ don't evaluate twice! */
+extern __stdargs int __signbit_long_double(double x);
+#define signbit(x) _Generic(x, float : __signbit_float, \
+double : __signbit_double, long double : __signbit_long_double)(x)
+#endif /* signbit */
+#ifndef isinf
+#define isinf(x) (fpclassify(x) == FP_INFINITE)
+#endif /* isinf */
+#ifndef isnan
+#define isnan(x) (fpclassify(x) == FP_NAN)
+#endif /* isnan */
+#ifndef isnormal
+#define isnormal(x) (fpclassify(x) == FP_NORMAL)
+#endif /* isnormal */
+#ifndef isunordered
+#define isunordered(x,y) (isnan((x)) ? ((void)(y),1) : isnan((y)))
+#endif /* isunordered */
+#ifndef isgreater
+#define isgreater(x,y) (isunordered(x,y) ? 0 : (x) > (y))
+#endif /* isgreater */
+#ifndef isgreaterequal
+#define isgreaterequal(x,y) (isunordered(x,y) ? 0 : (x) >= (y))
+#endif /* isgreaterequal */
+#ifndef isless
+#define isless(x,y) (isunordered(x,y) ? 0 : (x) < (y))
+#endif /* isless */
+#ifndef islessequal
+#define islessequal(x,y) (isunordered(x,y) ? 0 : (x) <= (y))
+#endif /* islessequal */
+#ifndef islessgreater
+/* ZZZ don't evaluate twice! */
+#define islessgreater(x,y) (isunordered(x,y) ? 0 : (x) < (y) || (x) > (y))
+#endif /* islessgreater */
 
 /****************************************************************************/
 
