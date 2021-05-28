@@ -40,6 +40,10 @@
 size_t
 mbstowcs(wchar_t *pwcs, const char *s, size_t n)
 {
+	(void) pwcs;
+	(void) s;
+	(void) n;
+
 	/* ZZZ unimplemented */
 	return(0);
 }

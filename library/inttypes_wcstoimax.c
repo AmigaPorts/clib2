@@ -46,6 +46,10 @@
 intmax_t
 wcstoimax(const wchar_t *str, char **ptr, int base)
 {
+	(void) str;
+	(void) ptr;
+	(void) base;
+
 	/* ZZZ unimplemented */
 	return(0);
 }
