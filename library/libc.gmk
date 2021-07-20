@@ -383,6 +383,10 @@ C_LIB := \
 	unistd_usleep.o \
 	utime_utime.o \
 	utsname_uname.o \
+    uchar_c16rtomb.o \
+    uchar_c32rtomb.o \
+    uchar_mbrtoc16.o \
+    uchar_mbrtoc32.o \
 	wchar_btowc.o \
 	wchar_fgetwc.o \
 	wchar_fgetws.o \
