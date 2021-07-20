@@ -24,11 +24,11 @@
 #if defined __has_attribute
 #if __has_attribute(__aligned__)
 #define _Alignas(t) __attribute__((__aligned__(t)))
-#endif /* __has_attribute(__aligned__)
+#endif /* __has_attribute(__aligned__) */
 #if __has_attribute(__alignof__)
 #define _Alignof(t) __alignof__(t)
-#endif /* __has_attribute(__alignof__)
-#endif /* __has_attribute
+#endif /* __has_attribute(__alignof__) */
+#endif /* __has_attribute */
 
 #endif /* __STDC_VERSION__ < 201112L */
 
@@ -40,4 +40,4 @@
 #define __alignas_is_defined 1
 #define __alignof_is_defined 1
 
-#endif /* STDALIGN_H */
+#endif /* _STDALIGN_H */

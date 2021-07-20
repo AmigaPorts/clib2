@@ -14,58 +14,15 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
+#if __STDC_VERSION__ >= 200112L && \
+    defined(__GNUC__) && !defined(__STDC_NO_ATOMICS__)
+
 #ifndef _STDATOMIC_H
 #define _STDATOMIC_H
 
-#if defined(__GNUC__) && !defined(__STDC_NO_ATOMICS__)
-
-#include <stdint.h>
-#if 0
-#include <uchar.h> /* uchar.h is still missing. */
-#endif
-
-#ifdef __GCC_ATOMIC_BOOL_LOCK_FREE
-#define ATOMIC_BOOL_LOCK_FREE __GCC_ATOMIC_BOOL_LOCK_FREE
-#endif
-
-#ifdef __GCC_ATOMIC_CHAR_LOCK_FREE
-#define ATOMIC_CHAR_LOCK_FREE __GCC_ATOMIC_CHAR_LOCK_FREE
-#endif
-
-#ifdef __GCC_ATOMIC_CHAR16_T_LOCK_FREE
-#define ATOMIC_CHAR16_T_LOCK_FREE __GCC_ATOMIC_CHAR16_T_LOCK_FREE
-#endif
-
-#ifdef __GCC_ATOMIC_CHAR32_T_LOCK_FREE
-#define ATOMIC_CHAR32_T_LOCK_FREE __GCC_ATOMIC_CHAR32_T_LOCK_FREE
-#endif
-
-#ifdef __GCC_ATOMIC_WCHAR_T_LOCK_FREE
-#define ATOMIC_WCHAR_T_LOCK_FREE __GCC_ATOMIC_WCHAR_T_LOCK_FREE
-#endif
-
-#ifdef __GCC_ATOMIC_SHORT_LOCK_FREE
-#define ATOMIC_SHORT_LOCK_FREE __GCC_ATOMIC_SHORT_LOCK_FREE
-#endif
-
-#ifdef __GCC_ATOMIC_INT_LOCK_FREE
-#define ATOMIC_INT_LOCK_FREE __GCC_ATOMIC_INT_LOCK_FREE
-#endif
-
-#ifdef __GCC_ATOMIC_LONG_LOCK_FREE
-#define ATOMIC_LONG_LOCK_FREE __GCC_ATOMIC_LONG_LOCK_FREE
-#endif
-
-#ifdef __GCC_ATOMIC_LLONG_LOCK_FREE
-#define ATOMIC_LLONG_LOCK_FREE __GCC_ATOMIC_LLONG_LOCK_FREE
-#endif
-
-#ifdef __GCC_ATOMIC_POINTER_LOCK_FREE
-#define ATOMIC_POINTER_LOCK_FREE __GCC_ATOMIC_POINTER_LOCK_FREE
-#endif
-
-#define ATOMIC_VAR_INIT(VALUE) (VALUE)
-#define	ATOMIC_FLAG_INIT { ATOMIC_VAR_INIT(0) }
+#ifndef _UCHAR_H
+#include <uchar.h>
+#endif /* _UCHAR_H */
 
 typedef _Atomic(_Bool) atomic_bool;
 typedef _Atomic(char) atomic_char;
@@ -79,10 +36,8 @@ typedef _Atomic(long) atomic_long;
 typedef _Atomic(unsigned long) atomic_ulong;
 typedef _Atomic(long long) atomic_llong;
 typedef _Atomic(unsigned long long) atomic_ullong;
-#if 0 /* uchar.h is still missing. */
 typedef _Atomic(char16_t) atomic_char16_t;
 typedef _Atomic(char32_t) atomic_char32_t;
-#endif
 typedef _Atomic(wchar_t) atomic_wchar_t;
 typedef _Atomic(int_least8_t) atomic_int_least8_t;
 typedef _Atomic(uint_least8_t) atomic_uint_least8_t;
@@ -122,6 +77,56 @@ typedef enum
     memory_order_seq_cst = __ATOMIC_SEQ_CST
 }   memory_order;
 
+static inline bool
+atomic_flag_test_and_set_explicit(volatile atomic_flag *, memory_order)
+__attribute__((always_inline));
+
+static inline bool
+atomic_flag_test_and_set(volatile atomic_flag *)
+__attribute__((always_inline));
+
+static inline void
+atomic_flag_clear_explicit(volatile atomic_flag *, memory_order)
+__attribute__((always_inline));
+
+static inline void
+atomic_flag_clear(volatile atomic_flag *)
+__attribute__((always_inline));
+
+#ifdef __GCC_ATOMIC_BOOL_LOCK_FREE
+#define ATOMIC_BOOL_LOCK_FREE __GCC_ATOMIC_BOOL_LOCK_FREE
+#endif
+#ifdef __GCC_ATOMIC_CHAR_LOCK_FREE
+#define ATOMIC_CHAR_LOCK_FREE __GCC_ATOMIC_CHAR_LOCK_FREE
+#endif
+#ifdef __GCC_ATOMIC_CHAR16_T_LOCK_FREE
+#define ATOMIC_CHAR16_T_LOCK_FREE __GCC_ATOMIC_CHAR16_T_LOCK_FREE
+#endif
+#ifdef __GCC_ATOMIC_CHAR32_T_LOCK_FREE
+#define ATOMIC_CHAR32_T_LOCK_FREE __GCC_ATOMIC_CHAR32_T_LOCK_FREE
+#endif
+#ifdef __GCC_ATOMIC_WCHAR_T_LOCK_FREE
+#define ATOMIC_WCHAR_T_LOCK_FREE __GCC_ATOMIC_WCHAR_T_LOCK_FREE
+#endif
+#ifdef __GCC_ATOMIC_SHORT_LOCK_FREE
+#define ATOMIC_SHORT_LOCK_FREE __GCC_ATOMIC_SHORT_LOCK_FREE
+#endif
+#ifdef __GCC_ATOMIC_INT_LOCK_FREE
+#define ATOMIC_INT_LOCK_FREE __GCC_ATOMIC_INT_LOCK_FREE
+#endif
+#ifdef __GCC_ATOMIC_LONG_LOCK_FREE
+#define ATOMIC_LONG_LOCK_FREE __GCC_ATOMIC_LONG_LOCK_FREE
+#endif
+#ifdef __GCC_ATOMIC_LLONG_LOCK_FREE
+#define ATOMIC_LLONG_LOCK_FREE __GCC_ATOMIC_LLONG_LOCK_FREE
+#endif
+#ifdef __GCC_ATOMIC_POINTER_LOCK_FREE
+#define ATOMIC_POINTER_LOCK_FREE __GCC_ATOMIC_POINTER_LOCK_FREE
+#endif
+
+#define ATOMIC_VAR_INIT(VALUE) (VALUE)
+#define	ATOMIC_FLAG_INIT { ATOMIC_VAR_INIT(0) }
+
 #define atomic_is_lock_free(O) __atomic_is_lock_free(sizeof (*(O)), (O))
 #define	atomic_store_explicit(O, D, S) __atomic_store_n(O, D, S)
 #define atomic_store(O, D) atomic_store_explicit(O, D, memory_order_seq_cst)
@@ -150,34 +155,33 @@ typedef enum
 #define	atomic_fetch_and(O, P) atomic_fetch_and_explicit(O, P, memory_order_seq_cst)
 #define atomic_thread_fence(S) __atomic_thread_fence(S)
 #define atomic_signal_fence(S) __atomic_signal_fence(S)
-
 #define kill_dependency(Y) __extension__ ({ __auto_type __kill_dependency_tmp = (Y); \
       __kill_dependency_tmp; })
 
-static __inline _Bool
+static inline bool
 atomic_flag_test_and_set_explicit(volatile atomic_flag *obj, memory_order ord)
 {
     return atomic_exchange_explicit(&obj->__flag, 1, ord);
 }
 
-static __inline _Bool
+static inline bool
 atomic_flag_test_and_set(volatile atomic_flag *obj)
 {
     return atomic_flag_test_and_set_explicit(obj, memory_order_seq_cst);
 }
 
-static __inline void
+static inline void
 atomic_flag_clear_explicit(volatile atomic_flag *obj, memory_order ord)
 {
     atomic_store_explicit(&obj->__flag, 0, ord);
 }
 
-static __inline void
+static inline void
 atomic_flag_clear(volatile atomic_flag *obj)
 {
     atomic_flag_clear_explicit(obj, memory_order_seq_cst);
 }
 
-#endif /* __STDC_NO_ATOMICS__ */
-
 #endif /* _STDATOMIC_H */
+#endif /* __STDC_VERSION__ >= 200112L && \
+          defined(__GNUC__) && !defined(__STDC_NO_ATOMICS__) */
