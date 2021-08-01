@@ -24,6 +24,10 @@
 #include <uchar.h>
 #endif /* _UCHAR_H */
 
+#ifndef _STDBOOL_H
+#include <stdbool.h>
+#endif /* _STDBOOL_H */
+
 typedef _Atomic(_Bool) atomic_bool;
 typedef _Atomic(char) atomic_char;
 typedef _Atomic(signed char) atomic_schar;
