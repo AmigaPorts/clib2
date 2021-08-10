@@ -138,7 +138,11 @@ extern VOID FreeIEvents(struct InputEvent *ie);
 /****************************************************************************/
 
 struct InputEvent *
+#ifdef APTR_TYPEDEF
+InvertString(STRPTR str, CONST struct KeyMap *km)
+#else
 InvertString(CONST_STRPTR str, CONST struct KeyMap *km)
+#endif
 {
 	/* bugs:
 	   can't escape '>'
