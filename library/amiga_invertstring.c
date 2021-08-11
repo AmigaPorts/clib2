@@ -138,7 +138,7 @@ extern VOID FreeIEvents(struct InputEvent *ie);
 /****************************************************************************/
 
 struct InputEvent *
-#ifdef APTR_TYPEDEF
+#if (INCLUDE_VERSION == 47)
 InvertString(STRPTR str, CONST struct KeyMap *km)
 #else
 InvertString(CONST_STRPTR str, CONST struct KeyMap *km)
