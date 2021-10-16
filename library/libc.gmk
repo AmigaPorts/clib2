@@ -309,6 +309,7 @@ C_LIB := \
 	string_strcpy.o \
 	string_strcspn.o \
 	string_strdup.o \
+	string_strndup.o \
 	string_strerror.o \
 	string_strerror_r.o \
 	string_strlcat.o \

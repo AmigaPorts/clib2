@@ -120,6 +120,7 @@ extern __stdargs char * rindex(const char *s, int c);
 /****************************************************************************/
 
 extern __stdargs char * strdup(const char *s);
+extern __stdargs char * strndup(const char *s, size_t size);
 
 #ifdef __MEM_DEBUG
 extern __stdargs char * __strdup(const char *s,const char *file,int line);
