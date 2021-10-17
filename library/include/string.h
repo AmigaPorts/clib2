@@ -98,6 +98,8 @@ extern __stdargs void *memset(void *ptr, int val, unsigned long len);
 #else
 extern __stdargs int memcmp(const void *ptr1, const void *ptr2, size_t len);
 extern __stdargs void *memcpy(void *dest, const void *src, size_t len);
+extern __stdargs void *memccpy(void * restrict dst, const void * restrict src, int c,
+    size_t count);
 extern __stdargs void *memset(void *ptr, int val, size_t len);
 #endif /* __GNUC__ && __GNUC__ < 3 */
 

@@ -299,6 +299,7 @@ C_LIB := \
 	string_memchr.o \
 	string_memcmp.o \
 	string_memcpy.o \
+	string_memccpy.o \
 	string_memmove.o \
 	string_memset.o \
 	string_rindex.o \
