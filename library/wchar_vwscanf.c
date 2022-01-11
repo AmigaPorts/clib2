@@ -21,7 +21,7 @@
 /****************************************************************************/
 
 int
-vwscanf(const wchar_t *format, va_list arg)
+vwscanf(const wchar_t * __restrict format, va_list arg)
 {
 	return vfwscanf(stdin, format, arg);
 }

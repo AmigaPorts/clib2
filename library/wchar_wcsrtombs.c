@@ -30,7 +30,8 @@
 /****************************************************************************/
 
 size_t
-wcsrtombs(char *p, const wchar_t **sp, size_t n, mbstate_t *ps)
+wcsrtombs(char * __restrict p, const wchar_t ** __restrict sp, size_t n,
+    mbstate_t * __restrict ps)
 {
 	(void) ps;
 

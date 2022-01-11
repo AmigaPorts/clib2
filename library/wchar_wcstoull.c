@@ -21,7 +21,7 @@
 /****************************************************************************/
 
 unsigned long long
-wcstoull(const wchar_t *p, wchar_t **q, int base)
+wcstoull(const wchar_t * __restrict p, wchar_t ** __restrict q, int base)
 {
 	(void) p;
 	(void) q;

@@ -21,7 +21,7 @@
 /****************************************************************************/
 
 wint_t
-fputws(const wchar_t *s, FILE *f)
+fputws(const wchar_t * __restrict s, FILE * __restrict f)
 {
 	(void) s;
 	(void) f;

@@ -64,7 +64,7 @@
 /****************************************************************************/
 
 float
-strtof(const char *str, char ** ptr)
+strtof(const char * __restrict str, char ** __restrict ptr)
 {
 	const char * stop = str;
 	float sum = 0.0;

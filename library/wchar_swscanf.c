@@ -21,7 +21,7 @@
 /****************************************************************************/
 
 int
-swscanf(wchar_t *s, const wchar_t *format, ...)
+swscanf(wchar_t * __restrict s, const wchar_t * __restrict format, ...)
 {
 	int ret;
 	va_list ap;

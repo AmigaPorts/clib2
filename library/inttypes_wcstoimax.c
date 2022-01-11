@@ -44,7 +44,7 @@
 /****************************************************************************/
 
 intmax_t
-wcstoimax(const wchar_t *str, char **ptr, int base)
+wcstoimax(const wchar_t * __restrict str, char ** __restrict ptr, int base)
 {
 	(void) str;
 	(void) ptr;

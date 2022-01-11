@@ -44,7 +44,7 @@
 /****************************************************************************/
 
 int
-sscanf(const char *s,const char *format, ...)
+sscanf(const char * __restrict s, const char * __restrict format, ...)
 {
 	int result = EOF;
 	va_list arg;

@@ -21,7 +21,7 @@
 /****************************************************************************/
 
 int
-vswscanf(wchar_t *s, const wchar_t *format, va_list arg)
+vswscanf(wchar_t * __restrict s, const wchar_t * __restrict format, va_list arg)
 {
 	(void) s;
 	(void) format;

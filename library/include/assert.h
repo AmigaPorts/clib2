@@ -63,12 +63,14 @@ extern "C" {
 
 /****************************************************************************/
 
-extern __stdargs void __assertion_failure(const char *file_name,int line_number,const char * expression);
+extern __stdargs void __assertion_failure(const char *file_name,int line_number,
+    const char * expression);
 
 /****************************************************************************/
 
 #define assert(expression) \
-	((void)((expression) ? 0 : (__assertion_failure(__FILE__,__LINE__,#expression),0)))
+	((void)((expression) ? 0 : \
+    (__assertion_failure(__FILE__,__LINE__,#expression),0)))
 
 #else
 

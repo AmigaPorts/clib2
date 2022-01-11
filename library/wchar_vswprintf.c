@@ -21,7 +21,8 @@
 /****************************************************************************/
 
 int
-vswprintf(wchar_t *s, size_t maxlen, const wchar_t *format, va_list arg)
+vswprintf(wchar_t * __restrict s, size_t maxlen,
+    const wchar_t * __restrict format, va_list arg)
 {
 	(void) s;
 	(void) maxlen;

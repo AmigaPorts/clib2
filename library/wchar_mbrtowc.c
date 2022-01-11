@@ -21,7 +21,8 @@
 /****************************************************************************/
 
 size_t
-mbrtowc(wchar_t *wcp, const char *sp, size_t n, mbstate_t *ps)
+mbrtowc(wchar_t * __restrict wcp, const char * __restrict sp, size_t n,
+    mbstate_t * __restrict ps)
 {
 	(void) wcp;
 	(void) sp;

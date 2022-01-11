@@ -30,7 +30,7 @@
 /****************************************************************************/
 
 wchar_t *
-wcscat(wchar_t *p, const wchar_t *q)
+wcscat(wchar_t * __restrict p, const wchar_t * __restrict q)
 {
 	wcscpy(p + wcslen(p), q);
 	return p;

@@ -21,7 +21,7 @@
 /****************************************************************************/
 
 int
-swprintf(wchar_t *s, const wchar_t *format, ...)
+swprintf(wchar_t * __restrict s, const wchar_t * __restrict format, ...)
 {
 	(void) s;
 	(void) format;

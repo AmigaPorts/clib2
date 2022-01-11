@@ -115,7 +115,7 @@ get_num_leading_digits(__long_double_t v,int radix)
 /****************************************************************************/
 
 int
-vfprintf(FILE * stream,const char * format, va_list arg)
+vfprintf(FILE * __restrict stream, const char * __restrict format, va_list arg)
 {
 	enum parameter_size_t
 	{

@@ -50,7 +50,8 @@
 /****************************************************************************/
 
 int
-setvbuf(FILE *stream,char *buf,int bufmode,size_t size)
+setvbuf(FILE * __restrict stream, char * __restrict buf, int bufmode,
+    size_t size)
 {
 	struct iob * file = (struct iob *)stream;
 	char *new_buffer = NULL;

@@ -23,9 +23,8 @@
 /****************************************************************************/
 
 long double
-strtold(const char *str, char **ptr)
+strtold(const char * __restrict str, char ** __restrict ptr)
 {
-    // We might be sacrificing precision. Consider this a stub and a FIXME.
     return strtod(str, ptr);
 }
 

@@ -47,6 +47,12 @@
 #endif /* !__amigaos4__ */
 #define _STDLIB_H
 
+#if __STDC_VERSION__ >= 199901L
+#define __restrict restrict
+#elif !defined(__GNUC__)
+#define __restrict
+#endif
+
 /****************************************************************************/
 
 #ifndef _STDDEF_H
@@ -95,8 +101,10 @@ typedef struct { long quot; long rem; } ldiv_t;
 extern __stdargs int mblen(const char *s, size_t n);
 extern __stdargs int mbtowc(wchar_t *pwc, const char *s, size_t n);
 extern __stdargs int wctomb(char *s, wchar_t wchar);
-extern __stdargs size_t mbstowcs(wchar_t *pwcs, const char *s, size_t n);
-extern __stdargs size_t wcstombs(char *s, const wchar_t *pwcs, size_t n);
+extern __stdargs size_t mbstowcs(wchar_t * __restrict pwcs, const char * __restrict s,
+    size_t n);
+extern __stdargs size_t wcstombs(char * __restrict s, const wchar_t * __restrict pwcs,
+    size_t n);
 
 /****************************************************************************/
 
@@ -155,10 +163,13 @@ extern __stdargs void qsort(void *base,size_t count,size_t size,
 
 /****************************************************************************/
 
-extern __stdargs double strtod(const char *str, char ** ptr);
-extern __stdargs long strtol(const char *str, char **ptr, int base);
-extern __stdargs long double strtold(const char *str, char **ptr);
-extern __stdargs unsigned long strtoul(const char *str, char **ptr, int base);
+extern __stdargs double strtod(const char * __restrict str, char ** __restrict ptr);
+extern __stdargs long strtol(const char * __restrict str, char ** __restrict ptr,
+    int base);
+extern __stdargs long double strtold(const char * __restrict str,
+    char ** __restrict ptr);
+extern __stdargs unsigned long strtoul(const char * __restrict str,
+    char ** __restrict ptr, int base);
 
 /****************************************************************************/
 
@@ -450,8 +461,10 @@ extern __stdargs char * mkdtemp(char *name_template);
 
 /****************************************************************************/
 
-extern __stdargs long long strtoll(const char *str, char **ptr, int base);
-extern __stdargs unsigned long long strtoull(const char *str, char **ptr, int base);
+extern __stdargs long long strtoll(const char * __restrict str, char ** __restrict ptr,
+    int base);
+extern __stdargs unsigned long long strtoull(const char * __restrict str,
+    char ** __restrict ptr, int base);
 extern __stdargs long long atoll(const char *str);
 
 /****************************************************************************/
@@ -467,7 +480,7 @@ extern __stdargs lldiv_t lldiv(long long n,long long d);
 
 /****************************************************************************/
 
-extern __stdargs int mbtowc(wchar_t *restrict pwc, const char *restrict s, size_t n);
+extern __stdargs int mbtowc(wchar_t *__restrict pwc, const char *__restrict s, size_t n);
 extern __stdargs int wctomb(char *s, wchar_t wchar);
 
 /****************************************************************************/
@@ -476,7 +489,7 @@ extern __stdargs int wctomb(char *s, wchar_t wchar);
 
 /****************************************************************************/
 
-extern __stdargs float strtof(const char *str, char ** ptr);
+extern __stdargs float strtof(const char * __restrict str, char **  __restrict ptr);
 
 /****************************************************************************/
 

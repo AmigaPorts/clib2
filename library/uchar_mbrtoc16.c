@@ -22,7 +22,8 @@
 #include <uchar.h>
 #endif /* _UCHAR_HEADERS_H */
 
-size_t mbrtoc16(char16_t *pc16, const char *s, size_t n, mbstate_t * ps)
+size_t mbrtoc16(char16_t * __restrict pc16, const char * __restrict s,
+    size_t n, mbstate_t * __restrict ps)
 {
     (void) pc16;
     (void) s;

@@ -40,7 +40,7 @@
 #if defined(__STDC_VERSION__) && (__STDC_VERSION__ >= 199901L)
 
 int
-mbtowc(wchar_t *restrict pwc, const char *restrict s, size_t n)
+mbtowc(wchar_t * __restrict pwc, const char * __restrict s, size_t n)
 {
 	(void) pwc;
 	(void) s;

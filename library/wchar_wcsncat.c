@@ -30,7 +30,7 @@
 /****************************************************************************/
 
 wchar_t *
-wcsncat(wchar_t *p, const wchar_t *q, size_t n)
+wcsncat(wchar_t * __restrict p, const wchar_t * __restrict q, size_t n)
 {
 	wchar_t *a = p;
 	p += wcslen(p);

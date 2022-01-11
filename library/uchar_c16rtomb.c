@@ -22,7 +22,7 @@
 #include <uchar.h>
 #endif /* _UCHAR_HEADERS_H */
 
-size_t c16rtomb(char *s, char16_t c16, mbstate_t *ps)
+size_t c16rtomb(char * __restrict s, char16_t c16, mbstate_t * __restrict ps)
 {
     (void) s;
     (void) c16;

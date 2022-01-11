@@ -64,7 +64,7 @@
 /****************************************************************************/
 
 double
-strtod(const char *str, char ** ptr)
+strtod(const char * __restrict str, char ** __restrict ptr)
 {
 	const char * stop = str;
 	double sum = 0.0;

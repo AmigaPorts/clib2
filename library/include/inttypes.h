@@ -41,6 +41,12 @@
 #ifndef	_INTTYPES_H
 #define	_INTTYPES_H
 
+#if __STDC_VERSION__ >= 199901L
+#define __restrict restrict
+#elif !defined(__GNUC__)
+#define __restrict
+#endif
+
 /****************************************************************************/
 
 #ifndef _SYS_CLIB2_STDC_H
@@ -325,13 +331,17 @@ extern __stdargs imaxdiv_t imaxdiv(intmax_t n,intmax_t d);
 
 /****************************************************************************/
 
-extern __stdargs intmax_t strtoimax(const char *str, char **ptr, int base);
-extern __stdargs uintmax_t strtoumax(const char *str, char **ptr, int base);
+extern __stdargs intmax_t strtoimax(const char * __restrict str, char ** __restrict ptr,
+    int base);
+extern __stdargs uintmax_t strtoumax(const char * __restrict str, char ** __restrict ptr,
+    int base);
 
 /****************************************************************************/
 
-extern __stdargs intmax_t wcstoimax(const wchar_t *str, char **ptr, int base);
-extern __stdargs uintmax_t wcstoumax(const wchar_t *str, char **ptr, int base);
+extern __stdargs intmax_t wcstoimax(const wchar_t * __restrict str,
+    char ** __restrict ptr, int base);
+extern __stdargs uintmax_t wcstoumax(const wchar_t * __restrict str,
+    char ** __restrict ptr, int base);
 
 /****************************************************************************/
 

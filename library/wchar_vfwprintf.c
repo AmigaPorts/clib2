@@ -21,7 +21,7 @@
 /****************************************************************************/
 
 int
-vfwprintf(FILE *f, const wchar_t *format, va_list arg)
+vfwprintf(FILE * __restrict f, const wchar_t * __restrict format, va_list arg)
 {
 	(void) f;
 	(void) format;

@@ -29,7 +29,7 @@
 /****************************************************************************/
 
 long double
-wcstold(const wchar_t *p, wchar_t **q)
+wcstold(const wchar_t * __restrict p, wchar_t ** __restrict q)
 {
 	return wcstod(p, q);
 }

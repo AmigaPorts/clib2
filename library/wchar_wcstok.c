@@ -30,7 +30,8 @@
 /****************************************************************************/
 
 wchar_t *
-wcstok(wchar_t *s, const wchar_t *q, wchar_t **p)
+wcstok(wchar_t * __restrict s, const wchar_t * __restrict q,
+    wchar_t ** __restrict p)
 {
 	if (!s && !(s = *p)) return NULL;
 	s += wcsspn(s, q);

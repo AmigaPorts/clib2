@@ -30,7 +30,8 @@
 /****************************************************************************/
 
 size_t
-wcsftime(wchar_t *s, size_t n, const wchar_t *f, const struct tm *tm)
+wcsftime(wchar_t * __restrict s, size_t n, const wchar_t * __restrict f,
+    const struct tm * __restrict tm)
 {
 	size_t l, k;
 	char buf[100];

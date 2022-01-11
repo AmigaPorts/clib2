@@ -21,7 +21,7 @@
 /****************************************************************************/
 
 int
-wscanf(const wchar_t *format, ...)
+wscanf(const wchar_t * __restrict format, ...)
 {
 	(void) format;
 

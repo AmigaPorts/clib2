@@ -30,7 +30,7 @@
 /****************************************************************************/
 
 size_t
-mbrlen(const char *restrict s, size_t n, mbstate_t *restrict ps)
+mbrlen(const char * __restrict s, size_t n, mbstate_t * __restrict ps)
 {
 	static unsigned internal;
 	return mbrtowc(0, s, n, ps ? ps : (mbstate_t *) &internal);

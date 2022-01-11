@@ -23,7 +23,7 @@
 #if defined(FLOATING_POINT_SUPPORT)
 
 double
-wcstod(const wchar_t *p, wchar_t **q)
+wcstod(const wchar_t * __restrict p, wchar_t ** __restrict q)
 {
 	(void) p;
 	(void) q;

@@ -44,7 +44,7 @@
 /****************************************************************************/
 
 int
-vprintf(const char *format,va_list arg)
+vprintf(const char * __restrict format, va_list arg)
 {
 	int result = EOF;
 

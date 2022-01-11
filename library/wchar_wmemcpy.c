@@ -30,7 +30,7 @@
 /****************************************************************************/
 
 wchar_t *
-wmemcpy(wchar_t *p, const wchar_t *q, size_t n)
+wmemcpy(wchar_t * __restrict p, const wchar_t * __restrict q, size_t n)
 {
 	wchar_t *a = p;
 	while (n--) *p++ = *q++;

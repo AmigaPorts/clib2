@@ -21,7 +21,7 @@
 /****************************************************************************/
 
 int
-fwprintf(FILE *f, const wchar_t *format, ...)
+fwprintf(FILE * __restrict f, const wchar_t * __restrict format, ...)
 {
 	(void) f;
 	(void) format;

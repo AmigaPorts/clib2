@@ -21,7 +21,7 @@
 /****************************************************************************/
 
 wchar_t *
-fgetws(wchar_t *p, int n, FILE *f)
+fgetws(wchar_t * __restrict p, int n, FILE * __restrict f)
 {
 	(void) p;
 	(void) n;

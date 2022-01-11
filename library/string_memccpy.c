@@ -27,7 +27,7 @@
 /****************************************************************************/
 
 
-void *memccpy(void * restrict dst, const void * restrict src, int c,
+void *memccpy(void * __restrict dst, const void * __restrict src, int c,
     size_t count)
 {
 	#if defined(CHECK_FOR_NULL_POINTERS)

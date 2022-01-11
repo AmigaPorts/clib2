@@ -30,7 +30,7 @@
 /****************************************************************************/
 
 size_t
-wcsxfrm(wchar_t *p, const wchar_t *q, size_t n)
+wcsxfrm(wchar_t * __restrict p, const wchar_t * __restrict q, size_t n)
 {
 	size_t l = wcslen(q);
 	if (l < n) {

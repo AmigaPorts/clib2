@@ -30,7 +30,7 @@
 /****************************************************************************/
 
 size_t
-wcrtomb(char *p, wchar_t c, mbstate_t *ps)
+wcrtomb(char * __restrict p, wchar_t c, mbstate_t * __restrict ps)
 {
 	(void) ps;
 

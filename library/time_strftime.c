@@ -558,7 +558,8 @@ format_date(const char *format,const struct tm *tm,struct Hook * hook)
 /****************************************************************************/
 
 size_t
-strftime(char *s, size_t maxsize, const char *format, const struct tm *tm)
+strftime(char * __restrict s, size_t maxsize, const char * __restrict format,
+    const struct tm * __restrict tm)
 {
 	DECLARE_LOCALEBASE();
 	size_t result = 0;

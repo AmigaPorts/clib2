@@ -30,7 +30,7 @@
 /****************************************************************************/
 
 wchar_t *
-wcscpy(wchar_t *p, const wchar_t *q)
+wcscpy(wchar_t * __restrict p, const wchar_t * __restrict q)
 {
 	wchar_t *a = p;
 	while ((*p++ = *q++));

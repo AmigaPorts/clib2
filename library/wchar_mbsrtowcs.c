@@ -21,7 +21,8 @@
 /****************************************************************************/
 
 size_t
-mbsrtowcs(wchar_t *p, const char **sp, size_t n, mbstate_t *ps)
+mbsrtowcs(wchar_t * __restrict p, const char ** __restrict sp, size_t n,
+    mbstate_t * __restrict ps)
 {
 	(void) p;
 	(void) sp;

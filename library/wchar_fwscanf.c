@@ -21,7 +21,7 @@
 /****************************************************************************/
 
 int
-fwscanf(FILE *f, const wchar_t *format, ...)
+fwscanf(FILE * __restrict f, const wchar_t * __restrict format, ...)
 {
 	int ret;
 	va_list ap;
