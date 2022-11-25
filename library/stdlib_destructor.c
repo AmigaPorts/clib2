@@ -41,7 +41,14 @@ typedef void (*func_ptr)(void);
 
 /****************************************************************************/
 
+#if (defined(__near) && defined(__chip) && defined(__fast))
+__attribute__((section(".list___ZZZZ__")))
+func_ptr __ZZZZ__[] = { (func_ptr)0 };
+
+__attribute__((section(".list___DTOR_LISA__")))
+#endif
 func_ptr __DTOR_LIST__[] = { (func_ptr)0 };
+
 
 /****************************************************************************/
 

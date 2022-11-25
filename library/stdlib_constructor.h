@@ -78,6 +78,24 @@
 	STATIC VOID (*__##name##_dtor)(VOID) __attribute__((used,section(".dtors._" #pri))) = name##_dtor; \
 	STATIC VOID name##_dtor(VOID)
 
+#elif (defined(__near) && defined(__chip) && defined(__fast))
+// bebbo's gcc
+#define CONSTRUCTOR(name,pri) \
+	asm(".section\t.list___INIT_LIST__,\"aw\""); \
+	asm("\t.long ___ctor_" #name); \
+	asm("\t.long " #pri); \
+	asm(".text"); \
+	VOID __ctor_##name(VOID); \
+	VOID __ctor_##name(VOID)
+
+#define DESTRUCTOR(name,pri) \
+	asm(".section\t.list___EXIT_LIST__,\"aw\""); \
+	asm("\t.long ___dtor_" #name); \
+	asm("\t.long " #pri); \
+	asm(".text"); \
+	VOID __dtor_##name(VOID); \
+	VOID __dtor_##name(VOID)
+
 #else
 
 #define CONSTRUCTOR(name,pri) \

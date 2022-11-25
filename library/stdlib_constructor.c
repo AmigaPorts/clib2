@@ -40,7 +40,15 @@
 typedef void (*func_ptr)(void);
 
 /****************************************************************************/
+#if (defined(__near) && defined(__chip) && defined(__fast))
 
+__attribute__((section(".list___INIT_LISA__")))
+func_ptr __INIT_LIST__[] = {0};
+__attribute__((section(".list___EXIT_LISA__")))
+func_ptr __EXIT_LIST__[] = {0};;
+
+__attribute__((section(".list___CTOR_LISA__")))
+#endif
 func_ptr __CTOR_LIST__[] = { (func_ptr)0 };
 
 /****************************************************************************/
