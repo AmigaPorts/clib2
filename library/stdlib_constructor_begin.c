@@ -201,8 +201,10 @@ sort_private_functions(struct private_function * base, size_t count)
 static void
 call_init_functions(void)
 {
-	LONG num_init_functions = (LONG)(__INIT_LIST__[0]) / 2;
-	LONG num_exit_functions = (LONG)(__EXIT_LIST__[0]) / 2;
+	func_ptr * fp = &__INIT_LIST__[1];
+	while (*fp)
+		++fp;
+	LONG num_init_functions = (fp - &__INIT_LIST__[1]) >> 1;
 
 	ENTER();
 
@@ -210,11 +212,6 @@ call_init_functions(void)
 
 	if(num_init_functions > 1)
 		sort_private_functions((struct private_function *)&__INIT_LIST__[1],num_init_functions);
-
-	SHOWVALUE(num_exit_functions);
-
-	if(num_exit_functions > 1)
-		sort_private_functions((struct private_function *)&__EXIT_LIST__[1],num_exit_functions);
 
 	if(num_init_functions > 0)
 	{
@@ -241,9 +238,17 @@ call_init_functions(void)
 static void
 call_exit_functions(void)
 {
-	LONG num_exit_functions = (LONG)(__EXIT_LIST__[0]) / 2;
+	func_ptr * fp = &__EXIT_LIST__[1];
+	while (*fp)
+		++fp;
+	LONG num_exit_functions = (fp - &__EXIT_LIST__[1]) >> 1;
 
 	ENTER();
+
+	SHOWVALUE(num_exit_functions);
+
+	if(num_exit_functions > 1)
+		sort_private_functions((struct private_function *)&__EXIT_LIST__[1],num_exit_functions);
 
 	if(num_exit_functions > 0)
 	{
@@ -270,7 +275,10 @@ call_exit_functions(void)
 static void
 call_constructors(void)
 {
-	ULONG num_ctors = (ULONG)__CTOR_LIST__[0];
+	func_ptr * fp = &__CTOR_LIST__[1];
+	while (*fp)
+		++fp;
+	LONG num_ctors = (fp - &__CTOR_LIST__[1]);
 	ULONG i;
 
 	ENTER();
@@ -293,7 +301,10 @@ call_constructors(void)
 static void
 call_destructors(void)
 {
-	ULONG num_dtors = (ULONG)__DTOR_LIST__[0];
+	func_ptr * fp = &__DTOR_LIST__[1];
+	while (*fp)
+		++fp;
+	LONG num_dtors = (fp - &__DTOR_LIST__[1]);
 	static ULONG i;
 
 	ENTER();
