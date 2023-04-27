@@ -64,7 +64,7 @@ VOID __begin_io(struct IORequest * ior);
   __asm volatile ("jsr a6@(-30:W)" \
   : \
   : "r"(__BeginIO__bn), "r"(__BeginIO_ior)  \
-  : "d0", "d1", "a0", "a1", "fp0", "fp1", "cc", "memory"); \
+  : "d0", "d1", "a0", "fp0", "fp1", "cc", "memory"); \
   } \
 })
 

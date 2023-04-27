@@ -147,7 +147,7 @@ extern int NOCOMMON __root_egid;
   __asm volatile ("jsr a6@(-30:W)" \
   : "=r"(__ug_SetupContextTagList__re) \
   : "r"(__ug_SetupContextTagList__bn), "r"(__ug_SetupContextTagList_name), "r"(__ug_SetupContextTagList_tags)  \
-  : "d1", "a0", "a1", "fp0", "fp1", "cc", "memory"); \
+  : "d1", "fp0", "fp1", "cc", "memory"); \
   __ug_SetupContextTagList__re; \
   }); \
   _ug_SetupContextTagList__re; \
@@ -177,7 +177,7 @@ extern int NOCOMMON __root_egid;
   __asm volatile ("jsr a6@(-42:W)" \
   : "=r"(__ug_StrError__re) \
   : "r"(__ug_StrError__bn), "r"(__ug_StrError_err)  \
-  : "d1", "a0", "a1", "fp0", "fp1", "cc", "memory"); \
+  : "a0", "a1", "fp0", "fp1", "cc", "memory"); \
   __ug_StrError__re; \
   }); \
   _ug_StrError__re; \
@@ -223,7 +223,7 @@ extern int NOCOMMON __root_egid;
   __asm volatile ("jsr a6@(-60:W)" \
   : "=r"(__setreuid__re) \
   : "r"(__setreuid__bn), "r"(__setreuid_real), "r"(__setreuid_effective)  \
-  : "d1", "a0", "a1", "fp0", "fp1", "cc", "memory"); \
+  : "a0", "a1", "fp0", "fp1", "cc", "memory"); \
   __setreuid__re; \
   }); \
   _setreuid__re; \
@@ -285,7 +285,7 @@ extern int NOCOMMON __root_egid;
   __asm volatile ("jsr a6@(-84:W)" \
   : "=r"(__setregid__re) \
   : "r"(__setregid__bn), "r"(__setregid_real), "r"(__setregid_effective)  \
-  : "d1", "a0", "a1", "fp0", "fp1", "cc", "memory"); \
+  : "a0", "a1", "fp0", "fp1", "cc", "memory"); \
   __setregid__re; \
   }); \
   _setregid__re; \
@@ -319,7 +319,7 @@ extern int NOCOMMON __root_egid;
   __asm volatile ("jsr a6@(-96:W)" \
   : "=r"(__getgroups__re) \
   : "r"(__getgroups__bn), "r"(__getgroups_gidsetlen), "r"(__getgroups_gidset)  \
-  : "d1", "a0", "a1", "fp0", "fp1", "cc", "memory"); \
+  : "d1", "a0", "fp0", "fp1", "cc", "memory"); \
   __getgroups__re; \
   }); \
   _getgroups__re; \
@@ -337,7 +337,7 @@ extern int NOCOMMON __root_egid;
   __asm volatile ("jsr a6@(-102:W)" \
   : "=r"(__setgroups__re) \
   : "r"(__setgroups__bn), "r"(__setgroups_gidsetlen), "r"(__setgroups_gidset)  \
-  : "d1", "a0", "a1", "fp0", "fp1", "cc", "memory"); \
+  : "d1", "a0", "fp0", "fp1", "cc", "memory"); \
   __setgroups__re; \
   }); \
   _setgroups__re; \
@@ -355,7 +355,7 @@ extern int NOCOMMON __root_egid;
   __asm volatile ("jsr a6@(-108:W)" \
   : "=r"(__initgroups__re) \
   : "r"(__initgroups__bn), "r"(__initgroups_name), "r"(__initgroups_basegid)  \
-  : "d1", "a0", "a1", "fp0", "fp1", "cc", "memory"); \
+  : "d1", "a0", "fp0", "fp1", "cc", "memory"); \
   __initgroups__re; \
   }); \
   _initgroups__re; \
@@ -371,7 +371,7 @@ extern int NOCOMMON __root_egid;
   __asm volatile ("jsr a6@(-114:W)" \
   : "=r"(__getpwnam__re) \
   : "r"(__getpwnam__bn), "r"(__getpwnam_login)  \
-  : "d1", "a0", "a1", "fp0", "fp1", "cc", "memory"); \
+  : "d1", "a0", "fp0", "fp1", "cc", "memory"); \
   __getpwnam__re; \
   }); \
   _getpwnam__re; \
@@ -433,7 +433,7 @@ extern int NOCOMMON __root_egid;
   __asm volatile ("jsr a6@(-144:W)" \
   : "=r"(__getgrnam__re) \
   : "r"(__getgrnam__bn), "r"(__getgrnam_name)  \
-  : "d1", "a0", "a1", "fp0", "fp1", "cc", "memory"); \
+  : "d1", "a0", "fp0", "fp1", "cc", "memory"); \
   __getgrnam__re; \
   }); \
   _getgrnam__re; \
@@ -497,7 +497,7 @@ extern int NOCOMMON __root_egid;
   __asm volatile ("jsr a6@(-174:W)" \
   : "=r"(__crypt__re) \
   : "r"(__crypt__bn), "r"(__crypt_key), "r"(__crypt_set)  \
-  : "d1", "a0", "a1", "fp0", "fp1", "cc", "memory"); \
+  : "d1", "fp0", "fp1", "cc", "memory"); \
   __crypt__re; \
   }); \
   _crypt__re; \
@@ -517,7 +517,7 @@ extern int NOCOMMON __root_egid;
   __asm volatile ("jsr a6@(-180:W)" \
   : "=r"(__ug_GetSalt__re) \
   : "r"(__ug_GetSalt__bn), "r"(__ug_GetSalt_user), "r"(__ug_GetSalt_buf), "r"(__ug_GetSalt_size)  \
-  : "d1", "a0", "a1", "fp0", "fp1", "cc", "memory"); \
+  : "d1", "fp0", "fp1", "cc", "memory"); \
   __ug_GetSalt__re; \
   }); \
   _ug_GetSalt__re; \
@@ -533,7 +533,7 @@ extern int NOCOMMON __root_egid;
   __asm volatile ("jsr a6@(-186:W)" \
   : "=r"(__getpass__re) \
   : "r"(__getpass__bn), "r"(__getpass_prompt)  \
-  : "d1", "a0", "a1", "fp0", "fp1", "cc", "memory"); \
+  : "d1", "a0", "fp0", "fp1", "cc", "memory"); \
   __getpass__re; \
   }); \
   _getpass__re; \
@@ -687,7 +687,7 @@ extern int NOCOMMON __root_egid;
   __asm volatile ("jsr a6@(-252:W)" \
   : "=r"(__setlastlog__re) \
   : "r"(__setlastlog__bn), "r"(__setlastlog_uid), "r"(__setlastlog_name), "r"(__setlastlog_host)  \
-  : "d1", "a0", "a1", "fp0", "fp1", "cc", "memory"); \
+  : "d1", "fp0", "fp1", "cc", "memory"); \
   __setlastlog__re; \
   }); \
   _setlastlog__re; \
@@ -703,7 +703,7 @@ extern int NOCOMMON __root_egid;
   __asm volatile ("jsr a6@(-258:W)" \
   : "=r"(__getcredentials__re) \
   : "r"(__getcredentials__bn), "r"(__getcredentials_task)  \
-  : "d1", "a0", "a1", "fp0", "fp1", "cc", "memory"); \
+  : "d1", "a1", "fp0", "fp1", "cc", "memory"); \
   __getcredentials__re; \
   }); \
   _getcredentials__re; \

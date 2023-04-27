@@ -310,209 +310,209 @@ _StrcpyN(STRPTR destination,STRPTR source,LONG length)
 /****************************************************************************/
 
 /* struct Environment * a0,APTR block a1,LONG d0 */
-asm("
+asm(
 
-	.text
-	.even
+"	.text\n"
+"	.even\n"
 
-	.globl	__FreeSpace
+"	.globl	__FreeSpace\n"
 
-__FreeSpace:
+"__FreeSpace:\n"
 
-	moveal	sp@(4),a0
-	moveal	sp@(8),a1
-	movel	sp@(12),d0
+"	moveal	sp@(4),a0\n"
+"	moveal	sp@(8),a1\n"
+"	movel	sp@(12),d0\n"
 
-	movel	a6,sp@-
-	moveal	"A4(_RexxSysBase)",a6
-	jsr		a6@(-120)
-	moveal	sp@+,a6
+"	movel	a6,sp@-\n"
+"	moveal	"A4(_RexxSysBase)",a6\n"
+"	jsr		a6@(-120)\n"
+"	moveal	sp@+,a6\n"
 
-	rts
+"	rts\n"
 
-");
+);
 
 /****************************************************************************/
 
 /* struct Environment * a0,LONG d0 : APTR d0 */
-asm("
+asm(
 
-	.text
-	.even
+"	.text\n"
+"	.even\n"
 
-	.globl	__GetSpace
+"	.globl	__GetSpace\n"
 
-__GetSpace:
+"__GetSpace:\n"
 
-	moveal	sp@(4),a0
-	movel	sp@(8),d0
+"	moveal	sp@(4),a0\n"
+"	movel	sp@(8),d0\n"
 
-	movel	a6,sp@-
-	moveal	"A4(_RexxSysBase)",a6
-	jsr		a6@(-114)
-	moveal	sp@+,a6
+"	movel	a6,sp@-\n"
+"	moveal	"A4(_RexxSysBase)",a6\n"
+"	jsr		a6@(-114)\n"
+"	moveal	sp@+,a6\n"
 
-	rts
+"	rts\n"
 
-");
+);
 
 /****************************************************************************/
 
 /* STRPTR a0 : LONG d0, LONG d1 */
-asm("
+asm(
 
-	.text
-	.even
+"	.text\n"
+"	.even\n"
 
-	.globl	__IsSymbol
+"	.globl	__IsSymbol\n"
 
-__IsSymbol:
+"__IsSymbol:\n"
 
-	moveal	sp@(4),a0
+"	moveal	sp@(4),a0\n"
 
-	movel	a6,sp@-
-	moveal	"A4(_RexxSysBase)",a6
-	jsr		a6@(-102)
-	moveal	sp@+,a6
+"	movel	a6,sp@-\n"
+"	moveal	"A4(_RexxSysBase)",a6\n"
+"	jsr		a6@(-102)\n"
+"	moveal	sp@+,a6\n"
 
-	moveal	sp@(8),a1
-	movel	d1,a1@
+"	moveal	sp@(8),a1\n"
+"	movel	d1,a1@\n"
 
-	rts
+"	rts\n"
 
-");
+);
 
 /****************************************************************************/
 
 /* struct RexxTask * a0 : struct Environment * a0 */
-asm("
+asm(
 
-	.text
-	.even
+"	.text\n"
+"	.even\n"
 
-	.globl	__CurrentEnv
+"	.globl	__CurrentEnv\n"
 
-__CurrentEnv:
+"__CurrentEnv:\n"
 
-	moveal	sp@(4),a0
+"	moveal	sp@(4),a0\n"
 
-	movel	a6,sp@-
-	moveal	"A4(_RexxSysBase)",a6
-	jsr		a6@(-108)
-	moveal	sp@+,a6
+"	movel	a6,sp@-\n"
+"	moveal	"A4(_RexxSysBase)",a6\n"
+"	jsr		a6@(-108)\n"
+"	moveal	sp@+,a6\n"
 
-	moveal	sp@(8),a1
-	movel	a0,a1@
+"	moveal	sp@(8),a1\n"
+"	movel	a0,a1@\n"
 
-	rts
+"	rts\n"
 
-");
+);
 
 /****************************************************************************/
 
 /* struct Environment * a0,struct NexxStr * a1,struct NexxStr * d0,struct Node * d1 : struct NexxStr * a0, LONG d1 */
-asm("
+asm(
 
-	.text
-	.even
+"	.text\n"
+"	.even\n"
 
-	.globl	__FetchValue
+"	.globl	__FetchValue\n"
 
-__FetchValue:
+"__FetchValue:\n"
 
-	moveal	sp@(4),a0
-	moveal	sp@(8),a1
-	movel	sp@(12),d0
-	movel	sp@(16),d1
+"	moveal	sp@(4),a0\n"
+"	moveal	sp@(8),a1\n"
+"	movel	sp@(12),d0\n"
+"	movel	sp@(16),d1\n"
 
-	movel	a6,sp@-
-	moveal	"A4(_RexxSysBase)",a6
-	jsr		a6@(-72)
-	moveal	sp@+,a6
+"	movel	a6,sp@-\n"
+"	moveal	"A4(_RexxSysBase)",a6\n"
+"	jsr		a6@(-72)\n"
+"	moveal	sp@+,a6\n"
 
-	moveal	sp@(20),a1
-	movel	a0,a1@
-	moveal	sp@(24),a1
-	movel	d1,a1@
+"	moveal	sp@(20),a1\n"
+"	movel	a0,a1@\n"
+"	moveal	sp@(24),a1\n"
+"	movel	d1,a1@\n"
 
-	rts
+"	rts\n"
 
-");
+);
 
 /****************************************************************************/
 
 /* struct Environment a0, struct NexxStr *a1, struct NexxStr * d0 : struct Node * d0 */
-asm("
+asm(
 
-	.text
-	.even
+"	.text\n"
+"	.even\n"
 
-	.globl	__EnterSymbol
+"	.globl	__EnterSymbol\n"
 
-__EnterSymbol:
+"__EnterSymbol:\n"
 
-	moveal	sp@(4),a0
-	moveal	sp@(8),a1
-	movel	sp@(12),d0
+"	moveal	sp@(4),a0\n"
+"	moveal	sp@(8),a1\n"
+"	movel	sp@(12),d0\n"
 
-	movel	a6,sp@-
-	moveal	"A4(_RexxSysBase)",a6
-	jsr		a6@(-66)
-	moveal	sp@+,a6
+"	movel	a6,sp@-\n"
+"	moveal	"A4(_RexxSysBase)",a6\n"
+"	jsr		a6@(-66)\n"
+"	moveal	sp@+,a6\n"
 
-	rts
+"	rts\n"
 
-");
+);
 
 /****************************************************************************/
 
 /* struct Environment *a0, struct NexxStr *a1, struct Node * d0 */
-asm("
+asm(
 
-	.text
-	.even
+"	.text\n"
+"	.even\n"
 
-	.globl	__SetValue
+"	.globl	__SetValue\n"
 
-__SetValue:
+"__SetValue:\n"
 
-	moveal	sp@(4),a0
-	moveal	sp@(8),a1
-	movel	sp@(12),d0
+"	moveal	sp@(4),a0\n"
+"	moveal	sp@(8),a1\n"
+"	movel	sp@(12),d0\n"
 
-	movel	a6,sp@-
-	moveal	"A4(_RexxSysBase)",a6
-	jsr		a6@(-84)
-	moveal	sp@+,a6
+"	movel	a6,sp@-\n"
+"	moveal	"A4(_RexxSysBase)",a6\n"
+"	jsr		a6@(-84)\n"
+"	moveal	sp@+,a6\n"
 
-	rts
+"	rts\n"
 
-");
+);
 
 /****************************************************************************/
 
 /* STRPTR a0,STRPTR a1,LONG d0 : ULONG d0 */
-asm("
+asm(
 
-	.text
-	.even
+"	.text\n"
+"	.even\n"
 
-	.globl	__StrcpyN
+"	.globl	__StrcpyN\n"
 
-__StrcpyN:
+"__StrcpyN:\n"
 
-	moveal	sp@(4),a0
-	moveal	sp@(8),a1
-	movel	sp@(12),d0
+"	moveal	sp@(4),a0\n"
+"	moveal	sp@(8),a1\n"
+"	movel	sp@(12),d0\n"
 
-	movel	a6,sp@-
-	moveal	"A4(_RexxSysBase)",a6
-	jsr		a6@(-270)
-	moveal	sp@+,a6
+"	movel	a6,sp@-\n"
+"	moveal	"A4(_RexxSysBase)",a6\n"
+"	jsr		a6@(-270)\n"
+"	moveal	sp@+,a6\n"
 
-	rts
+"	rts\n"
 
-");
+);
 
 /****************************************************************************/
 

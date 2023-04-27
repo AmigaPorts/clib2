@@ -203,7 +203,7 @@ extern int __select(int num_fds,fd_set *read_fds,fd_set *write_fds,fd_set *excep
   __asm volatile ("jsr a6@(-30:W)" \
   : "=r"(__socket__re) \
   : "r"(__socket__bn), "r"(__socket_domain), "r"(__socket_type), "r"(__socket_protocol)  \
-  : "d1", "a0", "a1", "fp0", "fp1", "cc", "memory"); \
+  : "a0", "a1", "fp0", "fp1", "cc", "memory"); \
   __socket__re; \
   }); \
   _socket__re; \
@@ -223,7 +223,7 @@ extern int __select(int num_fds,fd_set *read_fds,fd_set *write_fds,fd_set *excep
   __asm volatile ("jsr a6@(-36:W)" \
   : "=r"(__bind__re) \
   : "r"(__bind__bn), "r"(__bind_sock), "r"(__bind_name), "r"(__bind_namelen)  \
-  : "d1", "a0", "a1", "fp0", "fp1", "cc", "memory"); \
+  : "a1", "fp0", "fp1", "cc", "memory"); \
   __bind__re; \
   }); \
   _bind__re; \
@@ -241,7 +241,7 @@ extern int __select(int num_fds,fd_set *read_fds,fd_set *write_fds,fd_set *excep
   __asm volatile ("jsr a6@(-42:W)" \
   : "=r"(__listen__re) \
   : "r"(__listen__bn), "r"(__listen_sock), "r"(__listen_backlog)  \
-  : "d1", "a0", "a1", "fp0", "fp1", "cc", "memory"); \
+  : "a0", "a1", "fp0", "fp1", "cc", "memory"); \
   __listen__re; \
   }); \
   _listen__re; \
@@ -261,7 +261,7 @@ extern int __select(int num_fds,fd_set *read_fds,fd_set *write_fds,fd_set *excep
   __asm volatile ("jsr a6@(-48:W)" \
   : "=r"(__accept__re) \
   : "r"(__accept__bn), "r"(__accept_sock), "r"(__accept_addr), "r"(__accept_addrlen)  \
-  : "d1", "a0", "a1", "fp0", "fp1", "cc", "memory"); \
+  : "fp0", "fp1", "cc", "memory"); \
   __accept__re; \
   }); \
   _accept__re; \
@@ -281,7 +281,7 @@ extern int __select(int num_fds,fd_set *read_fds,fd_set *write_fds,fd_set *excep
   __asm volatile ("jsr a6@(-54:W)" \
   : "=r"(__connect__re) \
   : "r"(__connect__bn), "r"(__connect_sock), "r"(__connect_name), "r"(__connect_namelen)  \
-  : "d1", "a0", "a1", "fp0", "fp1", "cc", "memory"); \
+  : "a1", "fp0", "fp1", "cc", "memory"); \
   __connect__re; \
   }); \
   _connect__re; \
@@ -307,7 +307,7 @@ extern int __select(int num_fds,fd_set *read_fds,fd_set *write_fds,fd_set *excep
   __asm volatile ("jsr a6@(-60:W)" \
   : "=r"(__sendto__re) \
   : "r"(__sendto__bn), "r"(__sendto_sock), "r"(__sendto_buf), "r"(__sendto_len), "r"(__sendto_flags), "r"(__sendto_to), "r"(__sendto_tolen)  \
-  : "d1", "a0", "a1", "fp0", "fp1", "cc", "memory"); \
+  : "fp0", "fp1", "cc", "memory"); \
   __sendto__re; \
   }); \
   _sendto__re; \
@@ -329,7 +329,7 @@ extern int __select(int num_fds,fd_set *read_fds,fd_set *write_fds,fd_set *excep
   __asm volatile ("jsr a6@(-66:W)" \
   : "=r"(__send__re) \
   : "r"(__send__bn), "r"(__send_sock), "r"(__send_buf), "r"(__send_len), "r"(__send_flags)  \
-  : "d1", "a0", "a1", "fp0", "fp1", "cc", "memory"); \
+  : "a1", "fp0", "fp1", "cc", "memory"); \
   __send__re; \
   }); \
   _send__re; \
@@ -355,7 +355,7 @@ extern int __select(int num_fds,fd_set *read_fds,fd_set *write_fds,fd_set *excep
   __asm volatile ("jsr a6@(-72:W)" \
   : "=r"(__recvfrom__re) \
   : "r"(__recvfrom__bn), "r"(__recvfrom_sock), "r"(__recvfrom_buf), "r"(__recvfrom_len), "r"(__recvfrom_flags), "r"(__recvfrom_addr), "r"(__recvfrom_addrlen)  \
-  : "d1", "a0", "a1", "fp0", "fp1", "cc", "memory"); \
+  : "fp0", "fp1", "cc", "memory"); \
   __recvfrom__re; \
   }); \
   _recvfrom__re; \
@@ -377,7 +377,7 @@ extern int __select(int num_fds,fd_set *read_fds,fd_set *write_fds,fd_set *excep
   __asm volatile ("jsr a6@(-78:W)" \
   : "=r"(__recv__re) \
   : "r"(__recv__bn), "r"(__recv_sock), "r"(__recv_buf), "r"(__recv_len), "r"(__recv_flags)  \
-  : "d1", "a0", "a1", "fp0", "fp1", "cc", "memory"); \
+  : "a1", "fp0", "fp1", "cc", "memory"); \
   __recv__re; \
   }); \
   _recv__re; \
@@ -395,7 +395,7 @@ extern int __select(int num_fds,fd_set *read_fds,fd_set *write_fds,fd_set *excep
   __asm volatile ("jsr a6@(-84:W)" \
   : "=r"(__shutdown__re) \
   : "r"(__shutdown__bn), "r"(__shutdown_sock), "r"(__shutdown_how)  \
-  : "d1", "a0", "a1", "fp0", "fp1", "cc", "memory"); \
+  : "a0", "a1", "fp0", "fp1", "cc", "memory"); \
   __shutdown__re; \
   }); \
   _shutdown__re; \
@@ -419,7 +419,7 @@ extern int __select(int num_fds,fd_set *read_fds,fd_set *write_fds,fd_set *excep
   __asm volatile ("jsr a6@(-90:W)" \
   : "=r"(__setsockopt__re) \
   : "r"(__setsockopt__bn), "r"(__setsockopt_sock), "r"(__setsockopt_level), "r"(__setsockopt_optname), "r"(__setsockopt_optval), "r"(__setsockopt_optlen)  \
-  : "d1", "a0", "a1", "fp0", "fp1", "cc", "memory"); \
+  : "a1", "fp0", "fp1", "cc", "memory"); \
   __setsockopt__re; \
   }); \
   _setsockopt__re; \
@@ -443,7 +443,7 @@ extern int __select(int num_fds,fd_set *read_fds,fd_set *write_fds,fd_set *excep
   __asm volatile ("jsr a6@(-96:W)" \
   : "=r"(__getsockopt__re) \
   : "r"(__getsockopt__bn), "r"(__getsockopt_sock), "r"(__getsockopt_level), "r"(__getsockopt_optname), "r"(__getsockopt_optval), "r"(__getsockopt_optlen)  \
-  : "d1", "a0", "a1", "fp0", "fp1", "cc", "memory"); \
+  : "fp0", "fp1", "cc", "memory"); \
   __getsockopt__re; \
   }); \
   _getsockopt__re; \
@@ -463,7 +463,7 @@ extern int __select(int num_fds,fd_set *read_fds,fd_set *write_fds,fd_set *excep
   __asm volatile ("jsr a6@(-102:W)" \
   : "=r"(__getsockname__re) \
   : "r"(__getsockname__bn), "r"(__getsockname_sock), "r"(__getsockname_name), "r"(__getsockname_namelen)  \
-  : "d1", "a0", "a1", "fp0", "fp1", "cc", "memory"); \
+  : "d1", "fp0", "fp1", "cc", "memory"); \
   __getsockname__re; \
   }); \
   _getsockname__re; \
@@ -483,7 +483,7 @@ extern int __select(int num_fds,fd_set *read_fds,fd_set *write_fds,fd_set *excep
   __asm volatile ("jsr a6@(-108:W)" \
   : "=r"(__getpeername__re) \
   : "r"(__getpeername__bn), "r"(__getpeername_sock), "r"(__getpeername_name), "r"(__getpeername_namelen)  \
-  : "d1", "a0", "a1", "fp0", "fp1", "cc", "memory"); \
+  : "d1", "fp0", "fp1", "cc", "memory"); \
   __getpeername__re; \
   }); \
   _getpeername__re; \
@@ -503,7 +503,7 @@ extern int __select(int num_fds,fd_set *read_fds,fd_set *write_fds,fd_set *excep
   __asm volatile ("jsr a6@(-114:W)" \
   : "=r"(__IoctlSocket__re) \
   : "r"(__IoctlSocket__bn), "r"(__IoctlSocket_sock), "r"(__IoctlSocket_req), "r"(__IoctlSocket_argp)  \
-  : "d1", "a0", "a1", "fp0", "fp1", "cc", "memory"); \
+  : "a1", "fp0", "fp1", "cc", "memory"); \
   __IoctlSocket__re; \
   }); \
   _IoctlSocket__re; \
@@ -545,7 +545,7 @@ extern int __select(int num_fds,fd_set *read_fds,fd_set *write_fds,fd_set *excep
   __asm volatile ("jsr a6@(-126:W)" \
   : "=r"(__WaitSelect__re) \
   : "r"(__WaitSelect__bn), "r"(__WaitSelect_nfds), "r"(__WaitSelect_read_fds), "r"(__WaitSelect_write_fds), "r"(__WaitSelect_except_fds), "r"(__WaitSelect_timeout), "r"(__WaitSelect_signals)  \
-  : "d1", "a0", "a1", "fp0", "fp1", "cc", "memory"); \
+  : "fp0", "fp1", "cc", "memory"); \
   __WaitSelect__re; \
   }); \
   _WaitSelect__re; \
@@ -563,7 +563,7 @@ extern int __select(int num_fds,fd_set *read_fds,fd_set *write_fds,fd_set *excep
   __asm volatile ("jsr a6@(-132:W)" \
   : \
   : "r"(__SetSocketSignals__bn), "r"(__SetSocketSignals_int_mask), "r"(__SetSocketSignals_io_mask), "r"(__SetSocketSignals_urgent_mask)  \
-  : "d0", "d1", "a0", "a1", "fp0", "fp1", "cc", "memory"); \
+  : "d0", "a0", "a1", "fp0", "fp1", "cc", "memory"); \
   } \
 })
 
@@ -597,7 +597,7 @@ extern int __select(int num_fds,fd_set *read_fds,fd_set *write_fds,fd_set *excep
   __asm volatile ("jsr a6@(-144:W)" \
   : "=r"(__ObtainSocket__re) \
   : "r"(__ObtainSocket__bn), "r"(__ObtainSocket_id), "r"(__ObtainSocket_domain), "r"(__ObtainSocket_type), "r"(__ObtainSocket_protocol)  \
-  : "d1", "a0", "a1", "fp0", "fp1", "cc", "memory"); \
+  : "a0", "a1", "fp0", "fp1", "cc", "memory"); \
   __ObtainSocket__re; \
   }); \
   _ObtainSocket__re; \
@@ -615,7 +615,7 @@ extern int __select(int num_fds,fd_set *read_fds,fd_set *write_fds,fd_set *excep
   __asm volatile ("jsr a6@(-150:W)" \
   : "=r"(__ReleaseSocket__re) \
   : "r"(__ReleaseSocket__bn), "r"(__ReleaseSocket_sock), "r"(__ReleaseSocket_id)  \
-  : "d1", "a0", "a1", "fp0", "fp1", "cc", "memory"); \
+  : "a0", "a1", "fp0", "fp1", "cc", "memory"); \
   __ReleaseSocket__re; \
   }); \
   _ReleaseSocket__re; \
@@ -633,7 +633,7 @@ extern int __select(int num_fds,fd_set *read_fds,fd_set *write_fds,fd_set *excep
   __asm volatile ("jsr a6@(-156:W)" \
   : "=r"(__ReleaseCopyOfSocket__re) \
   : "r"(__ReleaseCopyOfSocket__bn), "r"(__ReleaseCopyOfSocket_sock), "r"(__ReleaseCopyOfSocket_id)  \
-  : "d1", "a0", "a1", "fp0", "fp1", "cc", "memory"); \
+  : "a0", "a1", "fp0", "fp1", "cc", "memory"); \
   __ReleaseCopyOfSocket__re; \
   }); \
   _ReleaseCopyOfSocket__re; \
@@ -663,7 +663,7 @@ extern int __select(int num_fds,fd_set *read_fds,fd_set *write_fds,fd_set *excep
   __asm volatile ("jsr a6@(-168:W)" \
   : \
   : "r"(__SetErrnoPtr__bn), "r"(__SetErrnoPtr_errno_ptr), "r"(__SetErrnoPtr_size)  \
-  : "d0", "d1", "a0", "a1", "fp0", "fp1", "cc", "memory"); \
+  : "d1", "a1", "fp0", "fp1", "cc", "memory"); \
   } \
 })
 
@@ -693,7 +693,7 @@ extern int __select(int num_fds,fd_set *read_fds,fd_set *write_fds,fd_set *excep
   __asm volatile ("jsr a6@(-180:W)" \
   : "=r"(__inet_addr__re) \
   : "r"(__inet_addr__bn), "r"(__inet_addr_cp)  \
-  : "d1", "a0", "a1", "fp0", "fp1", "cc", "memory"); \
+  : "d1", "a1", "fp0", "fp1", "cc", "memory"); \
   __inet_addr__re; \
   }); \
   _inet_addr__re; \
@@ -743,7 +743,7 @@ extern int __select(int num_fds,fd_set *read_fds,fd_set *write_fds,fd_set *excep
   __asm volatile ("jsr a6@(-198:W)" \
   : "=r"(__Inet_MakeAddr__re) \
   : "r"(__Inet_MakeAddr__bn), "r"(__Inet_MakeAddr_net), "r"(__Inet_MakeAddr_host)  \
-  : "d1", "a0", "a1", "fp0", "fp1", "cc", "memory"); \
+  : "a0", "a1", "fp0", "fp1", "cc", "memory"); \
   __Inet_MakeAddr__re; \
   }); \
   _Inet_MakeAddr__re; \
@@ -759,7 +759,7 @@ extern int __select(int num_fds,fd_set *read_fds,fd_set *write_fds,fd_set *excep
   __asm volatile ("jsr a6@(-204:W)" \
   : "=r"(__inet_network__re) \
   : "r"(__inet_network__bn), "r"(__inet_network_cp)  \
-  : "d1", "a0", "a1", "fp0", "fp1", "cc", "memory"); \
+  : "d1", "a1", "fp0", "fp1", "cc", "memory"); \
   __inet_network__re; \
   }); \
   _inet_network__re; \
@@ -775,7 +775,7 @@ extern int __select(int num_fds,fd_set *read_fds,fd_set *write_fds,fd_set *excep
   __asm volatile ("jsr a6@(-210:W)" \
   : "=r"(__gethostbyname__re) \
   : "r"(__gethostbyname__bn), "r"(__gethostbyname_name)  \
-  : "d1", "a0", "a1", "fp0", "fp1", "cc", "memory"); \
+  : "d1", "a1", "fp0", "fp1", "cc", "memory"); \
   __gethostbyname__re; \
   }); \
   _gethostbyname__re; \
@@ -795,7 +795,7 @@ extern int __select(int num_fds,fd_set *read_fds,fd_set *write_fds,fd_set *excep
   __asm volatile ("jsr a6@(-216:W)" \
   : "=r"(__gethostbyaddr__re) \
   : "r"(__gethostbyaddr__bn), "r"(__gethostbyaddr_addr), "r"(__gethostbyaddr_len), "r"(__gethostbyaddr_type)  \
-  : "d1", "a0", "a1", "fp0", "fp1", "cc", "memory"); \
+  : "a1", "fp0", "fp1", "cc", "memory"); \
   __gethostbyaddr__re; \
   }); \
   _gethostbyaddr__re; \
@@ -811,7 +811,7 @@ extern int __select(int num_fds,fd_set *read_fds,fd_set *write_fds,fd_set *excep
   __asm volatile ("jsr a6@(-222:W)" \
   : "=r"(__getnetbyname__re) \
   : "r"(__getnetbyname__bn), "r"(__getnetbyname_name)  \
-  : "d1", "a0", "a1", "fp0", "fp1", "cc", "memory"); \
+  : "d1", "a1", "fp0", "fp1", "cc", "memory"); \
   __getnetbyname__re; \
   }); \
   _getnetbyname__re; \
@@ -829,7 +829,7 @@ extern int __select(int num_fds,fd_set *read_fds,fd_set *write_fds,fd_set *excep
   __asm volatile ("jsr a6@(-228:W)" \
   : "=r"(__getnetbyaddr__re) \
   : "r"(__getnetbyaddr__bn), "r"(__getnetbyaddr_net), "r"(__getnetbyaddr_type)  \
-  : "d1", "a0", "a1", "fp0", "fp1", "cc", "memory"); \
+  : "a0", "a1", "fp0", "fp1", "cc", "memory"); \
   __getnetbyaddr__re; \
   }); \
   _getnetbyaddr__re; \
@@ -847,7 +847,7 @@ extern int __select(int num_fds,fd_set *read_fds,fd_set *write_fds,fd_set *excep
   __asm volatile ("jsr a6@(-234:W)" \
   : "=r"(__getservbyname__re) \
   : "r"(__getservbyname__bn), "r"(__getservbyname_name), "r"(__getservbyname_proto)  \
-  : "d1", "a0", "a1", "fp0", "fp1", "cc", "memory"); \
+  : "d1", "fp0", "fp1", "cc", "memory"); \
   __getservbyname__re; \
   }); \
   _getservbyname__re; \
@@ -865,7 +865,7 @@ extern int __select(int num_fds,fd_set *read_fds,fd_set *write_fds,fd_set *excep
   __asm volatile ("jsr a6@(-240:W)" \
   : "=r"(__getservbyport__re) \
   : "r"(__getservbyport__bn), "r"(__getservbyport_port), "r"(__getservbyport_proto)  \
-  : "d1", "a0", "a1", "fp0", "fp1", "cc", "memory"); \
+  : "d1", "a1", "fp0", "fp1", "cc", "memory"); \
   __getservbyport__re; \
   }); \
   _getservbyport__re; \
@@ -881,7 +881,7 @@ extern int __select(int num_fds,fd_set *read_fds,fd_set *write_fds,fd_set *excep
   __asm volatile ("jsr a6@(-246:W)" \
   : "=r"(__getprotobyname__re) \
   : "r"(__getprotobyname__bn), "r"(__getprotobyname_name)  \
-  : "d1", "a0", "a1", "fp0", "fp1", "cc", "memory"); \
+  : "d1", "a1", "fp0", "fp1", "cc", "memory"); \
   __getprotobyname__re; \
   }); \
   _getprotobyname__re; \
@@ -915,7 +915,7 @@ extern int __select(int num_fds,fd_set *read_fds,fd_set *write_fds,fd_set *excep
   __asm volatile ("jsr a6@(-258:W)" \
   : \
   : "r"(__vsyslog__bn), "r"(__vsyslog_pri), "r"(__vsyslog_msg), "r"(__vsyslog_args)  \
-  : "d0", "d1", "a0", "a1", "fp0", "fp1", "cc", "memory"); \
+  : "d0", "d1", "fp0", "fp1", "cc", "memory"); \
   } \
 })
 
@@ -931,7 +931,7 @@ extern int __select(int num_fds,fd_set *read_fds,fd_set *write_fds,fd_set *excep
   __asm volatile ("jsr a6@(-264:W)" \
   : "=r"(__Dup2Socket__re) \
   : "r"(__Dup2Socket__bn), "r"(__Dup2Socket_old_socket), "r"(__Dup2Socket_new_socket)  \
-  : "d1", "a0", "a1", "fp0", "fp1", "cc", "memory"); \
+  : "a0", "a1", "fp0", "fp1", "cc", "memory"); \
   __Dup2Socket__re; \
   }); \
   _Dup2Socket__re; \
@@ -951,7 +951,7 @@ extern int __select(int num_fds,fd_set *read_fds,fd_set *write_fds,fd_set *excep
   __asm volatile ("jsr a6@(-270:W)" \
   : "=r"(__sendmsg__re) \
   : "r"(__sendmsg__bn), "r"(__sendmsg_sock), "r"(__sendmsg_msg), "r"(__sendmsg_flags)  \
-  : "d1", "a0", "a1", "fp0", "fp1", "cc", "memory"); \
+  : "a1", "fp0", "fp1", "cc", "memory"); \
   __sendmsg__re; \
   }); \
   _sendmsg__re; \
@@ -971,7 +971,7 @@ extern int __select(int num_fds,fd_set *read_fds,fd_set *write_fds,fd_set *excep
   __asm volatile ("jsr a6@(-276:W)" \
   : "=r"(__recvmsg__re) \
   : "r"(__recvmsg__bn), "r"(__recvmsg_sock), "r"(__recvmsg_msg), "r"(__recvmsg_flags)  \
-  : "d1", "a0", "a1", "fp0", "fp1", "cc", "memory"); \
+  : "a1", "fp0", "fp1", "cc", "memory"); \
   __recvmsg__re; \
   }); \
   _recvmsg__re; \
@@ -989,7 +989,7 @@ extern int __select(int num_fds,fd_set *read_fds,fd_set *write_fds,fd_set *excep
   __asm volatile ("jsr a6@(-282:W)" \
   : "=r"(__gethostname__re) \
   : "r"(__gethostname__bn), "r"(__gethostname_name), "r"(__gethostname_namelen)  \
-  : "d1", "a0", "a1", "fp0", "fp1", "cc", "memory"); \
+  : "d1", "a1", "fp0", "fp1", "cc", "memory"); \
   __gethostname__re; \
   }); \
   _gethostname__re; \
@@ -1019,7 +1019,7 @@ extern int __select(int num_fds,fd_set *read_fds,fd_set *write_fds,fd_set *excep
   __asm volatile ("jsr a6@(-294:W)" \
   : "=r"(__SocketBaseTagList__re) \
   : "r"(__SocketBaseTagList__bn), "r"(__SocketBaseTagList_tags)  \
-  : "d1", "a0", "a1", "fp0", "fp1", "cc", "memory"); \
+  : "d1", "a1", "fp0", "fp1", "cc", "memory"); \
   __SocketBaseTagList__re; \
   }); \
   _SocketBaseTagList__re; \
@@ -1035,7 +1035,7 @@ extern int __select(int num_fds,fd_set *read_fds,fd_set *write_fds,fd_set *excep
   __asm volatile ("jsr a6@(-690:W)" \
   : "=r"(__ProcessIsServer__re) \
   : "r"(__ProcessIsServer__bn), "r"(__ProcessIsServer_pr) \
-  : "d1", "a0", "a1", "fp0", "fp1", "cc", "memory"); \
+  : "d1", "a1", "fp0", "fp1", "cc", "memory"); \
   __ProcessIsServer__re; \
   }); \
   _ProcessIsServer__re; \

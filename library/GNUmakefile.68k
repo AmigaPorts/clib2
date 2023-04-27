@@ -134,7 +134,7 @@ OPTIMIZE = -O  -fomit-frame-pointer -fstrength-reduce -finline-functions
 
 CFLAGS = \
 	$(WARNINGS) $(OPTIMIZE) $(DEBUG) $(OPTIONS) \
-	$(CODE_FLAGS) $(INCLUDES) $(CODE_TYPE)
+	$(CODE_FLAGS) $(INCLUDES) $(CODE_TYPE) -v
 
 ##############################################################################
 

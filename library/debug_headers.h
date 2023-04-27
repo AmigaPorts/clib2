@@ -96,7 +96,7 @@ VOID RawPutChar(UBYTE c);
   __asm volatile ("jsr a6@(-516:W)" \
   : \
   : "r"(__RawPutChar__bn), "r"(__RawPutChar_c) \
-  : "d0", "d1", "a0", "a1", "fp0", "fp1", "cc", "memory"); \
+  : "d1", "a0", "a1", "fp0", "fp1", "cc", "memory"); \
   } \
 })
 

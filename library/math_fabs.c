@@ -63,24 +63,24 @@ extern double __fabs(double x);
 
 /****************************************************************************/
 
-asm("
+asm(
 
-	.text
-	.even
+"	.text\n"
+"	.even\n"
 
-	.globl	_MathIeeeDoubBasBase
-	.globl	___fabs
+"	.globl	_MathIeeeDoubBasBase\n"
+"	.globl	___fabs\n"
 
-___fabs:
+"___fabs:\n"
 
-	movel	a6,sp@-
-	movel	"A4(_MathIeeeDoubBasBase)",a6
-	moveml	sp@(8),d0/d1
-	jsr		a6@(-54:W)
-	movel	sp@+,a6
-	rts
+"	movel	a6,sp@-\n"
+"	movel	"A4(_MathIeeeDoubBasBase)",a6\n"
+"	moveml	sp@(8),d0/d1\n"
+"	jsr		a6@(-54:W)\n"
+"	movel	sp@+,a6\n"
+"	rts\n"
 
-");
+);
 
 /****************************************************************************/
 

@@ -35,58 +35,56 @@
 
 /****************************************************************************/
 
-asm("
+asm(
+"h_Entry = 8\n"
 
-h_Entry = 8
+"	.text\n"
+"	.even\n"
+"\n"
+"|---------------------------------------------------------------------------\n"
+"| new hook standard\n"
+"| use struct Hook (with minnode at the top)\n"
+"|\n"
+"| *** register calling convention: ***\n"
+"|	A0 - pointer to hook itself\n"
+"|	A1 - pointer to parameter packed ('message')\n"
+"|	A2 - Hook specific address data ('object,' e.g, gadget )\n"
+"|\n"
+"| ***  C conventions: ***\n"
+"| Note that parameters are in unusual register order: a0, a2, a1.\n"
+"| This is to provide a performance boost for assembly language\n"
+"| programming (the object in a2 is most frequently untouched).\n"
+"| It is also no problem in 'register direct' C function parameters.\n"
+"|\n"
+"| calling through a hook\n"
+"|	CallHook( hook, object, msgid, p1, p2, ... );\n"
+"|	CallHookA( hook, object, msgpkt );\n"
+"|\n"
+"| using a C function:	CFunction( hook, object, message );\n"
+"|	hook.h_Entry = HookEntry;\n"
+"|	hook.h_SubEntry = CFunction;\n"
+"|\n"
+"|---------------------------------------------------------------------------\n"
 
-	.text
-	.even
+"| C calling hook interface for prepared message packet\n"
 
-|---------------------------------------------------------------------------
-| new hook standard
-| use struct Hook (with minnode at the top)
-|
-| *** register calling convention: ***
-|	A0 - pointer to hook itself
-|	A1 - pointer to parameter packed ('message')
-|	A2 - Hook specific address data ('object,' e.g, gadget )
-|
-| ***  C conventions: ***
-| Note that parameters are in unusual register order: a0, a2, a1.
-| This is to provide a performance boost for assembly language
-| programming (the object in a2 is most frequently untouched).
-| It is also no problem in 'register direct' C function parameters.
-|
-| calling through a hook
-|	CallHook( hook, object, msgid, p1, p2, ... );
-|	CallHookA( hook, object, msgpkt );
-|
-| using a C function:	CFunction( hook, object, message );
-|	hook.h_Entry = HookEntry;
-|	hook.h_SubEntry = CFunction;
-|
-|---------------------------------------------------------------------------
+"	.globl	_CallHookA\n"
 
-| C calling hook interface for prepared message packet
+"_CallHookA:\n"
 
-	.globl	_CallHookA
+"	moveml	a2/a6,sp@-\n"
+"	moveal	sp@(12),a0\n"
+"	moveal	sp@(16),a2\n"
+"	moveal	sp@(20),a1\n"
+"	pea		callhooka_return\n"
+"	movel	a0@(h_Entry),sp@-\n"
+"	rts\n"
 
-_CallHookA:
+"callhooka_return:\n"
 
-	moveml	a2/a6,sp@-
-	moveal	sp@(12),a0
-	moveal	sp@(16),a2
-	moveal	sp@(20),a1
-	pea		callhooka_return
-	movel	a0@(h_Entry),sp@-
-	rts
-
-callhooka_return:
-
-	moveml	sp@+,a2/a6
-	rts
-
-");
+"	moveml	sp@+,a2/a6\n"
+"	rts\n"
+);
 
 /****************************************************************************/
 

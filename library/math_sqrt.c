@@ -72,24 +72,24 @@ extern double __sqrt(double x);
 
 /****************************************************************************/
 
-asm("
+asm(
 
-	.text
-	.even
+"	.text\n"
+"	.even\n"
 
-	.globl	_MathIeeeDoubTransBase
-	.globl	___sqrt
+"	.globl	_MathIeeeDoubTransBase\n"
+"	.globl	___sqrt\n"
 
-___sqrt:
+"___sqrt:\n"
 
-	movel	a6,sp@-
-	movel	"A4(_MathIeeeDoubTransBase)",a6
-	moveml	sp@(8),d0/d1
-	jsr		a6@(-96:W)
-	movel	sp@+,a6
-	rts
+"	movel	a6,sp@-\n"
+"	movel	"A4(_MathIeeeDoubTransBase)",a6\n"
+"	moveml	sp@(8),d0/d1\n"
+"	jsr		a6@(-96:W)\n"
+"	movel	sp@+,a6\n"
+"	rts\n"
 
-");
+);
 
 /****************************************************************************/
 

@@ -35,26 +35,26 @@
 
 /****************************************************************************/
 
-asm("
+asm(
 
-h_SubEntry = 12
+"h_SubEntry = 12\n"
 
-	.text
-	.even
+"	.text\n"
+"	.even\n"
 
-	.globl	_HookEntry
+"	.globl	_HookEntry\n"
 
-_HookEntry:
+"_HookEntry:\n"
 
-	movel	a1,sp@-
-	movel	a2,sp@-
-	movel	a0,sp@-
-	movel	a0@(h_SubEntry:W),a0
-	jsr		a0@
-	lea		sp@(12:W),sp
-	rts
+"	movel	a1,sp@-\n"
+"	movel	a2,sp@-\n"
+"	movel	a0,sp@-\n"
+"	movel	a0@(h_SubEntry:W),a0\n"
+"	jsr		a0@\n"
+"	lea		sp@(12:W),sp\n"
+"	rts\n"
 
-");
+);
 
 /****************************************************************************/
 

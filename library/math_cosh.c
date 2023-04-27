@@ -72,24 +72,24 @@ extern double __cosh(double x);
 
 /****************************************************************************/
 
-asm("
+asm(
 
-	.text
-	.even
+"	.text\n"
+"	.even\n"
 
-	.globl	_MathIeeeDoubTransBase
-	.globl	___cosh
+"	.globl	_MathIeeeDoubTransBase\n"
+"	.globl	___cosh\n"
 
-___cosh:
+"___cosh:\n"
 
-	movel	a6,sp@-
-	movel	"A4(_MathIeeeDoubTransBase)",a6
-	moveml	sp@(8),d0/d1
-	jsr		a6@(-66:W)
-	movel	sp@+,a6
-	rts
+"	movel	a6,sp@-\n"
+"	movel	"A4(_MathIeeeDoubTransBase)",a6\n"
+"	moveml	sp@(8),d0/d1\n"
+"	jsr		a6@(-66:W)\n"
+"	movel	sp@+,a6\n"
+"	rts\n"
 
-");
+);
 
 /****************************************************************************/
 

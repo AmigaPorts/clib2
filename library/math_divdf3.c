@@ -51,24 +51,24 @@
 
 /****************************************************************************/
 
-asm("
+asm(
 
-	.text
-	.even
+"	.text\n"
+"	.even\n"
 
-	.globl	_MathIeeeDoubBasBase
-	.globl	___divdf3
+"	.globl	_MathIeeeDoubBasBase\n"
+"	.globl	___divdf3\n"
 
-___divdf3:
+"___divdf3:\n"
 
-	moveml	d2/d3/a6,sp@-
-	movel	"A4(_MathIeeeDoubBasBase)",a6
-	moveml	sp@(16),d0/d1/d2/d3
-	jsr		a6@(-84:W)
-	moveml	sp@+,d2/d3/a6
-	rts
+"	moveml	d2/d3/a6,sp@-\n"
+"	movel	"A4(_MathIeeeDoubBasBase)",a6\n"
+"	moveml	sp@(16),d0/d1/d2/d3\n"
+"	jsr		a6@(-84:W)\n"
+"	moveml	sp@+,d2/d3/a6\n"
+"	rts\n"
 
-");
+);
 
 /****************************************************************************/
 

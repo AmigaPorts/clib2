@@ -72,25 +72,25 @@ extern double __pow(double x,double y);
 
 /****************************************************************************/
 
-asm("
+asm(
 
-	.text
-	.even
+"	.text\n"
+"	.even\n"
 
-	.globl	_MathIeeeDoubTransBase
-	.globl	___pow
+"	.globl	_MathIeeeDoubTransBase\n"
+"	.globl	___pow\n"
 
-___pow:
+"___pow:\n"
 
-	moveml	d2/d3/a6,sp@-
-	movel	"A4(_MathIeeeDoubTransBase)",a6
-	moveml	sp@(16),d0/d1					| Note that the parameters
-	moveml	sp@(24),d2/d3					| are reversed!
-	jsr		a6@(-90:W)
-	moveml	sp@+,d2/d3/a6
-	rts
+"	moveml	d2/d3/a6,sp@-\n"
+"	movel	"A4(_MathIeeeDoubTransBase)",a6\n"
+"	moveml	sp@(16),d0/d1					| Note that the parameters\n"
+"	moveml	sp@(24),d2/d3					| are reversed!\n"
+"	jsr		a6@(-90:W)\n"
+"	moveml	sp@+,d2/d3/a6\n"
+"	rts\n"
 
-");
+);
 
 /****************************************************************************/
 
