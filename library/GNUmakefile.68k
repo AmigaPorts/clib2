@@ -140,6 +140,7 @@ CFLAGS = \
 
 C_LIB = \
 	c.lib_rev.o \
+	cxxglue.o \
 	ctype_isalnum.o \
 	ctype_isalpha.o \
 	ctype_isascii.o \
