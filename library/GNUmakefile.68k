@@ -117,7 +117,8 @@ endif
 
 WARNINGS = \
 	-Wall -W -Wpointer-arith -Wsign-compare -Wmissing-prototypes \
-	-Wundef -Wbad-function-cast -Wmissing-declarations -Wunused
+	-Wundef -Wbad-function-cast -Wmissing-declarations -Wunused \
+	-Wno-pointer-sign -Wno-int-conversion -Wno-incompatible-pointer-types
 
 #	-Wconversion -Wshadow
 
