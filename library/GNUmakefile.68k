@@ -432,6 +432,7 @@ C_LIB = \
 	string_strtok.o \
 	string_strtok_r.o \
 	string_strxfrm.o \
+	string_xpg_strerror_r.o \
 	time_asctime.o \
 	time_asctime_r.o \
 	time_clock.o \
