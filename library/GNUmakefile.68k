@@ -1046,7 +1046,9 @@ cvs-tag:
 
 ##############################################################################
 
-kitchen_sink: $(TYPE) $(LIBS) $(STARTUPS)
+# The startup code does not depend on TYPE: "all" builds it once, rather
+# than every parallel kitchen_sink writing the same objects at once.
+kitchen_sink: $(TYPE) $(LIBS)
 
 ##############################################################################
 
