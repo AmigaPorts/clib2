@@ -1046,7 +1046,9 @@ cvs-tag:
 
 ##############################################################################
 
-kitchen_sink: $(TYPE) $(LIBS) $(STARTUPS)
+# The startup code does not depend on TYPE: "all" builds it once, rather
+# than every parallel kitchen_sink writing the same objects at once.
+kitchen_sink: $(TYPE) $(LIBS)
 
 ##############################################################################
 
@@ -1315,6 +1317,16 @@ $(LIBAMIGA_OBJS)/libamiga.a : $(LIBAMIGA_OBJS) $(foreach file,$(AMIGA_LIB),$(LIB
 	-$(DELETE) $@
 	@$(AR) $@ $(foreach file,$(AMIGA_LIB),$(LIBAMIGA_OBJS)/$(file))
 	$(RANLIB) $@
+
+# Each library lists its directory beside its objects, which a parallel
+# make may compile first; an order-only prerequisite makes them wait.
+$(foreach file,$(C_LIB),$(LIBC_OBJS)/$(file)) : | $(LIBC_OBJS)
+$(foreach file,$(UNIX_LIB),$(LIBUNIX_OBJS)/$(file)) : | $(LIBUNIX_OBJS)
+$(foreach file,$(MATH_LIB_IEEE),$(LIBM_OBJS)/$(file)) : | $(LIBM_OBJS)
+$(foreach file,$(MATH_LIB_881),$(LIBM881_OBJS)/$(file)) : | $(LIBM881_OBJS)
+$(foreach file,$(NET_LIB),$(LIBNET_OBJS)/$(file)) : | $(LIBNET_OBJS)
+$(foreach file,$(DEBUG_LIB),$(LIBDEBUG_OBJS)/$(file)) : | $(LIBDEBUG_OBJS)
+$(foreach file,$(AMIGA_LIB),$(LIBAMIGA_OBJS)/$(file)) : | $(LIBAMIGA_OBJS)
 
 ##############################################################################
 
