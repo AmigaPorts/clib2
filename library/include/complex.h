@@ -98,6 +98,11 @@ extern "C" {
 
 /****************************************************************************/
 
+/* On m68k-amigaos, creall(), cimagl() and cargl() are the only long double
+   functions here that clib2 has; see <math.h>. */
+
+/****************************************************************************/
+
 extern __stdargs double creal(double complex z);
 extern __stdargs float crealf(float complex z);
 extern __stdargs long double creall(long double complex z);

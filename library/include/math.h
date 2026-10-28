@@ -119,11 +119,15 @@ extern __stdargs double tanh(double x);
 
 /****************************************************************************/
 
-/* Note that the comparison operations performed on the floating point
-   data types ought to include float, double and long double. However,
-   because the current (2005-06-12) compiler technology available on the
-   Amiga does not support the long double type yet, this library is
-   restricted to operations on float and double. */
+/* long double: on AmigaOS 4, long double is the same as double, and all
+   of the long double functions declared here and in <complex.h> are
+   there.  On m68k-amigaos, long double is the 68881's 80-bit extended
+   format, and clib2 only has strtold(), creall(), cimagl(), cargl() and
+   the classification macros (fpclassify(), isfinite(), signbit() and
+   those built on them) for it.  The other long double functions, such
+   as sqrtl(), sinl() or powl(), and nexttoward() and nexttowardf(),
+   which take a long double, are declared but not defined there, so a
+   program that calls them does not link. */
 
 /****************************************************************************/
 
