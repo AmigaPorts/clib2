@@ -26,9 +26,11 @@ jobs:
           - name: AmigaOS 4 (ppc-amigaos)
             image: gcc-v16.2-ppc
             makefile: GNUmakefile.os4
+            target: ppc-amigaos
           - name: AmigaOS 3 (m68k-amigaos)
             image: gcc-v16.2
             makefile: GNUmakefile.68k
+            target: m68k-amigaos
     steps:
       - uses: actions/checkout@v4
 
@@ -45,6 +47,12 @@ jobs:
               SDK_INCLUDE="$sdk/include/include_h" NET_INCLUDE="$sdk/include/netinclude"
           fi
           make -f "${{ matrix.makefile }}" -j"$(nproc)" "$@"
+
+      - name: Check for duplicate symbols
+        working-directory: library
+        run: |
+          find . -path './lib*/*.a' | sort |
+            xargs ../.github/scripts/check-duplicate-symbols.sh ${{ matrix.target }}-nm
 
       # Programs only run on m68k-amigaos, under vamos, which is in the
       # image; it has no FPU, so this tests the soft-float libraries.
