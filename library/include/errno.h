@@ -52,9 +52,15 @@ extern "C" {
 extern int errno;
 
 /****************************************************************************/
+#if !defined(__amigaos4__)
+
+/* m68k-amigaos: newlib's error numbers, from its sys-include headers.
+   AmigaOS 4 programs built for clib2 have no newlib headers to use. */
 #define _REENT_ONLY
 #include_next <errno.h>
-#if 0
+
+#else
+
 #define EPERM			1	/* Operation not permitted */
 #define ENOENT			2	/* No such file or directory */
 #define ESRCH			3	/* No such process */
@@ -169,7 +175,8 @@ extern int errno;
 #define EILSEQ			85	/* Encoding error detected */
 
 #define ENOTSUP			86	/* Not supported */
-#endif
+
+#endif /* !__amigaos4__ */
 /****************************************************************************/
 
 #ifdef __cplusplus

@@ -115,12 +115,22 @@ extern __stdargs size_t strftime(char *s, size_t maxsize, const char *format,
 /* Timespec declaration */
 struct timespec
 {
+#if defined(__amigaos4__)
+	time_t tv_secs;
+#else
   union {
 	time_t tv_sec;
 	time_t tv_secs;
   };
+#endif /* __amigaos4__ */
 	long tv_nsec;
 };
+
+#if defined(__amigaos4__)
+#ifndef tv_sec
+#define tv_sec tv_secs
+#endif /* tv_sec */
+#endif /* __amigaos4__ */
 
 /****************************************************************************/
 
