@@ -40,7 +40,11 @@
 
 #ifndef _STDLIB_H
 #include <sys/types.h>
+/* m68k-amigaos: newlib's declarations, which clib2's join.  AmigaOS 4
+   programs built for clib2 have no newlib headers to use. */
+#if !defined(__amigaos4__)
 #include_next <stdlib.h>
+#endif /* !__amigaos4__ */
 #define _STDLIB_H
 
 /****************************************************************************/
@@ -81,8 +85,10 @@ extern "C" {
 /****************************************************************************/
 
 /* Data structures used by the div() and ldiv() functions */
-//typedef struct { int quot; int rem; } div_t;
-//typedef struct { long quot; long rem; } ldiv_t;
+#if defined(__amigaos4__)
+typedef struct { int quot; int rem; } div_t;
+typedef struct { long quot; long rem; } ldiv_t;
+#endif /* __amigaos4__ */
 
 /****************************************************************************/
 
@@ -437,7 +443,9 @@ extern __stdargs char * mkdtemp(char *name_template);
 
 /****************************************************************************/
 
-#if __ISO_C_VISIBLE >= 1999
+/* m68k-amigaos: as newlib's headers decide.  AmigaOS 4: as clib2 did. */
+#if (defined(__amigaos4__) && (defined(__GNUC__) || (defined(__STDC_VERSION__) && (__STDC_VERSION__ >= 199901L)))) || \
+    (!defined(__amigaos4__) && __ISO_C_VISIBLE >= 1999)
 
 /****************************************************************************/
 
@@ -447,7 +455,9 @@ extern __stdargs long long atoll(const char *str);
 
 /****************************************************************************/
 
-//typedef struct { long long quot; long long rem; } lldiv_t;
+#if defined(__amigaos4__)
+typedef struct { long long quot; long long rem; } lldiv_t;
+#endif /* __amigaos4__ */
 
 /****************************************************************************/
 

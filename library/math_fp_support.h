@@ -50,13 +50,14 @@
 /*#define USE_LONG_DOUBLE*/
 
 /****************************************************************************/
-#if 0
+/* m68k-amigaos: the sys-include <sys/cdefs.h> defines __long_double_t. */
+#if defined(__amigaos4__)
 #if defined(USE_LONG_DOUBLE)
  typedef long double __long_double_t;
 #else
  typedef double __long_double_t;
 #endif /* USE_LONG_DOUBLE */
-#endif
+#endif /* __amigaos4__ */
 /****************************************************************************/
 
 /* 'Portable' raw representations of three IEEE floating point formats. */
