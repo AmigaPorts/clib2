@@ -1,0 +1,47 @@
+name: Build
+
+# Builds the library for AmigaOS 4 and for AmigaOS 3 on every push to master
+# and every pull request, with the published toolchain images from
+# reinauer/container-amiga-gcc, so that a change made for one of them cannot
+# break the other unnoticed.  A ci-* label or a /ci comment (ci-label.yml,
+# ci-command.yml) builds and tests the whole m68k-amigaos toolchain instead.
+on:
+  push:
+    branches: [master]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: ${{ matrix.name }}
+    runs-on: ubuntu-24.04
+    container: ghcr.io/reinauer/container-amiga-gcc:${{ matrix.image }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: AmigaOS 4 (ppc-amigaos)
+            image: gcc-v16.2-ppc
+            makefile: GNUmakefile.os4
+          - name: AmigaOS 3 (m68k-amigaos)
+            image: gcc-v16.2
+            makefile: GNUmakefile.68k
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build
+        working-directory: library
+        run: |
+          set --
+          if [ "${{ matrix.makefile }}" = GNUmakefile.os4 ]; then
+            # The SDK is installed next to the compiler.  -mcrt=clib2
+            # keeps newlib's headers, the compiler's default, out of the
+            # include path, as they are for any program built for clib2.
+            sdk=$(dirname "$(dirname "$(command -v ppc-amigaos-gcc)")")/ppc-amigaos/SDK
+            set -- CC="ppc-amigaos-gcc -mcrt=clib2" \
+              SDK_INCLUDE="$sdk/include/include_h" NET_INCLUDE="$sdk/include/netinclude"
+          fi
+          make -f "${{ matrix.makefile }}" -j"$(nproc)" "$@"
