@@ -124,7 +124,13 @@ link(const char * existing_path,const char * new_path)
 	D(("trying to make a link named '%s'",new_path));
 
 	PROFILE_OFF();
+	/* MakeLink() takes the destination as an APTR on AmigaOS 4 and as
+	   a LONG on AmigaOS 3. */
+#if defined(__amigaos4__)
+	status = MakeLink((STRPTR)new_path,(APTR)existing_path_lock,LINK_HARD);
+#else
 	status = MakeLink((STRPTR)new_path,existing_path_lock,LINK_HARD);
+#endif /* __amigaos4__ */
 	PROFILE_ON();
 
 	if(status == DOSFALSE)

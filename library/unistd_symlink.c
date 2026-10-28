@@ -109,7 +109,13 @@ symlink(const char * actual_path, const char * symbolic_path)
 	SHOWMSG("trying to make that link");
 
 	PROFILE_OFF();
+	/* MakeLink() takes the destination as an APTR on AmigaOS 4 and as
+	   a LONG on AmigaOS 3. */
+#if defined(__amigaos4__)
+	status = MakeLink((STRPTR)symbolic_path,(APTR)actual_path,LINK_SOFT);
+#else
 	status = MakeLink((STRPTR)symbolic_path,(LONG)actual_path,LINK_SOFT);
+#endif /* __amigaos4__ */
 	PROFILE_ON();
 
 	if(status == DOSFALSE)
