@@ -397,11 +397,14 @@ FILE_CONSTRUCTOR(stdio_file_init)
 	}
 	#endif /* __THREAD_SAFE */
 
-	// errno has stdin,stdout,stderr attached for a minimal newlib compatibility
+	/* errno has stdin, stdout and stderr attached, where newlib's struct
+	   _reent keeps them, for code built against newlib's headers, such as
+	   m68k-amigaos's libstdc++.  These are the FILEs, not the file
+	   descriptors. */
 	extern int errno[4];
-	errno[1] = (int)__fd[STDIN_FILENO];
-	errno[2] = (int)__fd[STDOUT_FILENO];
-	errno[3] = (int)__fd[STDERR_FILENO];
+	errno[1] = (int)__iob[STDIN_FILENO];
+	errno[2] = (int)__iob[STDOUT_FILENO];
+	errno[3] = (int)__iob[STDERR_FILENO];
 
 	success = TRUE;
 
