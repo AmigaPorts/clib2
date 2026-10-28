@@ -43,6 +43,12 @@
 
 /****************************************************************************/
 
+#ifndef _SYS_CLIB2_STDC_H
+#include <sys/clib2_stdc.h>
+#endif /* _SYS_CLIB2_STDC_H */
+
+/****************************************************************************/
+
 #ifndef _TIME_H
 #include <time.h>	/* For the definition of time_t */
 #endif /* _TIME_H */

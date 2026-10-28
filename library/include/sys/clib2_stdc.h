@@ -61,6 +61,15 @@ extern "C" {
 
 /****************************************************************************/
 
+/* The m68k-amigaos compiler defines __stdargs, which selects the stack-based
+   calling convention for a function; elsewhere, where there is only one
+   calling convention, it means nothing. */
+#ifndef __stdargs
+#define __stdargs
+#endif /* __stdargs */
+
+/****************************************************************************/
+
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
