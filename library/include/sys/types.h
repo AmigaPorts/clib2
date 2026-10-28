@@ -63,6 +63,15 @@
 extern "C" {
 #endif /* __cplusplus */
 
+/* As in <stddef.h>, which may be the compiler's instead, without wint_t. */
+#ifndef _WINT_T
+#define _WINT_T
+#ifndef __WINT_TYPE__
+#define __WINT_TYPE__ unsigned int
+#endif
+typedef __WINT_TYPE__ wint_t;
+#endif
+
 #ifndef __machine_mbstate_t_defined
 /* Conversion state information.  */
 typedef struct
