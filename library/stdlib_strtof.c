@@ -61,16 +61,107 @@
 #include "math_headers.h"
 #endif /* _MATH_HEADERS_H */
 
+#ifndef _STDLIB_STRTOD_PARSE_H
+#include "stdlib_strtod_parse.h"
+#endif /* _STDLIB_STRTOD_PARSE_H */
+
 /****************************************************************************/
 
+/* d, a finite double, rounded to the nearest float, ties to even; infinity
+   if it is too large.  This works on the bits, because the conversion is
+   not to be trusted: on a 68040 with its FPU support code loaded,
+   (float)d was one unit in the last place off for almost a third of the
+   numbers, and 1e39 became FLT_MAX instead of overflowing. */
+static float
+round_to_float(double d)
+{
+	unsigned long long bits, mantissa, rest, half;
+	unsigned long sign, f;
+	int exponent, shift;
+	float result;
+
+	memcpy(&bits,&d,sizeof(bits));
+
+	sign = (unsigned long)(bits >> 32) & 0x80000000UL;
+	exponent = (int)((bits >> 52) & 0x7FF);
+	mantissa = bits & ((1ULL << 52) - 1);
+
+	if(exponent == 0 && mantissa == 0)
+	{
+		f = sign;
+		goto done;
+	}
+
+	/* Make the 53 bit mantissa explicit; a double denormal is far below
+	   the smallest float denormal, but still rounds like one. */
+	if(exponent != 0)
+		mantissa |= 1ULL << 52;
+	else
+		exponent = 1;
+
+	/* d = mantissa * 2^(exponent - 1075).  A float keeps 24 bits with a
+	   biased exponent of exponent - 1023 + 127, or fewer as a denormal. */
+	exponent = exponent - 1023 + 127;
+	shift = 52 - 23;
+
+	if(exponent <= 0)
+	{
+		shift += 1 - exponent;
+		exponent = 0;
+	}
+
+	if(shift > 54)
+	{
+		f = sign;
+		goto done;
+	}
+
+	rest = mantissa & ((1ULL << shift) - 1);
+	half = 1ULL << (shift - 1);
+	mantissa >>= shift;
+
+	if(rest > half || (rest == half && (mantissa & 1) != 0))
+		mantissa++;
+
+	if(exponent == 0)
+	{
+		/* Rounding a denormal up can make it the smallest normal number,
+		   which this gives too. */
+		f = sign | (unsigned long)mantissa;
+	}
+	else
+	{
+		if(mantissa == (1ULL << 24))
+		{
+			mantissa >>= 1;
+			exponent++;
+		}
+
+		if(exponent >= 255)
+			f = sign | 0x7F800000UL;
+		else
+			f = sign | ((unsigned long)exponent << 23) | ((unsigned long)mantissa & 0x7FFFFFUL);
+	}
+
+ done:
+
+	memcpy(&result,&f,sizeof(result));
+
+	return(result);
+}
+
+/****************************************************************************/
+
+/* The number as strtod() reads it, rounded to float.  Rounding twice, first
+   to double and then to float, can be off by one in the last place of the
+   float in rare halfway cases. */
 float
 strtof(const char * __restrict str, char ** __restrict ptr)
 {
+	struct __parsed_number pn;
 	const char * stop = str;
-	float sum = 0.0;
-	float result;
-	int is_negative;
-	char c;
+	float result = 0.0f;
+	double value;
 
 	ENTER();
 
@@ -86,305 +177,39 @@ strtof(const char * __restrict str, char ** __restrict ptr)
 			SHOWMSG("invalid str parameter");
 
 			__set_errno(EFAULT);
-
-			result = __get_huge_valf();
 			goto out;
 		}
 	}
 	#endif /* CHECK_FOR_NULL_POINTERS */
 
-	/* Skip all leading blanks. */
-	while((c = (*str)) != '\0')
-	{
-		if(NOT isspace(c))
-			break;
+	stop = __parse_number(str,&pn);
+	value = __parsed_to_double(&pn);
 
-		str++;
-	}
-
-	/* The first character may be a sign. */
-	if((*str) == '-')
-	{
-		/* It's a negative number. */
-		is_negative = 1;
-
-		str++;
-	}
+	if(pn.pn_kind == PN_NUMBER && NOT __builtin_isinf(value))
+		result = round_to_float(value);
 	else
+		result = (float)value;
+
+	if(pn.pn_kind == PN_NUMBER)
 	{
-		/* It's not going to be negative. */
-		is_negative = 0;
-
-		/* But there may be a sign we will choose to
-		   ignore. */
-		if((*str) == '+')
-			str++;
-	}
-
-	/* We begin by checking for the "inf" and "nan" strings. */
-	if(strcasecmp(str,"inf") == SAME || strcasecmp(str,"infinity") == SAME)
-	{
-		SHOWMSG("infinity");
-
-		str += strlen(str);
-
-		sum = __inff();
-
-		stop = str;
-	}
-	else if (strncasecmp(str,"nan",3) == SAME && (str[3] == '(' || str[3] == '\0'))
-	{
-		SHOWMSG("not a number");
-
-		str += 3;
-
-		/* Does NaN data follow the header? If so, skip it. */
-		if((*str) == '(')
+		/* On overflow, HUGE_VALF, as with strtod() and HUGE_VAL. */
+		if(__builtin_isinf(result) && NOT __builtin_isinf(value))
 		{
-			while((*str) != '\0' && (*str) != ')')
-				str++;
+			SHOWMSG("overflow");
+			__set_errno(ERANGE);
 
-			if((*str) == ')')
-				str++;
+			result = (value < 0) ? -HUGE_VALF : HUGE_VALF;
 		}
-
-		sum = nanf(NULL);
-
-		stop = str;
-	}
-	else
-	{
-		size_t num_digits_converted = 0;
-		int decimal_point_matches;
-		float new_sum;
-		int error = 0;
-		int radix;
-
-		/* Check for the hex prefix. */
-		if(strncasecmp(str,"0x",2) == SAME)
+		else if (result == 0.0f && value != 0.0)
 		{
-			str += 2;
-
-			radix = 16;
-		}
-		else
-		{
-			radix = 10;
-		}
-
-		/* Convert all the digits preceding the decimal point. */
-		while((c = (*str)) != '\0')
-		{
-			if ('0' <= c && c <= '9')
-				c = c - '0';
-			else if ('a' <= c && c <= 'f')
-				c = c - 'a' + 10;
-			else if ('A' <= c && c <= 'F')
-				c = c - 'A' + 10;
-			else
-				c = radix;
-
-			if(c >= radix)
-				break;
-
-			str++;
-
-			num_digits_converted++;
-
-			if(error == 0)
-			{
-				new_sum = (radix * sum) + c;
-				if(new_sum < sum) /* overflow? */
-					error = ERANGE;
-				else
-					sum = new_sum;
-			}
-		}
-
-		/* Did we find the decimal point? We accept both the
-		   locale configured decimal point and the plain old
-		   dot. */
-		decimal_point_matches = 0;
-
-		__locale_lock();
-
-		if(__locale_table[LC_NUMERIC] != NULL)
-		{
-			const char * point;
-
-			point = (const char *)__locale_table[LC_NUMERIC]->loc_DecimalPoint;
-			if((*point) == (*str))
-			{
-				decimal_point_matches = 1;
-
-				/* Skip the decimal point. */
-				str++;
-			}
-		}
-
-		__locale_unlock();
-
-		if(NOT decimal_point_matches)
-		{
-			if((*str) == '.')
-			{
-				decimal_point_matches = 1;
-
-				/* Skip the decimal point. */
-				str++;
-			}
-		}
-
-		if(decimal_point_matches)
-		{
-			float divisor = 1.0 / radix;
-
-			/* Process all digits following the decimal point. */
-			while((c = (*str)) != '\0')
-			{
-				if ('0' <= c && c <= '9')
-					c = c - '0';
-				else if ('a' <= c && c <= 'f')
-					c = c - 'a' + 10;
-				else if ('A' <= c && c <= 'F')
-					c = c - 'A' + 10;
-				else
-					c = radix;
-
-				if(c >= radix)
-					break;
-
-				str++;
-
-				num_digits_converted++;
-
-				if(error == 0 && divisor != 0.0)
-				{
-					new_sum = sum + c * divisor;
-					if(new_sum < sum) /* overflow? */
-						error = ERANGE;
-					else
-						sum = new_sum;
-
-					divisor = divisor / radix;
-				}
-			}
-		}
-
-		/* If there is a scale indicator attached, process it. */
-		if((radix == 10 && ((*str) == 'e' || (*str) == 'E')) ||
-		   (radix == 16 && ((*str) == 'p' || (*str) == 'P')))
-		{
-			int exponent_is_negative;
-			int new_exponent;
-			int exponent = 0;
-			int exponent_radix;
-
-			/* If we are processing a hexadecimal encoded
-			   floating point number, switch to a binary
-			   exponent. */
-			if(radix == 16)
-				exponent_radix = 2;
-			else
-				exponent_radix = 10;
-
-			/* Skip the indicator. */
-			str++;
-
-			/* Take care of the exponent's sign. */
-			if((*str) == '-')
-			{
-				exponent_is_negative = 1;
-				str++;
-			}
-			else
-			{
-				exponent_is_negative = 0;
-
-				if((*str) == '+')
-					str++;
-			}
-
-			/* Again, process all digits to follow. */
-			while((c = (*str)) != '\0')
-			{
-				if('0' <= c && c <= '9')
-					c -= '0';
-				else
-					c = exponent_radix;
-
-				if(c >= exponent_radix)
-					break;
-
-				str++;
-
-				if(error == 0)
-				{
-					new_exponent = (exponent_radix * exponent) + c;
-					if(new_exponent < exponent) /* overflow? */
-						error = ERANGE;
-					else
-						exponent = new_exponent;
-				}
-			}
-
-			/* If the exponent is valid, scale the number accordingly. */
-			if(exponent != 0)
-			{
-				if(exponent_is_negative)
-				{
-					float divisor;
-
-					/* A negative exponent means division. */
-					divisor = powf((float)radix,(float)exponent);
-					if(divisor != 0.0)
-					{
-						new_sum = sum / divisor;
-						if(new_sum == 0.0 && sum != 0.0)
-							error = ERANGE;
-						else
-							sum = new_sum;
-					}
-					else
-					{
-						error = ERANGE;
-					}
-				}
-				else
-				{
-					/* A positive exponent means multiplication. */
-					new_sum = sum * powf((float)radix,(float)exponent);
-					if(new_sum < sum)
-						error = ERANGE;
-					else
-						sum = new_sum;
-				}
-			}
-		}
-
-		if(num_digits_converted == 0)
-		{
-			sum = 0;
-		}
-		else
-		{
-			stop = str;
-
-			if(error != 0)
-			{
-				__set_errno(error);
-
-				sum = __get_huge_valf();
-			}
+			SHOWMSG("underflow");
+			__set_errno(ERANGE);
 		}
 	}
 
-	if(is_negative)
-		sum = (-sum);
-
-	result = sum;
-
+#if defined(CHECK_FOR_NULL_POINTERS)
  out:
+#endif /* CHECK_FOR_NULL_POINTERS */
 
 	/* If desired, remember where we stopped reading the
 	   number from the buffer. */
