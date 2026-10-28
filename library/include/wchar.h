@@ -83,7 +83,10 @@ extern "C" {
 
 /****************************************************************************/
 
+#ifndef _WINT_T
+#define _WINT_T
 typedef unsigned int wint_t;
+#endif
 typedef long mbstate_t;
 
 /****************************************************************************/
@@ -206,10 +209,10 @@ extern __stdargs unsigned long long wcstoull(const wchar_t *str, wchar_t **ptr, 
 /****************************************************************************/
 
 extern __stdargs int	vfwscanf (FILE *__restrict, const wchar_t *__restrict,
-			__VALIST);
+			va_list);
 extern __stdargs int	vswscanf (const wchar_t *__restrict, const wchar_t *__restrict,
-			__VALIST);
-extern __stdargs int	vwscanf (const wchar_t *__restrict, __VALIST);
+			va_list);
+extern __stdargs int	vwscanf (const wchar_t *__restrict, va_list);
 extern __stdargs int	wscanf (const wchar_t *__restrict, ...);
 
 extern __stdargs float wcstof (const wchar_t *__restrict, wchar_t **__restrict);
