@@ -176,9 +176,9 @@ extern __stdargs int vfwscanf(FILE * __restrict f, const wchar_t * __restrict fo
     va_list arg);
 extern __stdargs int wscanf(const wchar_t * __restrict format, ...);
 extern __stdargs int vwscanf(const wchar_t * __restrict format, va_list arg);
-extern __stdargs int swscanf(wchar_t * __restrict s,
+extern __stdargs int swscanf(const wchar_t * __restrict s,
     const wchar_t * __restrict format, ...);
-extern __stdargs int vswscanf(wchar_t * __restrict s, const wchar_t * __restrict format,
+extern __stdargs int vswscanf(const wchar_t * __restrict s, const wchar_t * __restrict format,
     va_list arg);
 
 /****************************************************************************/
@@ -238,18 +238,6 @@ extern __stdargs wchar_t * wcsrchr(const wchar_t *ws, wchar_t wc);
 extern __stdargs size_t wcsrtombs(char *p, const wchar_t **sp, size_t n, mbstate_t *ps);
 extern __stdargs long long wcstoll(const wchar_t *p, wchar_t **q, int base);
 extern __stdargs unsigned long long wcstoull(const wchar_t *p, wchar_t **q, int base);
-
-/****************************************************************************/
-
-extern __stdargs int	vfwscanf (FILE *__restrict, const wchar_t *__restrict,
-			va_list);
-extern __stdargs int	vswscanf (const wchar_t *__restrict, const wchar_t *__restrict,
-			va_list);
-extern __stdargs int	vwscanf (const wchar_t *__restrict, va_list);
-extern __stdargs int	wscanf (const wchar_t *__restrict, ...);
-
-extern __stdargs float wcstof (const wchar_t *__restrict, wchar_t **__restrict);
-extern __stdargs long double wcstold (const wchar_t *, wchar_t **);
 
 #ifdef __cplusplus
 }
