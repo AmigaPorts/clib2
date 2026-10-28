@@ -43,6 +43,12 @@
 
 /****************************************************************************/
 
+#ifndef _SYS_CLIB2_STDC_H
+#include <sys/clib2_stdc.h>
+#endif /* _SYS_CLIB2_STDC_H */
+
+/****************************************************************************/
+
 #ifndef _SYS_TYPES_H
 #include <sys/types.h>	/* For the definition of rlim_t */
 #endif /* _SYS_TYPES_H */

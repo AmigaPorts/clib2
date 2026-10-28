@@ -43,6 +43,12 @@
 
 /****************************************************************************/
 
+#ifndef _SYS_CLIB2_STDC_H
+#include <sys/clib2_stdc.h>
+#endif /* _SYS_CLIB2_STDC_H */
+
+/****************************************************************************/
+
 #ifndef _NETINET_IN_H
 #include <netinet/in.h>
 #endif /* _NETINET_IN_H */
