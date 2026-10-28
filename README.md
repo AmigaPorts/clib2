@@ -1,9 +1,7 @@
 # clib2 – An ISO 'C' (1994) compliant runtime library for AmigaOS
 
-[![Build Status](https://travis-ci.org/adtools/clib2.svg?branch=master)](https://travis-ci.org/adtools/clib2)
-[![Code Climate](https://codeclimate.com/github/adtools/clib2/badges/gpa.svg)](https://codeclimate.com/github/adtools/clib2)
+[![Build](https://github.com/AmigaPorts/clib2/actions/workflows/build.yml/badge.svg)](https://github.com/AmigaPorts/clib2/actions/workflows/build.yml)
 [![License](https://img.shields.io/badge/License-BSD%203--Clause-blue.svg)](https://opensource.org/licenses/BSD-3-Clause)
-[![Github Issues](http://githubbadges.herokuapp.com/adtools/clib2/issues.svg)](https://github.com/adtools/clib2/issues)
 
 ## What is this?
 
