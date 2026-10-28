@@ -17,6 +17,12 @@
 #ifndef _UCHAR_H
 #define _UCHAR_H
 
+/****************************************************************************/
+
+#ifndef _SYS_CLIB2_STDC_H
+#include <sys/clib2_stdc.h>
+#endif /* _SYS_CLIB2_STDC_H */
+
 #if __STDC_VERSION__ >= 199901L
 #define __restrict restrict
 #elif !defined(__GNUC__)
@@ -36,11 +42,11 @@ typedef uint16_t char16_t;
 typedef uint32_t char32_t;
 #endif /* __cplusplus */
 
-size_t c16rtomb(char * __restrict s, char16_t c16, mbstate_t * __restrict ps);
-size_t mbrtoc16(char16_t * __restrict pc16, const char * __restrict s,
+extern __stdargs size_t c16rtomb(char * __restrict s, char16_t c16, mbstate_t * __restrict ps);
+extern __stdargs size_t mbrtoc16(char16_t * __restrict pc16, const char * __restrict s,
     size_t n, mbstate_t * __restrict ps);
-size_t c32rtomb(char * __restrict s, char32_t c32, mbstate_t * __restrict ps);
-size_t mbrtoc32(char32_t * __restrict pc32, const char * __restrict s, size_t n,
+extern __stdargs size_t c32rtomb(char * __restrict s, char32_t c32, mbstate_t * __restrict ps);
+extern __stdargs size_t mbrtoc32(char32_t * __restrict pc32, const char * __restrict s, size_t n,
     mbstate_t * __restrict ps);
 
 #ifdef __cplusplus
