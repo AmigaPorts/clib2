@@ -309,6 +309,10 @@ MATH_LIB := \
 	stdlib_strtod_parse.o \
 	stdlib_strtof.o \
 	stdlib_strtold.o \
+	wchar_wcstod.o \
+	wchar_wcstod_narrow.o \
+	wchar_wcstof.o \
+	wchar_wcstold.o \
 	time_difftime.o
 
 ##############################################################################

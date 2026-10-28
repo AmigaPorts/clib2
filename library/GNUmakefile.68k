@@ -496,7 +496,7 @@ C_LIB = \
 	wchar_fgetws.o    wchar_mbsinit.o    wchar_wcscat.o    wchar_wcspbrk.o    wchar_wmemchr.o   wctype_iswblank.o  wctype_towctrans.o \
 	wchar_fputwc.o    wchar_mbsrtowcs.o  wchar_wcschr.o    wchar_wcsrtombs.o  wchar_wmemcmp.o   wctype_iswcntrl.o  wctype_towlower.o \
 	wchar_fputws.o    wchar_putwc.o      wchar_wcscmp.o    wchar_wcsspn.o     wchar_wmemcpy.o   wctype_iswctype.o  wctype_towupper.o \
-	wchar_fwide.o     wchar_putwchar.o   wchar_wcscoll.o   wchar_wcstod.o     wchar_wmemmove.o  wctype_iswdigit.o  wctype_wctrans.o \
+	wchar_fwide.o     wchar_putwchar.o   wchar_wcscoll.o                      wchar_wmemmove.o  wctype_iswdigit.o  wctype_wctrans.o \
 	wchar_fwprintf.o  wchar_swprintf.o   wchar_wcscpy.o    wchar_wcstok.o     wchar_wmemset.o   wctype_iswgraph.o  wctype_wctype.o \
 	wchar_fwscanf.o   wchar_swscanf.o    wchar_wcscspn.o   wchar_wcstol.o     wchar_wprintf.o   wctype_iswlower.o \
 	wchar_getwc.o     wchar_ungetwc.o    wchar_wcsftime.o  wchar_wcstoll.o    wchar_wscanf.o    wctype_iswprint.o \
@@ -518,8 +518,6 @@ C_LIB = \
 	wchar_vswscanf.o \
 	wchar_vwscanf.o \
 	wchar_wcscoll_l.o \
-	wchar_wcstof.o \
-	wchar_wcstold.o \
 	sys_ioctl.o
 	
 
@@ -914,6 +912,10 @@ MATH_LIB = \
 	math_tgammal.o \
 	math_truncl.o \
 	stdlib_strtold.o \
+	wchar_wcstod.o \
+	wchar_wcstod_narrow.o \
+	wchar_wcstof.o \
+	wchar_wcstold.o \
 	time_difftime.o
 
 MATH_LIB_881 = \

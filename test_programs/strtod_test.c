@@ -1,5 +1,6 @@
 /*
- * Tests of strtod(), strtof(), strtold() and fegetround().
+ * Tests of strtod(), strtof(), strtold(), their wide versions wcstod(),
+ * wcstof() and wcstold(), and fegetround().
  *
  * The edge cases check what C99 asks of the string conversions: what they
  * accept, where they stop, and errno.  The accuracy test needs
@@ -9,7 +10,8 @@
  *
  * with numbers and their correctly rounded results.  strtod() and strtof()
  * have to get all of them exactly right; strtold() on m68k's 80-bit long
- * double, which is not correctly rounded, within MAX_LDBL_ULPS.
+ * double, which is not correctly rounded, within MAX_LDBL_ULPS.  The wide
+ * versions have to give the same results as the narrow ones.
  *
  * Build it with -lm and run it; it prints the failures and exits with 0
  * if there are none, 1 otherwise.
@@ -23,6 +25,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <wchar.h>
 
 #include "strtod_vectors.h"
 
@@ -75,6 +78,63 @@ check_strtof(const char *s, float expect, int end, int expect_errno)
 
 	if(!(same_double(f, expect) && e - s == end && errno == expect_errno))
 		fail("strtof", s, (int)(e - s), errno);
+}
+
+/* The wide string of the ASCII string s */
+static const wchar_t *
+widen(const char * s)
+{
+	static wchar_t w[256];
+	size_t i;
+
+	for(i = 0 ; s[i] != '\0' && i < sizeof(w) / sizeof(w[0]) - 1 ; i++)
+		w[i] = (unsigned char)s[i];
+
+	w[i] = L'\0';
+
+	return(w);
+}
+
+static void
+check_wcstod(const char *s, double expect, int end, int expect_errno)
+{
+	const wchar_t * w = widen(s);
+	wchar_t *e;
+	double d;
+
+	errno = 0;
+	d = wcstod(w, &e);
+
+	if(!(same_double(d, expect) && e - w == end && errno == expect_errno))
+		fail("wcstod", s, (int)(e - w), errno);
+}
+
+static void
+check_wcstof(const char *s, float expect, int end, int expect_errno)
+{
+	const wchar_t * w = widen(s);
+	wchar_t *e;
+	float f;
+
+	errno = 0;
+	f = wcstof(w, &e);
+
+	if(!(same_double(f, expect) && e - w == end && errno == expect_errno))
+		fail("wcstof", s, (int)(e - w), errno);
+}
+
+static void
+check_wcstold(const char *s, long double expect, int end, int expect_errno)
+{
+	const wchar_t * w = widen(s);
+	wchar_t *e;
+	long double l;
+
+	errno = 0;
+	l = wcstold(w, &e);
+
+	if(!((l == expect || (__builtin_isnan(l) && __builtin_isnan(expect))) && e - w == end && errno == expect_errno))
+		fail("wcstold", s, (int)(e - w), errno);
 }
 
 #if WIDE_LONG_DOUBLE
@@ -172,6 +232,42 @@ edge_cases(void)
 	}
 	#endif /* WIDE_LONG_DOUBLE */
 
+	check_wcstod("  -1.5e3xyz", -1500.0, 8, 0);
+	check_wcstod("\t\n 0x1p4", 16.0, 8, 0);
+	check_wcstod("  x", 0.0, 0, 0);
+	check_wcstod("", 0.0, 0, 0);
+	check_wcstod("-Infinity!", -INFINITY, 9, 0);
+	check_wcstod("nan(abc)", NAN, 8, 0);
+	check_wcstod("1e", 1.0, 1, 0);
+	check_wcstod("1e309", HUGE_VAL, 5, ERANGE);
+	check_wcstod("4.9406564584124654e-324", 4.9406564584124654e-324, 23, 0);
+	check_wcstof("3.4028235e38", FLT_MAX, 12, 0);
+	check_wcstof(" 1e39", HUGE_VALF, 5, ERANGE);
+	check_wcstold("0x1.8p1", 3.0L, 7, 0);
+	check_wcstold(" -0.5", -0.5L, 5, 0);
+	check_wcstold("nan", NAN, 3, 0);
+
+	/* More digits than fit in wcstod()'s buffer on the stack */
+	{
+		char s[128];
+
+		memset(s, '0', sizeof(s));
+		s[0] = '1';
+		strcpy(&s[101], "e-100;");
+
+		check_wcstod(s, 1.0, 106, 0);
+	}
+
+	/* A wide character beyond Latin 1 ends the number. */
+	{
+		static const wchar_t w[] = { '2', '.', '5', 0x20AC, '1', 0 };
+		wchar_t *e;
+		double d = wcstod(w, &e);
+
+		if(d != 2.5 || e != w + 3)
+			fail("wcstod", "2.5\\u20ac1", (int)(e - w), errno);
+	}
+
 	if(fegetround() != FE_TONEAREST)
 	{
 		printf("FAIL fegetround() is %d, not FE_TONEAREST (%d)\n", fegetround(), FE_TONEAREST);
@@ -202,7 +298,7 @@ float_bits(float f)
 static void
 accuracy(void)
 {
-	unsigned i, n = NUM_VECS, double_exact = 0, float_exact = 0, shown = 0;
+	unsigned i, n = NUM_VECS, double_exact = 0, float_exact = 0, wide_same = 0, shown = 0;
 	#if WIDE_LONG_DOUBLE
 	double worst_ldbl = 0;
 	#endif /* WIDE_LONG_DOUBLE */
@@ -212,6 +308,13 @@ accuracy(void)
 		const struct vec * v = &vecs[i];
 		uint64_t d = double_bits(strtod(v->s, NULL));
 		uint32_t f = float_bits(strtof(v->s, NULL));
+		const wchar_t * w = widen(v->s);
+		long double l = strtold(v->s, NULL), wl = wcstold(w, NULL);
+
+		if(double_bits(wcstod(w, NULL)) == d && float_bits(wcstof(w, NULL)) == f && (wl == l || (__builtin_isnan(wl) && __builtin_isnan(l))))
+			wide_same++;
+		else if(shown++ < 10)
+			printf("FAIL wcstod(), wcstof() or wcstold() differ for \"%s\"\n", v->s);
 
 		/* Overflow gives HUGE_VAL and HUGE_VALF, not infinity. */
 		if((v->d & ~(1ULL << 63)) == 0x7FF0000000000000ULL && (d & ~(1ULL << 63)) == double_bits(HUGE_VAL))
@@ -250,7 +353,9 @@ accuracy(void)
 	printf("strtod:  %u of %u correctly rounded\n", double_exact, n);
 	printf("strtof:  %u of %u correctly rounded\n", float_exact, n);
 
-	if(double_exact != n || float_exact != n)
+	printf("wide:    %u of %u the same\n", wide_same, n);
+
+	if(double_exact != n || float_exact != n || wide_same != n)
 		failures++;
 
 	#if WIDE_LONG_DOUBLE

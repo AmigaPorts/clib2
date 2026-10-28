@@ -430,9 +430,6 @@ C_LIB := \
 	wchar_wcspbrk.o \
 	wchar_wcsrtombs.o \
 	wchar_wcsspn.o \
-	wchar_wcstof.o \
-	wchar_wcstod.o \
-	wchar_wcstold.o \
 	wchar_wcstok.o \
 	wchar_wcstol.o \
 	wchar_wcstoll.o \

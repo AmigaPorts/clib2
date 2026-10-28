@@ -18,17 +18,53 @@
 #include "wchar_headers.h"
 #endif /* _WCHAR_HEADERS_H */
 
+#ifndef _WCHAR_WCSTOD_NARROW_H
+#include "wchar_wcstod_narrow.h"
+#endif /* _WCHAR_WCSTOD_NARROW_H */
+
 /****************************************************************************/
 
 #if defined(FLOATING_POINT_SUPPORT)
 
-double
-wcstod(const wchar_t * __restrict p, wchar_t ** __restrict q)
-{
-	(void) p;
-	(void) q;
+/****************************************************************************/
 
-	return 0;
+double
+wcstod(const wchar_t * __restrict str, wchar_t ** __restrict ptr)
+{
+	const wchar_t * start = str;
+	char buffer[64];
+	char * narrow;
+	char * stop;
+	double result = 0;
+
+	ENTER();
+
+	SHOWPOINTER(str);
+	SHOWPOINTER(ptr);
+
+	narrow = __wcstod_narrow(str,buffer,sizeof(buffer),&start);
+	if(narrow == NULL)
+	{
+		stop = NULL;
+		goto out;
+	}
+
+	result = strtod(narrow,&stop);
+
+ out:
+
+	/* If desired, remember where we stopped reading the number: where the
+	   narrow conversion did, or at the beginning if it read nothing. */
+	if(ptr != NULL)
+		(*ptr) = (wchar_t *)((stop == NULL || stop == narrow) ? str : start + (stop - narrow));
+
+	if(narrow != NULL && narrow != buffer)
+		free(narrow);
+
+	RETURN(result);
+	return(result);
 }
+
+/****************************************************************************/
 
 #endif /* FLOATING_POINT_SUPPORT */
