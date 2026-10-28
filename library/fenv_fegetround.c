@@ -44,8 +44,21 @@
 int
 fegetround(void)
 {
-    // We always round towards the nearest number.
-    return FLT_ROUNDS;
+    /* FLT_ROUNDS numbers the rounding modes differently from the FE_*
+       constants: 0 is toward zero, 1 to nearest, 2 upward, 3 downward. */
+    switch(FLT_ROUNDS)
+    {
+        case 0:
+            return FE_TOWARDZERO;
+        case 1:
+            return FE_TONEAREST;
+        case 2:
+            return FE_UPWARD;
+        case 3:
+            return FE_DOWNWARD;
+        default:
+            return -1;
+    }
 }
 
 /****************************************************************************/
