@@ -83,6 +83,7 @@ modff(float x, float *iptr)
 	    ULONG ix;
 	    *iptr = x*one;
 	    GET_FLOAT_WORD(ix,x);
+	    if((ix&0x7fffffff)>0x7f800000) return x;	/* NaN */
 	    SET_FLOAT_WORD(x,ix&0x80000000U);	/* return +-0 */
 	    return x;
 	}

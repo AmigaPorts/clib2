@@ -197,13 +197,14 @@ frexp(double x,int *nptr)
 	}
 	#endif /* CHECK_FOR_NULL_POINTERS */
 
-	if(x != 0.0)
+	if(x != 0.0 && isfinite(x))
 	{
 		result = __frexp(x,nptr);
 	}
 	else
 	{
-		result = 0.0;
+		/* Zero, infinity and NaN stay what they are. */
+		result = x;
 
 		(*nptr) = 0;
 	}

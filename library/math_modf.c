@@ -155,7 +155,24 @@ modf(double x,double *nptr)
 	}
 	#endif /* CHECK_FOR_NULL_POINTERS */
 
-	result = __modf(x,nptr);
+	if(isnan(x))
+	{
+		(*nptr) = x;
+
+		result = x;
+		goto out;
+	}
+
+	if(isinf(x))
+	{
+		(*nptr) = x;
+
+		result = copysign(0.0,x);
+		goto out;
+	}
+
+	/* The fraction has the sign of x, also when it is zero. */
+	result = copysign(__modf(x,nptr),x);
 
  out:
 
