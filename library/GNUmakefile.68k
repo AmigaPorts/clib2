@@ -183,6 +183,7 @@ C_LIB = \
 	locale_init_exit.o \
 	locale_localeconv.o \
 	locale_open_locale.o \
+	locale_nl_langinfo.o \
 	locale_setlocale.o \
 	mount_convertinfo.o \
 	mount_fstatfs.o \
@@ -405,6 +406,8 @@ C_LIB = \
 	string_bzero.o \
 	string_index.o \
 	string_memchr.o \
+	string_memmem.o \
+	unistd_fnmatch.o \
 	string_memcmp.o \
 	string_memcpy.o \
 	string_memmove.o \

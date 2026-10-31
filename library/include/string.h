@@ -96,6 +96,8 @@ extern __stdargs size_t strxfrm(char * __restrict dest, const char * __restrict 
 
 extern __stdargs void *memmove(void *dest, const void * src, size_t len);
 extern __stdargs void *memchr(const void * ptr, int val, size_t len);
+extern __stdargs void *memmem(const void * haystack, size_t haystack_length,
+    const void * needle, size_t needle_length);
 
 /* This is ugly: GCC 2.95.x assumes that 'unsigned long' is used in the built-in
    memcmp/memcpy/memset functions instead of 'size_t'. This can produce warnings

@@ -63,6 +63,7 @@ C_LIB := \
 	libgen_dirname.o \
 	locale_init_exit.o \
 	locale_localeconv.o \
+	locale_nl_langinfo.o \
 	locale_open_locale.o \
 	locale_setlocale.o \
 	mount_convertinfo.o \
@@ -297,6 +298,7 @@ C_LIB := \
 	string_bzero.o \
 	string_index.o \
 	string_memchr.o \
+	string_memmem.o \
 	string_memcmp.o \
 	string_memcpy.o \
 	string_memccpy.o \
@@ -324,6 +326,7 @@ C_LIB := \
 	string_strrchr.o \
 	string_strspn.o \
 	string_strstr.o \
+	unistd_fnmatch.o \
 	string_strtok.o \
 	string_strtok_r.o \
 	string_strxfrm.o \
