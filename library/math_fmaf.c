@@ -41,6 +41,51 @@
 
 /****************************************************************************/
 
+#if defined(__mc68000__)
+
+/****************************************************************************/
+
+/* The product of two floats is exact in a double, so only the sum rounds, and
+   then once more to float, which can round wrongly: the first rounding may
+   have landed on a tie, or moved off one. Round to odd instead, which keeps
+   the final rounding right, also for a subnormal float: go towards zero, and
+   set the last bit when the sum isn't exact. */
+float
+fmaf(float x,float y,float z)
+{
+	union { double f; uint64_t i; } u;
+	double xy, result, error;
+
+	xy = (double)x * y;
+	result = xy + z;
+
+	u.f = result;
+
+	if(((u.i >> 52) & 0x7ff) == 0x7ff)
+		return((float)result);
+
+	if(fabs(xy) > fabs(z))
+		error = (xy - result) + z;
+	else
+		error = (z - result) + xy;
+
+	if(error == 0)
+		return((float)result);
+
+	if((int)(u.i >> 63) != (error < 0))
+		u.i--;
+
+	u.i |= 1;
+
+	return((float)u.f);
+}
+
+/****************************************************************************/
+
+#else
+
+/****************************************************************************/
+
 float
 fmaf(float x,float y,float z)
 {
@@ -48,6 +93,10 @@ fmaf(float x,float y,float z)
 	   not a sequential operation as declared below! */
 	return((x * y) + z);
 }
+
+/****************************************************************************/
+
+#endif /* __mc68000__ */
 
 /****************************************************************************/
 
