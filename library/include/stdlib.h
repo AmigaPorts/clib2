@@ -73,7 +73,7 @@ extern "C" {
 
 /* Maximum number of bytes in a multibyte character */
 #undef  MB_CUR_MAX
-#define MB_CUR_MAX 2
+#define MB_CUR_MAX 4
 
 /****************************************************************************/
 
