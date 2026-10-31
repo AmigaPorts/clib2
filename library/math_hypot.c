@@ -50,41 +50,6 @@
 
 /****************************************************************************/
 
-#if defined(IEEE_FLOATING_POINT_SUPPORT) || defined(M68881_FLOATING_POINT_SUPPORT)
-
-INLINE STATIC const double
-__hypot(double x,double y)
-{
-	double yx;
-
-	x = fabs(x);
-	y = fabs(y);
-	if ( x < y )
-	{
-		double temp = x;
-		x = y;
-		y = temp;
-	}
-
-	if (x == 0.)
-	{
-		return 0.;
-	}
-	else
-	{
-		yx = y/x;
-		return x*sqrt(1. + yx*yx);
-	}
-}
-
-#endif /* IEEE_FLOATING_POINT_SUPPORT || M68881_FLOATING_POINT_SUPPORT */
-
-/****************************************************************************/
-
-#if defined(PPC_FLOATING_POINT_SUPPORT)
-
-static const double one = 1.0;
-
 INLINE STATIC double
 __hypot(double x,double y)
 {
@@ -158,10 +123,6 @@ __hypot(double x,double y)
 	    return t1*w;
 	} else return w;
 }
-
-#endif /* PPC_FLOATING_POINT_SUPPORT */
-
-/****************************************************************************/
 
 double
 hypot(double x,double y)
