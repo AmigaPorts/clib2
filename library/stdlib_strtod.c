@@ -386,8 +386,7 @@ __parsed_to_double(const struct __parsed_number * pn)
 
 			result = parsed_to_double(pn);
 
-			/* On overflow, HUGE_VAL, as clib2's math functions return it
-			   too: the largest double, not infinity. */
+			/* On overflow, HUGE_VAL, which is infinity. */
 			if(__builtin_isinf(result))
 			{
 				SHOWMSG("overflow");

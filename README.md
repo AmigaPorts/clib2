@@ -107,7 +107,7 @@ On the 68k, the *C99* data type `long double` is the 80-bit extended precision f
 
 The PowerPC version of *clib2* supports only double precision floating point numbers, according to the *IEEE 754* standard, because that is exactly what the PowerPC CPU supports. Single precision numbers may be implicitly converted to double precision numbers. This also means that the *C99* data type `long double` is identical to the `double` data type, and the *C99* functions for `long double`, such as `rintl()`, are the same as those for `double`.
 
-`strtod()` and `strtof()` are correctly rounded on both the 68k and the PowerPC. If the number is too large, they return `HUGE_VAL` or `HUGE_VALF`, which in *clib2* are the largest `double` and `float` values rather than infinity, and set `errno` to `ERANGE`.
+`strtod()` and `strtof()` are correctly rounded on both the 68k and the PowerPC. If the number is too large, they return `HUGE_VAL` or `HUGE_VALF`, which are infinity, and set `errno` to `ERANGE`.
 
 Both the 68k and the PowerPC versions of *clib2* may call software floating point support routines in order to perform double and single precision operations that go beyond simple addition and multiplication, such as `sqrt()`. These functions come from Sun Microsystems <a href="http://www.netlib.org/fdlibm/">fdlibm 5.3</a> library.
 

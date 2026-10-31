@@ -204,15 +204,13 @@ edge_cases(void)
 	check_strtod("1.7976931348623158e308", DBL_MAX, 22, 0);
 	check_strtod("4.9406564584124654e-324", 4.9406564584124654e-324, 23, 0);
 
-	/* clib2's HUGE_VAL and HUGE_VALF are the largest double and float,
-	   not infinity, as its math functions return them too. */
-	check_strtod("1e309", HUGE_VAL, 5, ERANGE);
-	check_strtod("-1e309", -HUGE_VAL, 6, ERANGE);
+	check_strtod("1e309", INFINITY, 5, ERANGE);
+	check_strtod("-1e309", -INFINITY, 6, ERANGE);
 	check_strtod("1e-400", 0.0, 6, ERANGE);
 
 	check_strtof("3.4028235e38", FLT_MAX, 12, 0);
 	check_strtof("0x1p-149", 0x1p-149f, 8, 0);
-	check_strtof("1e39", HUGE_VALF, 4, ERANGE);
+	check_strtof("1e39", INFINITY, 4, ERANGE);
 	check_strtof("1e-50", 0.0f, 5, ERANGE);
 
 	#if WIDE_LONG_DOUBLE
@@ -239,10 +237,10 @@ edge_cases(void)
 	check_wcstod("-Infinity!", -INFINITY, 9, 0);
 	check_wcstod("nan(abc)", NAN, 8, 0);
 	check_wcstod("1e", 1.0, 1, 0);
-	check_wcstod("1e309", HUGE_VAL, 5, ERANGE);
+	check_wcstod("1e309", INFINITY, 5, ERANGE);
 	check_wcstod("4.9406564584124654e-324", 4.9406564584124654e-324, 23, 0);
 	check_wcstof("3.4028235e38", FLT_MAX, 12, 0);
-	check_wcstof(" 1e39", HUGE_VALF, 5, ERANGE);
+	check_wcstof(" 1e39", INFINITY, 5, ERANGE);
 	check_wcstold("0x1.8p1", 3.0L, 7, 0);
 	check_wcstold(" -0.5", -0.5L, 5, 0);
 	check_wcstold("nan", NAN, 3, 0);
@@ -315,13 +313,6 @@ accuracy(void)
 			wide_same++;
 		else if(shown++ < 10)
 			printf("FAIL wcstod(), wcstof() or wcstold() differ for \"%s\"\n", v->s);
-
-		/* Overflow gives HUGE_VAL and HUGE_VALF, not infinity. */
-		if((v->d & ~(1ULL << 63)) == 0x7FF0000000000000ULL && (d & ~(1ULL << 63)) == double_bits(HUGE_VAL))
-			d = v->d;
-
-		if((v->f & ~(1UL << 31)) == 0x7F800000UL && (f & ~(1UL << 31)) == float_bits(HUGE_VALF))
-			f = v->f;
 
 		if(d == v->d)
 			double_exact++;

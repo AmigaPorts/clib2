@@ -66,7 +66,7 @@ extern double __huge_val;
 /****************************************************************************/
 
 #if defined(__GNUC__) && __GNUC__ >= 4
-#define	HUGE_VAL __DBL_MAX__
+#define	HUGE_VAL __builtin_huge_val()
 #else
 #define	HUGE_VAL ((const double)__huge_val)
 #endif /* __GNUC__ */
@@ -140,9 +140,17 @@ extern float __huge_val_float;
 /****************************************************************************/
 
 #if defined(__GNUC__) && __GNUC__ >= 4
-#define	HUGE_VALF __FLT_MAX__
+#define	HUGE_VALF __builtin_huge_valf()
 #else
 #define	HUGE_VALF ((const float)__huge_val_float)
+#endif /* __GNUC__ */
+
+/****************************************************************************/
+
+#if defined(__GNUC__) && __GNUC__ >= 4
+#define	HUGE_VALL __builtin_huge_vall()
+#else
+#define	HUGE_VALL ((const long double)__huge_val)
 #endif /* __GNUC__ */
 
 /****************************************************************************/
@@ -154,8 +162,8 @@ extern float __nan;
 
 /*
  * C99 makes these constant expressions, usable in static initializers,
- * which reading the variables above is not.  HUGE_VAL and HUGE_VALF have
- * the values of __huge_val and __huge_val_float, DBL_MAX and FLT_MAX.
+ * which reading the variables above is not.  HUGE_VAL, HUGE_VALF and
+ * HUGE_VALL are infinity, like __huge_val and __huge_val_float.
  */
 #if defined(__GNUC__) && __GNUC__ >= 4
 #define INFINITY	__builtin_inff()

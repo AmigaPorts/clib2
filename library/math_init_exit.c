@@ -192,26 +192,21 @@ MATH_CONSTRUCTOR(math_init)
 	}
 	#endif /* __mc68000__ */
 
-	/* Now fill in HUGE_VAL and HUGE_VALF, respectively. TODO:
-	   also take care of HUGE_VALL. */
-
-	/* Exponent = +126, Mantissa = 8,388,607 */
+	/* Now fill in HUGE_VAL and HUGE_VALF, respectively, which are infinity. */
 	single_x = (union ieee_single *)&__huge_val_float;
-	single_x->raw[0] = 0x7f7fffff;
+	single_x->raw[0] = 0x7f800000;
 
-	/* Exponent = +1022, Mantissa = 4,503,599,627,370,495 */
 	double_x = (union ieee_double *)&__huge_val;
-	double_x->raw[0] = 0x7fefffff;
-	double_x->raw[1] = 0xffffffff;
+	double_x->raw[0] = 0x7ff00000;
+	double_x->raw[1] = 0x00000000;
 
 	#if defined(USE_LONG_DOUBLE)
 	{
 		union ieee_long_double * x = (union ieee_long_double *)&__huge_val_long_double;
 
-		/* Exponent = +32766, Mantissa = 18,446,744,073,709,551,615 */
-		x->raw[0] = 0x7ffe0000;
-		x->raw[1] = 0xffffffff;
-		x->raw[2] = 0xffffffff;
+		x->raw[0] = 0x7fff0000;
+		x->raw[1] = 0x00000000;
+		x->raw[2] = 0x00000000;
 	}
 	#endif /* USE_LONG_DOUBLE */
 
