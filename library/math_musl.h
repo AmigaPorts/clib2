@@ -7,11 +7,6 @@
 
 /****************************************************************************/
 
-/* For the functions that <math.h> only declares on request. */
-#ifndef _GNU_SOURCE
-#define _GNU_SOURCE
-#endif /* _GNU_SOURCE */
-
 #ifndef _MATH_HEADERS_H
 #include "math_headers.h"
 #endif /* _MATH_HEADERS_H */
@@ -47,6 +42,19 @@ union ldshape
 };
 
 #endif /* __mc68000__ */
+
+/****************************************************************************/
+
+/* <math.h> only declares these on request, and defining _GNU_SOURCE here would
+   get us newlib's idea of locale_t from the headers we don't have. */
+extern __stdargs double j0(double x);
+extern __stdargs double j1(double x);
+extern __stdargs double y0(double x);
+extern __stdargs double y1(double x);
+extern __stdargs float j0f(float x);
+extern __stdargs float j1f(float x);
+extern __stdargs float y0f(float x);
+extern __stdargs float y1f(float x);
 
 /****************************************************************************/
 
