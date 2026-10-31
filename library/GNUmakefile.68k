@@ -1068,7 +1068,13 @@ lib/libb : lib
 lib/libb/libm020 : lib lib/libb
 	-$(MAKEDIR) $@
 
+lib/libb/libm020/libm881 : lib/libb/libm020
+	-$(MAKEDIR) $@
+
 lib/libb32/libm020 : lib lib/libb32
+	-$(MAKEDIR) $@
+
+lib/libb32/libm020/libm881 : lib/libb32/libm020
 	-$(MAKEDIR) $@
 
 lib/libb32 : lib
@@ -1077,25 +1083,34 @@ lib/libb32 : lib
 lib/libm020 : lib
 	-$(MAKEDIR) $@
 
-lib/libb/libm020/libm.a: lib lib/libb/libm020
+lib/libm020/libm881 : lib/libm020
+	-$(MAKEDIR) $@
+
+lib/libb/libm020/libm.a: lib lib/libb/libm020 lib/libb/libm020/libm881
 	$(MAKEDIR) small_data_020 
 	$(MAKE) TYPE=small_data_020 kitchen_sink
 	@$(COPY) $(foreach file,$(LIBS_020),small_data_020/$(file)) lib/libb/libm020
+	@$(COPY) $(foreach file,$(LIBS_68K),small_data_020/$(file)) lib/libb/libm020/libm881
+	@$(COPY) small_data_020/$(LIBM881_OBJS)/libm881.a lib/libb/libm020/libm881/libm.a
 
 lib/libb/libm.a: lib lib/libb
 	$(MAKEDIR) small_data 
 	$(MAKE) TYPE=small_data kitchen_sink
 	@$(COPY) $(foreach file,$(LIBS_68K),small_data/$(file)) lib/libb
 
-lib/libb32/libm020/libm.a: lib lib/libb32 lib/libb32/libm020
+lib/libb32/libm020/libm.a: lib lib/libb32 lib/libb32/libm020 lib/libb32/libm020/libm881
 	$(MAKEDIR) small_data32 
 	$(MAKE) TYPE=small_data32 kitchen_sink
 	@$(COPY) $(foreach file,$(LIBS_020),small_data32/$(file)) lib/libb32/libm020
+	@$(COPY) $(foreach file,$(LIBS_68K),small_data32/$(file)) lib/libb32/libm020/libm881
+	@$(COPY) small_data32/$(LIBM881_OBJS)/libm881.a lib/libb32/libm020/libm881/libm.a
 
-lib/libm020/libm.a: lib lib/libm020
+lib/libm020/libm.a: lib lib/libm020 lib/libm020/libm881
 	$(MAKEDIR) large_data_020 
 	$(MAKE) TYPE=large_data_020 kitchen_sink
 	@$(COPY) $(foreach file,$(LIBS_020),large_data_020/$(file)) lib/libm020
+	@$(COPY) $(foreach file,$(LIBS_68K),large_data_020/$(file)) lib/libm020/libm881
+	@$(COPY) large_data_020/$(LIBM881_OBJS)/libm881.a lib/libm020/libm881/libm.a
 
 lib/libm.a: lib
 	$(MAKEDIR) large_data 
