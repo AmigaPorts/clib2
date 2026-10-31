@@ -23,9 +23,15 @@
 int
 vswscanf(const wchar_t * __restrict s, const wchar_t * __restrict format, va_list arg)
 {
-	(void) s;
-	(void) format;
-	(void) arg;
+	char *narrow_string = __wide_to_narrow(s);
+	char *narrow_format = __wide_to_narrow(format);
+	int result = EOF;
 
-	return 0;
+	if (narrow_string != NULL && narrow_format != NULL)
+		result = vsscanf(narrow_string, narrow_format, arg);
+
+	free(narrow_string);
+	free(narrow_format);
+
+	return result;
 }

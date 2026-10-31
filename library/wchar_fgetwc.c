@@ -23,7 +23,28 @@
 wint_t
 fgetwc(FILE *f)
 {
-	(void) f;
+	mbstate_t state = 0;
 
-	return WEOF;
+	for (;;) {
+		wchar_t wc;
+		char b;
+		size_t l;
+		int c = fgetc(f);
+
+		if (c == EOF) {
+			if (state != 0)
+				__set_errno(EILSEQ);
+
+			return WEOF;
+		}
+
+		b = c;
+		l = mbrtowc(&wc, &b, 1, &state);
+
+		if (l == (size_t)-1)
+			return WEOF;
+
+		if (l != (size_t)-2)
+			return wc;
+	}
 }

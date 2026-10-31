@@ -189,14 +189,14 @@ extern __stdargs wint_t putwchar(wchar_t c);
 
 /****************************************************************************/
 
-extern __stdargs wint_t fputws(const wchar_t * __restrict s, FILE * __restrict f);
+extern __stdargs int fputws(const wchar_t * __restrict s, FILE * __restrict f);
 
 /****************************************************************************/
 
 extern __stdargs int fwprintf(FILE * __restrict f,
     const wchar_t * __restrict format, ...);
 extern __stdargs int wprintf(const wchar_t * __restrict format, ...);
-extern __stdargs int swprintf(wchar_t * __restrict s,
+extern __stdargs int swprintf(wchar_t * __restrict s, size_t maxlen,
     const wchar_t * __restrict format, ...);
 /****************************************************************************/
 

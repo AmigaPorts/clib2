@@ -21,10 +21,14 @@
 /****************************************************************************/
 
 int
-swprintf(wchar_t * __restrict s, const wchar_t * __restrict format, ...)
+swprintf(wchar_t * __restrict s, size_t maxlen, const wchar_t * __restrict format, ...)
 {
-	(void) s;
-	(void) format;
+	int ret;
+	va_list ap;
 
-	return 0;
+	va_start(ap, format);
+	ret = vswprintf(s, maxlen, format, ap);
+	va_end(ap);
+
+	return ret;
 }

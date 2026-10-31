@@ -37,17 +37,29 @@
 
 /****************************************************************************/
 
-#if defined(__STDC_VERSION__) && (__STDC_VERSION__ >= 199901L)
+#include <wchar.h>
+
+/****************************************************************************/
 
 int
 mbtowc(wchar_t * __restrict pwc, const char * __restrict s, size_t n)
 {
-	(void) pwc;
-	(void) s;
-	(void) n;
+	static mbstate_t state;
+	size_t l;
 
-	errno = EILSEQ;
-	return -1;
+	/* There are no encodings with a shift state here. */
+	if (s == NULL) {
+		state = 0;
+		return 0;
+	}
+
+	l = mbrtowc(pwc, s, n, &state);
+
+	if (l == (size_t)-1 || l == (size_t)-2) {
+		state = 0;
+		__set_errno(EILSEQ);
+		return -1;
+	}
+
+	return (int)l;
 }
-
-#endif

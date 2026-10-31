@@ -393,6 +393,7 @@ C_LIB := \
     uchar_mbrtoc16.o \
     uchar_mbrtoc32.o \
 	wchar_btowc.o \
+	wchar_narrow.o \
 	wchar_fgetwc.o \
 	wchar_fgetws.o \
 	wchar_fputwc.o \

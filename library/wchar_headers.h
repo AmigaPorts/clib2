@@ -67,4 +67,8 @@
 #define CODEUNIT(c) (0xdfff & (signed char)(c))
 #define IS_CODEUNIT(c) ((unsigned)(c)-0xdf80 < 0x80)
 
+extern char * __wide_to_narrow(const wchar_t * s);
+extern int __vwide_format(char ** text, const wchar_t * format, va_list arg);
+extern char * __wcsto_narrow(const wchar_t * str, char * buffer, size_t size, const wchar_t ** start);
+
 #endif /* _WCHAR_HEADERS_H */

@@ -23,8 +23,21 @@
 wint_t
 ungetwc(wint_t c, FILE *f)
 {
-	(void) c;
-	(void) f;
+	char buffer[MB_LEN_MAX];
+	size_t l;
 
-	return 0;
+	if (c == (wint_t)WEOF)
+		return WEOF;
+
+	l = wcrtomb(buffer, (wchar_t)c, NULL);
+
+	if (l == (size_t)-1)
+		return WEOF;
+
+	while (l > 0) {
+		if (ungetc((unsigned char)buffer[--l], f) == EOF)
+			return WEOF;
+	}
+
+	return c;
 }

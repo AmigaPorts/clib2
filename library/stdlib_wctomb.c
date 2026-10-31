@@ -37,12 +37,15 @@
 
 /****************************************************************************/
 
+#include <wchar.h>
+
+/****************************************************************************/
+
 int
 wctomb(char *s, wchar_t wchar)
 {
-	(void) s;
-	(void) wchar;
+	if (s == NULL)
+		return 0;
 
-	/* ZZZ unimplemented */
-	return(-1);
+	return (int)wcrtomb(s, wchar, NULL);
 }

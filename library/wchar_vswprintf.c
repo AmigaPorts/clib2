@@ -21,13 +21,35 @@
 /****************************************************************************/
 
 int
-vswprintf(wchar_t * __restrict s, size_t maxlen,
-    const wchar_t * __restrict format, va_list arg)
+vswprintf(wchar_t * __restrict s, size_t maxlen, const wchar_t * __restrict format,
+    va_list arg)
 {
-	(void) s;
-	(void) maxlen;
-	(void) format;
-	(void) arg;
+	const char *from;
+	char *text;
+	size_t count;
+	mbstate_t state = 0;
+	int length;
+	int result = -1;
 
-	return 0;
+	if (maxlen == 0)
+		return -1;
+
+	length = __vwide_format(&text, format, arg);
+
+	if (length >= 0) {
+		from = text;
+		count = mbsrtowcs(s, &from, maxlen, &state);
+
+		/* from is NULL if all of it fitted, with the terminating NUL. */
+		if (count != (size_t)-1) {
+			if (from == NULL)
+				result = (int)count;
+			else
+				s[maxlen - 1] = L'\0';
+		}
+
+		free(text);
+	}
+
+	return result;
 }

@@ -37,13 +37,14 @@
 
 /****************************************************************************/
 
+#include <wchar.h>
+
+/****************************************************************************/
+
 size_t
 mbstowcs(wchar_t * __restrict pwcs, const char * __restrict s, size_t n)
 {
-	(void) pwcs;
-	(void) s;
-	(void) n;
+	mbstate_t state = 0;
 
-	/* ZZZ unimplemented */
-	return(0);
+	return mbsrtowcs(pwcs, &s, n, &state);
 }

@@ -408,6 +408,7 @@ C_LIB = \
 	string_memchr.o \
 	string_memmem.o \
 	unistd_fnmatch.o \
+	wchar_narrow.o \
 	string_memcmp.o \
 	string_memcpy.o \
 	string_memmove.o \
@@ -915,6 +916,18 @@ MATH_LIB = \
 	math_tgammal.o \
 	math_truncl.o \
 	stdlib_strtold.o \
+	wchar_fwprintf.o \
+	wchar_fwscanf.o \
+	wchar_narrow.o \
+	wchar_swprintf.o \
+	wchar_swscanf.o \
+	wchar_vfwprintf.o \
+	wchar_vfwscanf.o \
+	wchar_vswprintf.o \
+	wchar_vswscanf.o \
+	wchar_vwprintf.o \
+	wchar_wprintf.o \
+	wchar_wscanf.o \
 	wchar_wcstod.o \
 	wchar_wcstod_narrow.o \
 	wchar_wcstof.o \

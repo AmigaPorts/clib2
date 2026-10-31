@@ -33,10 +33,24 @@ size_t
 wcsftime(wchar_t * __restrict s, size_t n, const wchar_t * __restrict f,
     const struct tm * __restrict tm)
 {
-    (void) s;
-    (void) n;
-    (void) f;
-    (void) tm;
+	char *format = __wide_to_narrow(f);
+	char *text = NULL;
+	size_t size = 4 * n;
+	size_t result = 0;
 
-	return 0;
+	if (n > 0 && format != NULL)
+		text = malloc(size);
+
+	if (text != NULL && strftime(text, size, format, tm) > 0) {
+		result = mbstowcs(s, text, n);
+
+		/* It has to fit with its terminating NUL, or the result is 0. */
+		if (result == (size_t)-1 || result >= n)
+			result = 0;
+	}
+
+	free(text);
+	free(format);
+
+	return result;
 }

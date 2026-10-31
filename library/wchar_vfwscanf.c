@@ -23,9 +23,13 @@
 int
 vfwscanf(FILE * __restrict f, const wchar_t * __restrict format, va_list arg)
 {
-	(void) f;
-	(void) format;
-	(void) arg;
+	char *narrow = __wide_to_narrow(format);
+	int result = EOF;
 
-	return 0;
+	if (narrow != NULL) {
+		result = vfscanf(f, narrow, arg);
+		free(narrow);
+	}
+
+	return result;
 }

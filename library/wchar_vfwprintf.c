@@ -23,9 +23,18 @@
 int
 vfwprintf(FILE * __restrict f, const wchar_t * __restrict format, va_list arg)
 {
-	(void) f;
-	(void) format;
-	(void) arg;
+	char *text;
+	int length;
+	int result = -1;
 
-	return 0;
+	length = __vwide_format(&text, format, arg);
+
+	if (length >= 0) {
+		if ((int)fwrite(text, 1, length, f) == length)
+			result = (int)mbstowcs(NULL, text, 0);
+
+		free(text);
+	}
+
+	return result;
 }

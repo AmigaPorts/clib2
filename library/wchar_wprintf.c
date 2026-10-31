@@ -23,7 +23,12 @@
 int
 wprintf(const wchar_t * __restrict format, ...)
 {
-	(void) format;
+	int ret;
+	va_list ap;
 
-	return 0;
+	va_start(ap, format);
+	ret = vfwprintf(stdout, format, ap);
+	va_end(ap);
+
+	return ret;
 }

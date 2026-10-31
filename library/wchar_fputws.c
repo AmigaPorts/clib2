@@ -20,11 +20,13 @@
 
 /****************************************************************************/
 
-wint_t
+int
 fputws(const wchar_t * __restrict s, FILE * __restrict f)
 {
-	(void) s;
-	(void) f;
+	for (; *s != L'\0'; s++) {
+		if (fputwc(*s, f) == (wint_t)WEOF)
+			return EOF;
+	}
 
-	return EOF;
+	return 0;
 }
