@@ -458,13 +458,48 @@ extern __stdargs int ilogbl(long double x);
 /****************************************************************************/
 
 /* Not part of ISO C, so a strictly conforming program may have used
-   this name for itself. */
+   these names for itself. */
 #if !defined(__STRICT_ANSI__) || defined(_XOPEN_SOURCE) || defined(_DEFAULT_SOURCE) || \
     defined(_BSD_SOURCE) || defined(_GNU_SOURCE)
 
 extern int signgam;
 
+extern __stdargs double j0(double x);
+extern __stdargs double j1(double x);
+extern __stdargs double jn(int n, double x);
+extern __stdargs double y0(double x);
+extern __stdargs double y1(double x);
+extern __stdargs double yn(int n, double x);
+extern __stdargs double scalb(double x, double y);
+
 #endif /* !__STRICT_ANSI__ || _XOPEN_SOURCE || _DEFAULT_SOURCE || _BSD_SOURCE || _GNU_SOURCE */
+
+#if !defined(__STRICT_ANSI__) || defined(_DEFAULT_SOURCE) || defined(_BSD_SOURCE) || defined(_GNU_SOURCE)
+
+extern __stdargs float j0f(float x);
+extern __stdargs float j1f(float x);
+extern __stdargs float jnf(int n, float x);
+extern __stdargs float y0f(float x);
+extern __stdargs float y1f(float x);
+extern __stdargs float ynf(int n, float x);
+extern __stdargs float scalbf(float x, float y);
+extern __stdargs double drem(double x, double y);
+extern __stdargs float dremf(float x, float y);
+extern __stdargs double lgamma_r(double x, int *sign);
+extern __stdargs float lgammaf_r(float x, int *sign);
+
+#endif /* !__STRICT_ANSI__ || _DEFAULT_SOURCE || _BSD_SOURCE || _GNU_SOURCE */
+
+#if !defined(__STRICT_ANSI__) || defined(_GNU_SOURCE)
+
+extern __stdargs void sincos(double x, double *s, double *c);
+extern __stdargs void sincosf(float x, float *s, float *c);
+extern __stdargs double exp10(double x);
+extern __stdargs float exp10f(float x);
+extern __stdargs double pow10(double x);
+extern __stdargs float pow10f(float x);
+
+#endif /* !__STRICT_ANSI__ || _GNU_SOURCE */
 
 /****************************************************************************/
 

@@ -770,6 +770,22 @@ MATH_LIB = \
 	math_tanhf.o \
 	math_tgamma.o \
 	math_tgammaf.o \
+	math_drem.o \
+	math_dremf.o \
+	math_exp10.o \
+	math_exp10f.o \
+	math_j0.o \
+	math_j0f.o \
+	math_j1.o \
+	math_j1f.o \
+	math_jn.o \
+	math_jnf.o \
+	math_lgamma_r.o \
+	math_lgammaf_r.o \
+	math_scalb.o \
+	math_scalbf.o \
+	math_sincos.o \
+	math_sincosf.o \
 	math_trunc.o \
 	math_truncf.o \
 	stdio_asprintf.o \
