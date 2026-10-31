@@ -119,59 +119,7 @@ __pow(double x,double y)
 
 /****************************************************************************/
 
-#if defined(M68881_FLOATING_POINT_SUPPORT)
-
-INLINE STATIC const double
-__exp(double x)
-{
-	double result;
-
-	__asm ("fetox%.x %1,%0"
-	       : "=f" (result)
-	       : "f" (x));
-
-	return(result);
-}
-
-INLINE STATIC const double
-__log(double x)
-{
-	double result;
-
-	__asm ("flogn%.x %1,%0"
-	       : "=f" (result)
-	       : "f" (x));
-
-	return(result);
-}
-
-INLINE STATIC const double
-__pow(double x,double y)
-{
-	double result;
-
-	if(x > 0)
-	{
-		result = __exp(y * __log(x));
-	}
-	else
-	{
-		int i = (int)y;
-
-		if((i & 1) == 0) /* even */
-			result = __exp(y) * __log(-x);
-		else
-            result = -(__exp(y) * __log(-x));
-	}
-
-	return(result);
-}
-
-#endif /* M68881_FLOATING_POINT_SUPPORT */
-
-/****************************************************************************/
-
-#if defined(__PPC__)
+#if defined(M68881_FLOATING_POINT_SUPPORT) || defined(__PPC__)
 
 /****************************************************************************/
 
@@ -416,7 +364,7 @@ __pow(double x,double y)
 	return s*z;
 }
 
-#endif /* PPC_FLOATING_POINT_SUPPORT */
+#endif /* M68881_FLOATING_POINT_SUPPORT || PPC_FLOATING_POINT_SUPPORT */
 
 /****************************************************************************/
 
@@ -445,7 +393,8 @@ pow(double x,double y)
 {
 	int x_is_nan = isnan(x), y_is_nan = isnan(y);
 	int kind;
-	double result;
+	/* Stored, as an overflow in extended precision is none on the FPU yet. */
+	volatile double result;
 
 	/* C99's special cases. __pow() only has to work for a positive,
 	   finite x and a finite y. */
@@ -469,7 +418,7 @@ pow(double x,double y)
 		{
 			__set_errno(ERANGE);
 
-			result = (kind == 1) ? copysign(__inf(),x) : __inf();
+			result = (kind == 1) ? copysign(-__pole_error(x),x) : -__pole_error(x);
 		}
 		else
 		{
@@ -509,7 +458,7 @@ pow(double x,double y)
 		{
 			__set_errno(EDOM);
 
-			result = __builtin_nan("");
+			result = __domain_error(x);
 			goto out;
 		}
 

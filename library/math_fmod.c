@@ -257,7 +257,7 @@ fmod(double x,double y)
 	}
 	else
 	{
-		result = __builtin_nan("");
+		result = __domain_error(y);
 		__set_errno(EDOM);
 	}
 

@@ -122,7 +122,8 @@ __tanh(double x)
 INLINE STATIC const double
 __tanh(double x)
 {
-	double result;
+	/* Stored, to be a double with the flags of one, not what is in fp0. */
+	volatile double result;
 
 	__asm ("ftanh%.x %1,%0"
 	       : "=f" (result)

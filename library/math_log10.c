@@ -122,7 +122,8 @@ __log10(double x)
 INLINE STATIC const double
 __log10(double x)
 {
-	double result;
+	/* Stored, to be a double with the flags of one, not what is in fp0. */
+	volatile double result;
 
 	__asm ("flog10%.x %1,%0"
 	       : "=f" (result)
@@ -194,13 +195,13 @@ log10(double x)
 	{
 		__set_errno(EDOM);
 
-		result = __builtin_nan("");
+		result = __domain_error(x);
 	}
 	else
 	{
 		__set_errno(ERANGE);
 
-		result = -__inf();
+		result = __pole_error(x);
 	}
 
 	return(result);

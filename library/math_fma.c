@@ -45,6 +45,16 @@
 
 /****************************************************************************/
 
+/* The rounding mode field of the FPCR and the accrued flags of the FPSR. */
+#define FPCR_ROUNDING	0x30UL
+#define FPCR_DOWNWARD	0x20UL
+#define FPCR_UPWARD		0x30UL
+#define FPSR_INEXACT	0x08UL
+#define FPSR_UNDERFLOW	0x20UL
+#define FPSR_OVERFLOW	0x40UL
+
+/****************************************************************************/
+
 /* A normalized finite number: m * 2^e, with m's top bit at bit 53. */
 struct num
 {
@@ -101,7 +111,8 @@ mul64(uint64_t * hi,uint64_t * lo,uint64_t x,uint64_t y)
 
 /****************************************************************************/
 
-/* Multiply exactly in 128 bits, add, and round once, to nearest, ties to even.
+/* Multiply exactly in 128 bits, add, and round once, in the FPU's rounding mode
+   if there is one and to nearest, ties to even, if not.
    On the 68000 and on the FPU alike x * y + z would round twice, and the
    extended precision of the FPU doesn't help: a product of doubles needs 106
    bits. This is after musl's fma(), which stays in integers up to the last
@@ -112,7 +123,8 @@ fma(double x,double y,double z)
 	union { double f; uint64_t i; } ux, uy, uz, ur;
 	uint64_t rhi, rlo, zhi, zlo, mantissa, lost, half;
 	struct num nx, ny, nz;
-	int sign, z_sign, e, d, biased, drop;
+	int sign, z_sign, e, d, biased, drop, away;
+	unsigned long mode = 0, flags = 0;
 
 	ux.f = x;
 	uy.f = y;
@@ -232,6 +244,19 @@ fma(double x,double y,double z)
 		e -= d;
 	}
 
+	#if defined(M68881_FLOATING_POINT_SUPPORT)
+	{
+		__asm __volatile ("fmove%.l fpcr,%0"
+		                  : "=dm" (mode)
+		                  : /* no inputs */ );
+
+		mode &= FPCR_ROUNDING;
+	}
+	#endif /* M68881_FLOATING_POINT_SUPPORT */
+
+	/* The rounding modes that take a result away from zero if it is inexact. */
+	away = (mode == FPCR_DOWNWARD && sign) || (mode == FPCR_UPWARD && NOT sign);
+
 	/* The result is rhi * 2^e, with its top bit at bit 62. */
 	biased = e + 62 + 0x3ff;
 
@@ -239,31 +264,73 @@ fma(double x,double y,double z)
 
 	if(biased >= 0x7ff)
 	{
-		ur.i |= 0x7ffULL << 52;
+		flags = FPSR_OVERFLOW | FPSR_INEXACT;
 
-		return(ur.f);
+		if(mode == 0 || away)
+			ur.i |= 0x7ffULL << 52;
+		else
+			ur.i |= (0x7ffULL << 52) - 1;
 	}
-
-	drop = 10;
-
-	if(biased <= 0)
-		drop += 1 - biased;
-
-	if(drop < 64)
+	else
 	{
-		mantissa = rhi >> drop;
-		lost = rhi & ((1ULL << drop) - 1);
-		half = 1ULL << (drop - 1);
+		drop = 10;
 
-		if(lost > half || (lost == half && (mantissa & 1) != 0))
-			mantissa++;
+		if(biased <= 0)
+			drop += 1 - biased;
+
+		if(drop < 64)
+		{
+			mantissa = rhi >> drop;
+			lost = rhi & ((1ULL << drop) - 1);
+			half = 1ULL << (drop - 1);
+		}
+		else
+		{
+			mantissa = 0;
+			lost = rhi;
+			half = 1ULL << 63;
+		}
+
+		if(lost != 0)
+		{
+			flags = FPSR_INEXACT;
+
+			if(biased <= 0)
+				flags |= FPSR_UNDERFLOW;
+
+			if(mode == 0)
+			{
+				if(lost > half || (lost == half && (mantissa & 1) != 0))
+					mantissa++;
+			}
+			else if(away)
+			{
+				mantissa++;
+			}
+		}
 
 		/* Rounding up may carry into the exponent, as it should. */
 		if(biased > 0)
 			ur.i += ((uint64_t)(biased - 1) << 52) + mantissa;
 		else
 			ur.i += mantissa;
+
+		if(((ur.i >> 52) & 0x7ff) == 0x7ff)
+			flags = FPSR_OVERFLOW | FPSR_INEXACT;
 	}
+
+	#if defined(M68881_FLOATING_POINT_SUPPORT)
+	{
+		unsigned long fpsr;
+
+		__asm __volatile ("fmove%.l fpsr,%0"
+		                  : "=dm" (fpsr)
+		                  : /* no inputs */ );
+		__asm __volatile ("fmove%.l %0,fpsr"
+		                  : /* no outputs */
+		                  : "dmi" (fpsr | flags));
+	}
+	#endif /* M68881_FLOATING_POINT_SUPPORT */
 
 	return(ur.f);
 }

@@ -86,4 +86,16 @@ extern double __inf(void);
 
 /****************************************************************************/
 
+/* The results of a domain error and of a pole, such as log(-1) and log(0). The
+   FPU has to compute them, as that is what raises INVALID and DIVBYZERO. */
+#if defined(M68881_FLOATING_POINT_SUPPORT)
+#define __domain_error(x) (((x) - (x)) / ((x) - (x)))
+#define __pole_error(x) (-1.0 / fabs(x))
+#else
+#define __domain_error(x) __builtin_nan("")
+#define __pole_error(x) (-__inf())
+#endif /* M68881_FLOATING_POINT_SUPPORT */
+
+/****************************************************************************/
+
 #endif /* _MATH_FP_SUPPORT_H */

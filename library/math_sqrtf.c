@@ -55,6 +55,42 @@
 
 static	const float	one	= 1.0, tiny=1.0e-30;
 
+#if defined(M68881_FLOATING_POINT_SUPPORT)
+
+/****************************************************************************/
+
+float
+sqrtf(float x)
+{
+	unsigned long fpcr;
+	float result;
+
+	if(x < 0)
+		__set_errno(EDOM);
+
+	/* In single precision, so that the result only rounds once. */
+	__asm __volatile ("fmove%.l fpcr,%0"
+	                  : "=dm" (fpcr)
+	                  : /* no inputs */ );
+	__asm __volatile ("fmove%.l %0,fpcr"
+	                  : /* no outputs */
+	                  : "dmi" ((fpcr & ~0xc0UL) | 0x40UL));
+	__asm __volatile ("fsqrt%.x %1,%0"
+	                  : "=f" (result)
+	                  : "f" (x));
+	__asm __volatile ("fmove%.l %0,fpcr"
+	                  : /* no outputs */
+	                  : "dmi" (fpcr));
+
+	return(result);
+}
+
+/****************************************************************************/
+
+#else
+
+/****************************************************************************/
+
 float
 sqrtf(float x)
 {
@@ -120,6 +156,10 @@ sqrtf(float x)
 	SET_FLOAT_WORD(z,ix);
 	return z;
 }
+
+/****************************************************************************/
+
+#endif /* M68881_FLOATING_POINT_SUPPORT */
 
 /****************************************************************************/
 

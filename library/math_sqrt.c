@@ -122,11 +122,22 @@ __sqrt(double x)
 INLINE STATIC const double
 __sqrt(double x)
 {
+	unsigned long fpcr;
 	double result;
 
-	__asm ("fsqrt%.x %1,%0"
-	       : "=f" (result)
-	       : "f" (x));
+	/* In double precision, so that the result only rounds once. */
+	__asm __volatile ("fmove%.l fpcr,%0"
+	                  : "=dm" (fpcr)
+	                  : /* no inputs */ );
+	__asm __volatile ("fmove%.l %0,fpcr"
+	                  : /* no outputs */
+	                  : "dmi" ((fpcr & ~0xc0UL) | 0x80UL));
+	__asm __volatile ("fsqrt%.x %1,%0"
+	                  : "=f" (result)
+	                  : "f" (x));
+	__asm __volatile ("fmove%.l %0,fpcr"
+	                  : /* no outputs */
+	                  : "dmi" (fpcr));
 
 	return(result);
 }
@@ -249,7 +260,7 @@ sqrt(double x)
 	}
 
 	__set_errno(EDOM);
-	return NAN;
+	return __domain_error(x);
 }
 
 /****************************************************************************/

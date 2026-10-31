@@ -122,7 +122,8 @@ __cosh(double x)
 INLINE STATIC const double
 __cosh(double x)
 {
-	double result;
+	/* Stored, to be a double with the flags of one, not what is in fp0. */
+	volatile double result;
 
 	__asm ("fcosh%.x %1,%0"
 	       : "=f" (result)
