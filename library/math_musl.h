@@ -7,6 +7,11 @@
 
 /****************************************************************************/
 
+/* For the functions that <math.h> only declares on request. */
+#ifndef _GNU_SOURCE
+#define _GNU_SOURCE
+#endif /* _GNU_SOURCE */
+
 #ifndef _MATH_HEADERS_H
 #include "math_headers.h"
 #endif /* _MATH_HEADERS_H */
