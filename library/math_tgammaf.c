@@ -54,7 +54,19 @@ float
 tgammaf(float x)
 {
 	int gamma_sign;
-	float y = __lgammaf(x, &gamma_sign);
+	float y;
+
+	if(isnan(x) || (isinf(x) && x > 0))
+		return x;
+
+	if(x == 0)
+		return 1 / x;
+
+	/* -infinity and the negative integers. */
+	if(x < 0 && (isinf(x) || floorf(x) == x))
+		return __builtin_nanf("");
+
+	y = __lgammaf(x, &gamma_sign);
 
 	return gamma_sign * expf(y);
 }
