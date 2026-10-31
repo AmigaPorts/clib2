@@ -44,7 +44,8 @@
 /****************************************************************************/
 
 FILE *
-freopen(const char *filename, const char *mode, FILE *stream)
+freopen(const char * __restrict filename, const char * __restrict mode,
+    FILE * __restrict stream)
 {
 	struct iob * file = (struct iob *)stream;
 	FILE * result = NULL;

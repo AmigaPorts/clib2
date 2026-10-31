@@ -44,7 +44,7 @@
 /****************************************************************************/
 
 int
-sprintf(char *s, const char *format, ...)
+sprintf(char * __restrict s, const char * __restrict format, ...)
 {
 	int result = EOF;
 	va_list arg;

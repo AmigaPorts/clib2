@@ -171,6 +171,27 @@ MATH_CONSTRUCTOR(math_init)
 	}
 	#endif /* IEEE_FLOATING_POINT_SUPPORT */
 
+	#if defined(__mc68000__)
+	{
+		/* On an FPU, the IEEE maths libraries set the whole FPCR of the
+		   task that opens them: mathieeesingbas.library to $40 (round to
+		   single precision), mathieeedoubbas.library to $10 (round toward
+		   zero).  A shell's commands also share its process and inherit
+		   the FPCR and FPSR that the previous one left.  Start from the
+		   FPU's reset values, which is what C expects (Annex F): round to
+		   nearest, extended precision, no traps and no exception flags.
+		   The instructions are hand-assembled because the soft-float
+		   libraries are built for CPUs without an FPU. */
+		if(FLAG_IS_SET(((struct ExecBase *)SysBase)->AttnFlags,AFF_68881))
+		{
+			__asm __volatile ("moveq #0,d0\n\t"
+			                  ".short 0xf200,0x9000\n\t"	/* fmove.l d0,fpcr */
+			                  ".short 0xf200,0x8800"		/* fmove.l d0,fpsr */
+			                  ::: "d0");
+		}
+	}
+	#endif /* __mc68000__ */
+
 	/* Now fill in HUGE_VAL and HUGE_VALF, respectively. TODO:
 	   also take care of HUGE_VALL. */
 

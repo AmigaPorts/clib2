@@ -76,7 +76,7 @@ qq3  =  5.0813062117e-03, /* 0x3ba68116 */
 qq4  =  1.3249473704e-04, /* 0x390aee49 */
 qq5  = -3.9602282413e-06, /* 0xb684e21a */
 /*
- * Coefficients for approximation to  erf  in [0.84375,1.25] 
+ * Coefficients for approximation to  erf  in [0.84375,1.25]
  */
 pa0  = -2.3621185683e-03, /* 0xbb1acdc6 */
 pa1  =  4.1485610604e-01, /* 0x3ed46805 */
@@ -129,7 +129,7 @@ sb6  =  4.7452853394e+02, /* 0x43ed43a7 */
 sb7  = -2.2440952301e+01; /* 0xc1b38712 */
 
 float
-erff(float x) 
+erff(float x)
 {
 	LONG hx,ix,i;
 	float R,S,P,Q,s,y,z,r;
@@ -142,7 +142,7 @@ erff(float x)
 
 	if(ix < 0x3f580000) {		/* |x|<0.84375 */
 	    if(ix < 0x31800000) { 	/* |x|<2**-28 */
-	        if (ix < 0x04000000) 
+	        if (ix < 0x04000000)
 		    /*avoid underflow */
 		    return (float)0.125*((float)8.0*x+efx8*x);
 		return x + efx*x;

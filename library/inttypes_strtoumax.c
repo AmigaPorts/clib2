@@ -44,7 +44,7 @@
 /****************************************************************************/
 
 uintmax_t
-strtoumax(const char *str, char **ptr, int base)
+strtoumax(const char * __restrict str, char ** __restrict ptr, int base)
 {
 	const char * stop = str;
 	size_t num_digits_converted = 0;

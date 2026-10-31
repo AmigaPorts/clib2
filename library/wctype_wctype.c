@@ -40,6 +40,7 @@
 wctype_t
 wctype(const char *property)
 {
-	/* ZZZ unimplemented */
+	(void) property;
+
 	return(0);
 }

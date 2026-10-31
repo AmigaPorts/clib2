@@ -87,11 +87,11 @@ log1p(double x)
 	    }
 	    if(hx>0||hx<=((LONG)0xbfd2bec3U)) {
 		k=0;f=x;hu=1;}	/* -0.2929<x<0.41422 */
-	} 
+	}
 	if (hx >= 0x7ff00000) return x+x;
 	if(k!=0) {
 	    if(hx<0x43400000) {
-		u  = 1.0+x; 
+		u  = 1.0+x;
 		GET_HIGH_WORD(hu,u);
 	        k  = (hu>>20)-1023;
 	        c  = (k>0)? 1.0-(u-x):x-(u-1.0);/* correction term */
@@ -106,7 +106,7 @@ log1p(double x)
 	    if(hu<0x6a09e) {
 	        SET_HIGH_WORD(u,hu|0x3ff00000);	/* normalize u */
 	    } else {
-	        k += 1; 
+	        k += 1;
 		SET_HIGH_WORD(u,hu|0x3fe00000);	/* normalize u/2 */
 	        hu = (0x00100000-hu)>>2;
 	    }
@@ -114,14 +114,14 @@ log1p(double x)
 	}
 	hfsq=0.5*f*f;
 	if(hu==0) {	/* |f| < 2**-20 */
-	    if(f==zero) { if(k==0) return zero;  
+	    if(f==zero) { if(k==0) return zero;
 			  else {c += k*ln2_lo; return k*ln2_hi+c;}
 			}
 	    R = hfsq*(1.0-0.66666666666666666*f);
 	    if(k==0) return f-R; else
 	    	     return k*ln2_hi-((R-(k*ln2_lo+c))-f);
 	}
- 	s = f/(2.0+f); 
+ 	s = f/(2.0+f);
 	z = s*s;
 	R = z*(Lp1+z*(Lp2+z*(Lp3+z*(Lp4+z*(Lp5+z*(Lp6+z*Lp7))))));
 	if(k==0) return f-(hfsq-s*(hfsq+R)); else

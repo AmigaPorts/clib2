@@ -41,6 +41,12 @@
 #ifndef _STDIO_H
 #define _STDIO_H
 
+#if __STDC_VERSION__ >= 199901L
+#define __restrict restrict
+#elif !defined(__GNUC__)
+#define __restrict
+#endif
+
 /****************************************************************************/
 
 #ifndef _SYS_CLIB2_STDC_H
@@ -192,19 +198,22 @@ extern __stdargs void perror(const char * s);
 
 /****************************************************************************/
 
-extern __stdargs FILE *fopen(const char *filename, const char *mode);
+extern __stdargs FILE *fopen(const char * __restrict filename,
+    const char * __restrict mode);
 extern __stdargs int fclose(FILE *stream);
 extern __stdargs int fflush(FILE *stream);
-extern __stdargs FILE *freopen(const char *filename, const char *mode, FILE *stream);
-extern __stdargs int setvbuf(FILE *stream,char *buf,int bufmode,size_t size);
-extern __stdargs void setbuf(FILE *stream, char *buf);
+extern __stdargs FILE *freopen(const char * __restrict filename,
+    const char * __restrict mode, FILE * __restrict stream);
+extern __stdargs int setvbuf(FILE * __restrict stream, char * __restrict buf,
+    int bufmode, size_t size);
+extern __stdargs void setbuf(FILE * __restrict stream, char * __restrict buf);
 
 /****************************************************************************/
 
 extern __stdargs int fseek(FILE *stream, long int offset, int wherefrom);
 extern __stdargs long int ftell(FILE *stream);
 extern __stdargs void rewind(FILE *stream);
-extern __stdargs int fgetpos(FILE *stream, fpos_t *pos);
+extern __stdargs int fgetpos(FILE * __restrict stream, fpos_t * __restrict pos);
 extern __stdargs int fsetpos(FILE *stream, fpos_t *pos);
 
 /****************************************************************************/
@@ -222,36 +231,44 @@ extern __stdargs int putchar(int c);
 
 /****************************************************************************/
 
-extern __stdargs char *fgets(char *s,int n,FILE *stream);
+extern __stdargs char *fgets(char * __restrict s,int n,FILE * __restrict stream);
 extern __stdargs char *gets(char *s);
 
 /****************************************************************************/
 
-extern __stdargs int fscanf(FILE *stream, const char *format, ...);
-extern __stdargs int scanf(const char *format, ...);
-extern __stdargs int sscanf(const char *s,const char *format, ...);
+extern __stdargs int fscanf(FILE * __restrict stream,
+    const char * __restrict format, ...);
+extern __stdargs int scanf(const char * __restrict format, ...);
+extern __stdargs int sscanf(const char * __restrict s,
+    const char * __restrict format, ...);
 
 /****************************************************************************/
 
-extern __stdargs int fputs(const char *s, FILE *stream);
+extern __stdargs int fputs(const char * __restrict s, FILE * __restrict stream);
 extern __stdargs int puts(const char *s);
 
 /****************************************************************************/
 
-extern __stdargs int fprintf(FILE *stream,const char *format,...);
-extern __stdargs int printf(const char *format, ...);
-extern __stdargs int sprintf(char *s, const char *format, ...);
+extern __stdargs int fprintf(FILE * __restrict stream,
+    const char * __restrict format,...);
+extern __stdargs int printf(const char * __restrict format, ...);
+extern __stdargs int sprintf(char * __restrict s,
+    const char * __restrict format, ...);
 
 /****************************************************************************/
 
-extern __stdargs int vfprintf(FILE *stream,const char *format,va_list arg);
-extern __stdargs int vprintf(const char *format,va_list arg);
-extern __stdargs int vsprintf(char *s, const char *format,va_list arg);
+extern __stdargs int vfprintf(FILE * __restrict stream,
+    const char * __restrict format, va_list arg);
+extern __stdargs int vprintf(const char * __restrict format, va_list arg);
+extern __stdargs int vsprintf(char * __restrict s, const char * __restrict format,
+    va_list arg);
 
 /****************************************************************************/
 
-extern __stdargs size_t fread(void *ptr,size_t element_size,size_t count,FILE *stream);
-extern __stdargs size_t fwrite(const void *ptr,size_t element_size,size_t count,FILE *stream);
+extern __stdargs size_t fread(void * __restrict ptr, size_t element_size, size_t count,
+    FILE * __restrict stream);
+extern __stdargs size_t fwrite(const void * __restrict ptr, size_t element_size,
+    size_t count, FILE * __restrict stream);
 
 /****************************************************************************/
 
@@ -407,7 +424,8 @@ extern __stdargs int putchar_unlocked(int c);
 extern __stdargs FILE * fdopen(int file_descriptor, const char * type);
 extern __stdargs int fileno(FILE * file);
 extern __stdargs int asprintf(char **ret, const char *format, ...);
-extern __stdargs int vsnprintf(char *s,size_t size,const char *format,va_list arg);
+extern __stdargs int vsnprintf(char * __restrict s, size_t size,
+    const char * __restrict format, va_list arg);
 extern __stdargs int pclose(FILE *stream);
 extern __stdargs FILE * popen(const char *command, const char *type);
 extern __stdargs int fseeko(FILE *stream, off_t offset, int wherefrom);
@@ -454,10 +472,13 @@ extern __stdargs int __vasprintf(const char *file,int line,char **ret,const char
 
 /****************************************************************************/
 
-extern __stdargs int vfscanf(FILE *stream, const char *format, va_list arg);
-extern __stdargs int vsscanf(const char *s, const char *format, va_list arg);
-extern __stdargs int vscanf(const char *format,va_list arg);
-extern __stdargs int snprintf(char *s,size_t size,const char *format,...);
+extern __stdargs int vfscanf(FILE * __restrict stream,
+    const char * __restrict format, va_list arg);
+extern __stdargs int vsscanf(const char * __restrict s,
+    const char * __restrict format, va_list arg);
+extern __stdargs int vscanf(const char * __restrict format,va_list arg);
+extern __stdargs int snprintf(char * __restrict s, size_t size,
+    const char * __restrict format, ...);
 
 /****************************************************************************/
 

@@ -65,7 +65,11 @@ extern double __huge_val;
 
 /****************************************************************************/
 
+#if defined(__GNUC__) && __GNUC__ >= 4
+#define	HUGE_VAL __DBL_MAX__
+#else
 #define	HUGE_VAL ((const double)__huge_val)
+#endif /* __GNUC__ */
 
 /****************************************************************************/
 
@@ -119,11 +123,15 @@ extern __stdargs double tanh(double x);
 
 /****************************************************************************/
 
-/* Note that the comparison operations performed on the floating point
-   data types ought to include float, double and long double. However,
-   because the current (2005-06-12) compiler technology available on the
-   Amiga does not support the long double type yet, this library is
-   restricted to operations on float and double. */
+/* long double: on AmigaOS 4, long double is the same as double, and all
+   of the long double functions declared here and in <complex.h> are
+   there.  On m68k-amigaos, long double is the 68881's 80-bit extended
+   format, and clib2 only has strtold(), creall(), cimagl(), cargl() and
+   the classification macros (fpclassify(), isfinite(), signbit() and
+   those built on them) for it.  The other long double functions, such
+   as sqrtl(), sinl() or powl(), and nexttoward() and nexttowardf(),
+   which take a long double, are declared but not defined there, so a
+   program that calls them does not link. */
 
 /****************************************************************************/
 
@@ -131,7 +139,11 @@ extern float __huge_val_float;
 
 /****************************************************************************/
 
+#if defined(__GNUC__) && __GNUC__ >= 4
+#define	HUGE_VALF __FLT_MAX__
+#else
 #define	HUGE_VALF ((const float)__huge_val_float)
+#endif /* __GNUC__ */
 
 /****************************************************************************/
 
@@ -140,8 +152,18 @@ extern float __nan;
 
 /****************************************************************************/
 
+/*
+ * C99 makes these constant expressions, usable in static initializers,
+ * which reading the variables above is not.  HUGE_VAL and HUGE_VALF have
+ * the values of __huge_val and __huge_val_float, DBL_MAX and FLT_MAX.
+ */
+#if defined(__GNUC__) && __GNUC__ >= 4
+#define INFINITY	__builtin_inff()
+#define NAN			__builtin_nanf("")
+#else
 #define INFINITY	((const float)__infinity)
 #define NAN			((const float)__nan)
+#endif /* __GNUC__ */
 
 /****************************************************************************/
 
@@ -151,82 +173,111 @@ extern float __nan;
 #define FP_SUBNORMAL	3	/* very small floating point number; special
 							   case of IEEE 754 */
 #define FP_ZERO			4	/* exponent/fraction are zero */
+#define FP_ILOGB0		0
+#define FP_ILOGBNAN		NAN
 
 /****************************************************************************/
 
+#if defined __has_builtin
+#if __has_builtin (__builtin_isunordered)
+#define isunordered(x,y) __builtin_isunordered(x,y)
+#endif /* __builtin_isunordered */
+#if __has_builtin (__builtin_isgreater)
+#define isgreater(x,y) __builtin_isgreater(x,y)
+#endif /* __builtin_isgreater */
+#if __has_builtin (__builtin_isgreaterqeual)
+#define isgreaterqeual(x,y) __builtin_isgreaterqeual(x,y)
+#endif /* __builtin_isgreaterqeual */
+#if __has_builtin (__builtin_isless)
+#define isless(x,y) __builtin_isless(x,y)
+#endif /* __builtin_isless */
+#if __has_builtin (__builtin_islessequal)
+#define islessequal(x,y) __builtin_islessequal(x,y)
+#endif /* __builtin_islessequal */
+#if __has_builtin (__builtin_islessgreater)
+#define islessgreater(x,y) __builtin_islessgreater(x,y)
+#endif /* __builtin_islessgreater */
+#if __has_builtin (__builtin_isinf)
+#define isinf(x) __builtin_isinf(x)
+#endif /* __builtin_isinf */
+#if __has_builtin (__builtin_isnan)
+#define isnan(x) __builtin_isnan(x)
+#endif /* __builtin_isnan */
+#if __has_builtin (__builtin_isnormal)
+#define isnormal(x) __builtin_isnormal(x)
+#endif /* __builtin_isnormal */
+#if __has_builtin (__builtin_fpclassify)
+#define fpclassify(x) (__builtin_fpclassify(FP_NAN, FP_INFINITE, \
+FP_NORMAL, FP_SUBNORMAL, FP_ZERO, x))
+#endif /* __builtin_fpclassify */
+#if __has_builtin (__builtin_isfinite)
+#define isfinite(x) __builtin_isfinite(x)
+#endif /* __builtin_isinfinite */
+#if __has_builtin (__builtin_signbit)
+#define signbit(x) __builtin_signbit(x)
+#endif /* __builtin_signbit */
+#if __has_builtin (__builtin_isinf)
+#define isinf(x) __builtin_isinf(x)
+#endif /* __builtin_isinf */
+#if __has_builtin (__builtin_isnan)
+#define isnan(x) __builtin_isnan(x)
+#endif /* __builtin_isnan */
+#if __has_builtin (__builtin_isnormal)
+#define isnormal(x) __builtin_isnormal(x)
+#endif /* __builtin_isnormal */
+#endif /* __has_builtin */
+
+/****************************************************************************/
+
+#ifndef fpclassify
 extern __stdargs int __fpclassify_float(float x);
 extern __stdargs int __fpclassify_double(double x);
+extern __stdargs int __fpclassify_long_double(long double x);
+#define fpclassify(x) _Generic(x, float : __fpclassify_float, \
+double : __fpclassify_double, long double : __fpclassify_long_double)(x)
+#endif /* fpclassify */
+#ifndef isfinite
 extern __stdargs int __isfinite_float(float x);
 extern __stdargs int __isfinite_double(double x);
+extern __stdargs int __isfinite_long_double(long double x);
+#define isfinite(x) _Generic(x, float : __isfinite_float, \
+double : __isfinite_double, long double : __isfinite_long_double)(x)
+#endif /* isfinite */
+#ifndef signbit
 extern __stdargs int __signbit_float(float x);
 extern __stdargs int __signbit_double(double x);
-
-/****************************************************************************/
-
-#define fpclassify(x) \
-	(sizeof(x) == sizeof(float) ?	\
-		__fpclassify_float(x) :		\
-		__fpclassify_double(x))
-
-#define isfinite(x) \
-	(sizeof(x) == sizeof(float) ?	\
-		__isfinite_float(x) :		\
-		__isfinite_double(x))
-
-#define isinf(x) \
-	((sizeof(x) == sizeof(float) ?	\
-		__fpclassify_float(x) :		\
-		__fpclassify_double(x))		\
-	== FP_INFINITE)
-
-#define isnan(x) \
-	((sizeof(x) == sizeof(float) ?	\
-		__fpclassify_float(x) :		\
-		__fpclassify_double(x))		\
-	== FP_NAN)
-
-#define isnormal(x) \
-	((sizeof(x) == sizeof(float) ?	\
-		__fpclassify_float(x) :		\
-		__fpclassify_double(x))		\
-	== FP_NORMAL)
-
-#define signbit(x) \
-	(sizeof(x) == sizeof(float) ?	\
-		__signbit_float(x) :		\
-		__signbit_double(x))
-
-/****************************************************************************/
-
-extern __stdargs int __isunordered_float(float x,float y);
-extern __stdargs int __isunordered_float_double(float x,double y);
-extern __stdargs int __isunordered_double(double x,double y);
-
-/****************************************************************************/
-
-#define isunordered(x,y) \
-	(sizeof(x) == sizeof(float) ?					\
-		(sizeof(y) == sizeof(float) ?				\
-			__isunordered_float((x),y) :			\
-			__isunordered_float_double((x),(y))) :	\
-		(sizeof(y) == sizeof(float) ?				\
-			__isunordered_float_double((y),(x)) :	\
-			__isunordered_double((x),(y))))
-
-#define isgreater(x,y) \
-	(isunordered(x,y) ? 0 : (x) > (y))
-
-#define isgreaterequal(x,y) \
-	(isunordered(x,y) ? 0 : (x) >= (y))
-
-#define isless(x,y) \
-	(isunordered(x,y) ? 0 : (x) < (y))
-
-#define islessequal(x,y) \
-	(isunordered(x,y) ? 0 : (x) <= (y))
-
-#define islessgreater(x,y) \
-	(isunordered(x,y) ? 0 : (x) < (y) || (x) > (y))	/* ZZZ don't evaluate twice! */
+extern __stdargs int __signbit_long_double(long double x);
+#define signbit(x) _Generic(x, float : __signbit_float, \
+double : __signbit_double, long double : __signbit_long_double)(x)
+#endif /* signbit */
+#ifndef isinf
+#define isinf(x) (fpclassify(x) == FP_INFINITE)
+#endif /* isinf */
+#ifndef isnan
+#define isnan(x) (fpclassify(x) == FP_NAN)
+#endif /* isnan */
+#ifndef isnormal
+#define isnormal(x) (fpclassify(x) == FP_NORMAL)
+#endif /* isnormal */
+#ifndef isunordered
+#define isunordered(x,y) (isnan((x)) ? ((void)(y),1) : isnan((y)))
+#endif /* isunordered */
+#ifndef isgreater
+#define isgreater(x,y) (isunordered(x,y) ? 0 : (x) > (y))
+#endif /* isgreater */
+#ifndef isgreaterequal
+#define isgreaterequal(x,y) (isunordered(x,y) ? 0 : (x) >= (y))
+#endif /* isgreaterequal */
+#ifndef isless
+#define isless(x,y) (isunordered(x,y) ? 0 : (x) < (y))
+#endif /* isless */
+#ifndef islessequal
+#define islessequal(x,y) (isunordered(x,y) ? 0 : (x) <= (y))
+#endif /* islessequal */
+#ifndef islessgreater
+/* ZZZ don't evaluate twice! */
+#define islessgreater(x,y) (isunordered(x,y) ? 0 : (x) < (y) || (x) > (y))
+#endif /* islessgreater */
 
 /****************************************************************************/
 
@@ -271,16 +322,20 @@ extern __stdargs float hypotf(float x, float y);
 extern __stdargs float lgammaf(float x);
 extern __stdargs float log1pf(float x);
 extern __stdargs float logbf(float x);
+extern __stdargs long long int llrintf(float x);
 extern __stdargs long int lrintf(float x);
+extern __stdargs long long int llroundf(float x);
 extern __stdargs long int lroundf(float x);
 extern __stdargs float nanf(const char *tagp);
 extern __stdargs float nearbyintf(float x);
 extern __stdargs float nextafterf(float x,float y);
+extern __stdargs float nexttowardf(float x, long double y);
 extern __stdargs float remainderf(float x, float p);
 extern __stdargs float remquof(float x,float y,int * quo);
 extern __stdargs float rintf(float x);
 extern __stdargs float roundf(float x);
-extern __stdargs float scalbnf (float x, int n);
+extern __stdargs float scalblnf(float x, long n);
+extern __stdargs float scalbnf(float x, int n);
 extern __stdargs float tgammaf(float x);
 extern __stdargs float truncf(float x);
 extern __stdargs int ilogbf(float x);
@@ -305,14 +360,17 @@ extern __stdargs double log1p(double x);
 extern __stdargs double logb(double x);
 extern __stdargs long long int llrint(double x);
 extern __stdargs long int lrint(double x);
+extern __stdargs long long int llround(double x);
 extern __stdargs long int lround(double x);
 extern __stdargs double nan(const char *tagp);
 extern __stdargs double nearbyint(double x);
 extern __stdargs double nextafter(double x,double y);
+extern __stdargs double nexttoward(double x, long double y);
 extern __stdargs double remainder(double x, double p);
 extern __stdargs double remquo(double x,double y,int * quo);
 extern __stdargs double rint(double x);
 extern __stdargs double round(double x);
+extern __stdargs double scalbln(double x, long n);
 extern __stdargs double scalbn (double x, int n);
 extern __stdargs double tgamma(double x);
 extern __stdargs double trunc(double x);
@@ -322,9 +380,72 @@ extern __stdargs int ilogb(double x);
 
 extern __stdargs float exp2f(float x);
 extern __stdargs double exp2(double x);
+extern __stdargs long double exp2l(long double x);
 
 extern __stdargs double log2(double x);
 extern __stdargs float log2f(float x);
+extern __stdargs long double log2l(long double x);
+
+/****************************************************************************/
+
+extern __stdargs long double acosl(long double x);
+extern __stdargs long double asinl(long double x);
+extern __stdargs long double atanl(long double x);
+extern __stdargs long double atan2l(long double y, long double x);
+extern __stdargs long double ceill(long double x);
+extern __stdargs long double cosl(long double x);
+extern __stdargs long double coshl(long double x);
+extern __stdargs long double expl(long double x);
+extern __stdargs long double fabsl(long double x);
+extern __stdargs long double floorl(long double x);
+extern __stdargs long double fmodl(long double x, long double y);
+extern __stdargs long double frexpl(long double x, int *nptr);
+extern __stdargs long double ldexpl(long double x, int n);
+extern __stdargs long double logl(long double x);
+extern __stdargs long double log10l(long double x);
+extern __stdargs long double modfl(long double x, long double *iptr);
+extern __stdargs long double powl(long double x, long double y);
+extern __stdargs long double sinl(long double x);
+extern __stdargs long double sinhl(long double x);
+extern __stdargs long double sqrtl(long double x);
+extern __stdargs long double tanl(long double x);
+extern __stdargs long double tanhl(long double x);
+
+/****************************************************************************/
+
+extern __stdargs long double acoshl(long double x);
+extern __stdargs long double asinhl(long double x);
+extern __stdargs long double atanhl(long double x);
+extern __stdargs long double cbrtl(long double x);
+extern __stdargs long double copysignl(long double x, long double y);
+extern __stdargs long double erfcl(long double x);
+extern __stdargs long double erfl(long double x);
+extern __stdargs long double expm1l(long double x);
+extern __stdargs long double fdiml(long double x, long double y);
+extern __stdargs long double fmal(long double x, long double y, long double z);
+extern __stdargs long double fmaxl(long double x, long double y);
+extern __stdargs long double fminl(long double x, long double y);
+extern __stdargs long double hypotl(long double x, long double y);
+extern __stdargs long double lgammal(long double x);
+extern __stdargs long double log1pl(long double x);
+extern __stdargs long double logbl(long double x);
+extern __stdargs long long int llrintl(long double x);
+extern __stdargs long int lrintl(long double x);
+extern __stdargs long long int llroundl(long double x);
+extern __stdargs long int lroundl(long double x);
+extern __stdargs long double nanl(const char *tagp);
+extern __stdargs long double nearbyintl(long double x);
+extern __stdargs long double nextafterl(long double x, long double y);
+extern __stdargs long double nexttowardl(long double x, long double y);
+extern __stdargs long double remainderl(long double x, long double p);
+extern __stdargs long double remquol(long double x, long double y, int *quo);
+extern __stdargs long double rintl(long double x);
+extern __stdargs long double roundl(long double x);
+extern __stdargs long double scalblnl(long double x, long int n);
+extern __stdargs long double scalbnl(long double x, int n);
+extern __stdargs long double tgammal(long double x);
+extern __stdargs long double truncl(long double x);
+extern __stdargs int ilogbl(long double x);
 
 /****************************************************************************/
 

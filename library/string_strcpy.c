@@ -44,7 +44,7 @@
 /****************************************************************************/
 
 char *
-strcpy(char *dest, const char *src)
+strcpy(char * __restrict dest, const char * __restrict src)
 {
 	char * result = dest;
 

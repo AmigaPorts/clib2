@@ -40,6 +40,9 @@
 int
 wctomb(char *s, wchar_t wchar)
 {
+	(void) s;
+	(void) wchar;
+
 	/* ZZZ unimplemented */
 	return(-1);
 }

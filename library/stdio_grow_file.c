@@ -55,7 +55,6 @@ __grow_file_size(struct fd * fd,int num_bytes)
 	int buffer_size;
 	int size;
 	LONG seek_position;
-	off_t position;
 	off_t current_position;
 	int alignment_skip;
 	int result = ERROR;
@@ -113,8 +112,6 @@ __grow_file_size(struct fd * fd,int num_bytes)
 		SHOWMSG("could not move to the end of the file");
 		goto out;
 	}
-
-	position = (off_t)seek_position;
 
 	PROFILE_OFF();
 	seek_position = Seek(fd->fd_File,0,OFFSET_CURRENT);

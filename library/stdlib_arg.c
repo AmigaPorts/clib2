@@ -121,17 +121,17 @@ ARG_CONSTRUCTOR(arg_init)
 	/* Shell startup? */
 	if(__WBenchMsg == NULL)
 	{
-		BOOL					expand_wildcard_args;
 		size_t					number_of_arguments;
 		const unsigned char *	arg_str;
 		size_t					arg_len;
 		unsigned char *			command_line;
 		unsigned char *			str;
+		#if defined(UNIX_PATH_SEMANTICS)
+		BOOL					expand_wildcard_args;
 
 		/* Check if wildcard expansion of command line parameters
 		   should be enabled. Note that the callback function, if
 		   declared, takes precedence over the global variable. */
-		#if defined(UNIX_PATH_SEMANTICS)
 		{
 			expand_wildcard_args = __expand_wildcard_args;
 

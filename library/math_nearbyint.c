@@ -45,7 +45,7 @@ double
 nearbyint(double x)
 {
 	/* ZZZ is this such a good idea? */
-	return(rint(x));
+	return rint(x);
 }
 
 /****************************************************************************/

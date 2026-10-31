@@ -50,7 +50,7 @@
 
 /****************************************************************************/
 
-static const double 
+static const double
 one   =  1.00000000000000000000e+00, /* 0x3FF00000, 0x00000000 */
 pio4  =  7.85398163397448278999e-01, /* 0x3FE921FB, 0x54442D18 */
 pio4lo=  3.06161699786838301793e-17, /* 0x3C81A626, 0x33145C07 */
@@ -122,7 +122,7 @@ double __kernel_tan(double x, double y, int iy)
 	    return (double)(1-((hx>>30)&2))*(v-2.0*(x-(w*w/(w+v)-r)));
 	}
 	if(iy==1) return w;
-	else {		/* if allow error up to 2 ulp, 
+	else {		/* if allow error up to 2 ulp,
 				   simply return -1.0/(x+r) here */
 		/*  compute -1.0/(x+r) accurately */
 	    double a,t;

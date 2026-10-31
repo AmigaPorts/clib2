@@ -26,9 +26,11 @@ jobs:
           - name: AmigaOS 4 (ppc-amigaos)
             image: gcc-v16.2-ppc
             makefile: GNUmakefile.os4
+            target: ppc-amigaos
           - name: AmigaOS 3 (m68k-amigaos)
             image: gcc-v16.2
             makefile: GNUmakefile.68k
+            target: m68k-amigaos
     steps:
       - uses: actions/checkout@v4
 
@@ -45,3 +47,23 @@ jobs:
               SDK_INCLUDE="$sdk/include/include_h" NET_INCLUDE="$sdk/include/netinclude"
           fi
           make -f "${{ matrix.makefile }}" -j"$(nproc)" "$@"
+
+      - name: Check for duplicate symbols
+        working-directory: library
+        run: |
+          find . -path './lib*/*.a' | sort |
+            xargs ../.github/scripts/check-duplicate-symbols.sh ${{ matrix.target }}-nm
+
+      # Programs only run on m68k-amigaos, under vamos, which is in the
+      # image; it has no FPU, so this tests the soft-float libraries.
+      - name: Test
+        if: matrix.makefile == 'GNUmakefile.68k'
+        run: |
+          # The toolchain links its own clib2; put this one in its place.
+          clib2=$(dirname "$(dirname "$(command -v m68k-amigaos-gcc)")")/m68k-amigaos/clib2
+          rm -rf "$clib2/include" "$clib2/lib"
+          cp -R library/include library/lib "$clib2/"
+          cd test_programs
+          python3 gen_strtod_vectors.py strtod_vectors.h
+          m68k-amigaos-gcc -mcrt=clib2 -O2 -Wall -Wextra -o strtod_test strtod_test.c -lm
+          vamos strtod_test

@@ -45,7 +45,7 @@ float
 nearbyintf(float x)
 {
 	/* ZZZ is this such a good idea? */
-	return(rintf(x));
+	return rintf(x);
 }
 
 /****************************************************************************/

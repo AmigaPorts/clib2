@@ -141,7 +141,7 @@ static const double one = 1.0, half=0.5, huge = 1.0e300;
 
 INLINE STATIC double
 __cosh(double x)
-{	
+{
 	double t,w;
 	int ix;
 	unsigned int lx;
@@ -151,11 +151,11 @@ __cosh(double x)
 	ix &= 0x7fffffff;
 
     /* x is INF or NaN */
-	if(ix>=0x7ff00000) 
-		return x*x;	
+	if(ix>=0x7ff00000)
+		return x*x;
 
     /* |x| in [0,0.5*ln2], return 1+__expm1(|x|)^2/(2*exp(|x|)) */
-	if(ix<0x3fd62e43) 
+	if(ix<0x3fd62e43)
 	{
 	    t = __expm1(fabs(x));
 	    w = one+t;
@@ -165,19 +165,19 @@ __cosh(double x)
 	}
 
     /* |x| in [0.5*ln2,22], return (exp(|x|)+1/exp(|x|)/2; */
-	if (ix < 0x40360000) 
+	if (ix < 0x40360000)
 	{
 		t = exp(fabs(x));
 		return half*t+half/t;
 	}
 
     /* |x| in [22, log(maxdouble)] return half*exp(|x|) */
-	if (ix < 0x40862E42)  
+	if (ix < 0x40862E42)
 		return half*exp(fabs(x));
 
     /* |x| in [log(maxdouble), overflowthresold] */
 	GET_LOW_WORD(lx,x);
-	if (ix<0x408633CE || (ix==0x408633ce && lx<=(unsigned int)0x8fb9f87d)) 
+	if (ix<0x408633CE || (ix==0x408633ce && lx<=(unsigned int)0x8fb9f87d))
 	{
 	    w = exp(half*fabs(x));
 	    t = half*w;

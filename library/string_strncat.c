@@ -44,7 +44,7 @@
 /****************************************************************************/
 
 char *
-strncat(char *dest, const char *src, size_t n)
+strncat(char * __restrict dest, const char * __restrict src, size_t n)
 {
 	char * result = dest;
 

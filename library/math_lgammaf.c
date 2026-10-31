@@ -53,7 +53,7 @@
 
 /****************************************************************************/
 
-static const float 
+static const float
 two23=  8.3886080000e+06, /* 0x4b000000 */
 half=  5.0000000000e-01, /* 0x3f000000 */
 one =  1.0000000000e+00, /* 0x3f800000 */
@@ -157,9 +157,9 @@ sin_pif(float x)
         }
 	switch (n) {
 	    case 0:   y =  __kernel_sinf(pi*y,zero,0); break;
-	    case 1:   
+	    case 1:
 	    case 2:   y =  __kernel_cosf(pi*((float)0.5-y),zero); break;
-	    case 3:  
+	    case 3:
 	    case 4:   y =  __kernel_sinf(pi*(one-y),zero,0); break;
 	    case 5:
 	    case 6:   y = -__kernel_cosf(pi*(y-(float)1.5),zero); break;
@@ -229,7 +229,7 @@ __lgammaf(float x,int * gamma_sign_ptr)
 		p3 = t2+w*(t5+w*(t8+w*(t11+w*t14)));
 		p  = z*p1-(tt-w*(p2+y*p3));
 		r += (tf + p); break;
-	      case 2:	
+	      case 2:
 		p1 = y*(u0+y*(u1+y*(u2+y*(u3+y*(u4+y*u5)))));
 		p2 = one+y*(v1+y*(v2+y*(v3+y*(v4+y*v5))));
 		r += (-(float)0.5*y + p1/p2);
@@ -258,7 +258,7 @@ __lgammaf(float x,int * gamma_sign_ptr)
 	    y = z*z;
 	    w = w0+z*(w1+y*(w2+y*(w3+y*(w4+y*(w5+y*w6)))));
 	    r = (x-half)*(t-one)+w;
-	} else 
+	} else
     /* 2**58 <= x <= inf */
 	    r =  x*(logf(x)-one);
 	if(hx<0) r = nadj - r;
@@ -270,12 +270,12 @@ __lgammaf(float x,int * gamma_sign_ptr)
 float
 lgammaf(float x)
 {
-  int gamma_sign;
-  float result;
+	int gamma_sign;
+	float result;
 
-  result = __lgammaf(x,&gamma_sign);
+	result = __lgammaf(x,&gamma_sign);
 
-  return(result);
+	return(result);
 }
 
 /****************************************************************************/

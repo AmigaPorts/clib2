@@ -77,7 +77,7 @@ lrintf(float x)
 
   /* Extract exponent field. */
   j0 = ((i0 & 0x7f800000) >> 23) - 127;
-  
+
   if (j0 < (int)(sizeof (long int) * 8) - 1)
     {
       if (j0 < -1)

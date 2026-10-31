@@ -44,7 +44,7 @@
 /****************************************************************************/
 
 int
-fputs(const char *s, FILE *stream)
+fputs(const char * __restrict s, FILE * __restrict stream)
 {
 	struct iob * file = (struct iob *)stream;
 	int result = EOF;

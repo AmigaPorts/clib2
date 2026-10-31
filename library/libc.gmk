@@ -57,6 +57,8 @@ C_LIB := \
 	inttypes_imaxabs.o \
 	inttypes_strtoimax.o \
 	inttypes_strtoumax.o \
+	inttypes_wcstoimax.o \
+	inttypes_wcstoumax.o \
 	libgen_basename.o \
 	libgen_dirname.o \
 	locale_init_exit.o \
@@ -234,6 +236,8 @@ C_LIB := \
 	stdlib_main_stub.o \
 	stdlib_malloc.o \
 	stdlib_math.o \
+	stdlib_mblen.o \
+	stdlib_mbstowcs.o \
 	stdlib_mbtowc.o \
 	stdlib_mkdtemp.o \
 	stdlib_mkstemp.o \
@@ -283,6 +287,8 @@ C_LIB := \
 	stdlib_udivsi4.o \
 	stdlib_umodsi3.o \
 	stdlib_unsetenv.o \
+	stdlib_wcstombs.o \
+	stdlib_wctomb.o \
 	strings_ffs.o \
 	strings_strcasecmp.o \
 	strings_strncasecmp.o \
@@ -293,6 +299,7 @@ C_LIB := \
 	string_memchr.o \
 	string_memcmp.o \
 	string_memcpy.o \
+	string_memccpy.o \
 	string_memmove.o \
 	string_memset.o \
 	string_rindex.o \
@@ -303,6 +310,7 @@ C_LIB := \
 	string_strcpy.o \
 	string_strcspn.o \
 	string_strdup.o \
+	string_strndup.o \
 	string_strerror.o \
 	string_strerror_r.o \
 	string_strlcat.o \
@@ -377,6 +385,10 @@ C_LIB := \
 	unistd_usleep.o \
 	utime_utime.o \
 	utsname_uname.o \
+    uchar_c16rtomb.o \
+    uchar_c32rtomb.o \
+    uchar_mbrtoc16.o \
+    uchar_mbrtoc32.o \
 	wchar_btowc.o \
 	wchar_fgetwc.o \
 	wchar_fgetws.o \
@@ -385,6 +397,7 @@ C_LIB := \
 	wchar_fwide.o \
 	wchar_fwprintf.o \
 	wchar_fwscanf.o \
+	wchar_vfwscanf.o \
 	wchar_getwc.o \
 	wchar_getwchar.o \
 	wchar_mbrlen.o \
@@ -395,6 +408,7 @@ C_LIB := \
 	wchar_putwchar.o \
 	wchar_swprintf.o \
 	wchar_swscanf.o \
+	wchar_vswscanf.o \
 	wchar_ungetwc.o \
 	wchar_vfwprintf.o \
 	wchar_vswprintf.o \
@@ -404,6 +418,7 @@ C_LIB := \
 	wchar_wcschr.o \
 	wchar_wcscmp.o \
 	wchar_wcscoll.o \
+	wchar_wcscoll_l.o \
 	wchar_wcscpy.o \
 	wchar_wcscspn.o \
 	wchar_wcsftime.o \
@@ -415,7 +430,6 @@ C_LIB := \
 	wchar_wcspbrk.o \
 	wchar_wcsrtombs.o \
 	wchar_wcsspn.o \
-	wchar_wcstod.o \
 	wchar_wcstok.o \
 	wchar_wcstol.o \
 	wchar_wcstoll.o \
@@ -430,6 +444,7 @@ C_LIB := \
 	wchar_wmemset.o \
 	wchar_wprintf.o \
 	wchar_wscanf.o \
+	wchar_vwscanf.o \
 	wchar_wscoll.o \
 	wctype_iswalnum.o \
 	wctype_iswalpha.o \

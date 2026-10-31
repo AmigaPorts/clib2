@@ -59,17 +59,17 @@ float
 sqrtf(float x)
 {
 	volatile float z;	/* to prevent GCC from optimizing it away */
-	LONG	sign = (LONG)0x80000000U; 
+	LONG	sign = (LONG)0x80000000U;
 	ULONG r;
 	LONG ix,s,q,m,t,i;
 
 	GET_FLOAT_WORD(ix,x);
 
     /* take care of Inf and NaN */
-	if((ix&0x7f800000)==0x7f800000) {			
+	if((ix&0x7f800000)==0x7f800000) {
 	    return x*x+x;		/* sqrt(NaN)=NaN, sqrt(+inf)=+inf
 					   sqrt(-inf)=sNaN */
-	} 
+	}
     /* take care of zero */
 	if(ix<=0) {
 	    if((ix&(~sign))==0) return x;/* sqrt(+-0) = +-0 */
@@ -94,12 +94,12 @@ sqrtf(float x)
 	r = 0x01000000;		/* r = moving bit from right to left */
 
 	while(r!=0) {
-	    t = s+r; 
-	    if(t<=ix) { 
-		s    = t+r; 
-		ix  -= t; 
-		q   += r; 
-	    } 
+	    t = s+r;
+	    if(t<=ix) {
+		s    = t+r;
+		ix  -= t;
+		q   += r;
+	    }
 	    ix += ix;
 	    r>>=1;
 	}
