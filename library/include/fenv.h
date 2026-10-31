@@ -66,20 +66,34 @@ extern "C" {
 
 /****************************************************************************/
 
-typedef int fenv_t;
+typedef int fexcept_t;
 
 /****************************************************************************/
 
-#define FE_DEFL_ENV ((fenv_t *)NULL))
+#if defined(__HAVE_68881__)
 
-/****************************************************************************/
+/* The accrued exception byte of the FPSR. */
+#define FE_INEXACT		(1<<3)
+#define FE_DIVBYZERO	(1<<4)
+#define FE_UNDERFLOW	(1<<5)
+#define FE_OVERFLOW		(1<<6)
+#define FE_INVALID		(1<<7)
+#define FE_ALL_EXCEPT	(FE_DIVBYZERO|FE_INEXACT|FE_INVALID|FE_OVERFLOW|FE_UNDERFLOW)
 
-extern __stdargs int fegetenv(fenv_t * envp);
-extern __stdargs int fesetenv(fenv_t * envp);
-extern __stdargs int feholdexcept(fenv_t * envp);
-extern __stdargs int feupdateenv(const fenv_t * envp);
+/* The rounding mode field of the FPCR. */
+#define FE_TONEAREST	0
+#define FE_TOWARDZERO	(1<<4)
+#define FE_DOWNWARD		(2<<4)
+#define FE_UPWARD		(3<<4)
 
-/****************************************************************************/
+typedef struct
+{
+	unsigned long __fpcr;
+	unsigned long __fpsr;
+	unsigned long __fpiar;
+} fenv_t;
+
+#elif defined(__amigaos4__)
 
 #define FE_DIVBYZERO	(1<<0)
 #define FE_INEXACT		(1<<1)
@@ -88,9 +102,34 @@ extern __stdargs int feupdateenv(const fenv_t * envp);
 #define FE_UNDERFLOW	(1<<4)
 #define FE_ALL_EXCEPT	(FE_DIVBYZERO|FE_INEXACT|FE_INVALID|FE_OVERFLOW|FE_UNDERFLOW)
 
+#define FE_DOWNWARD		0
+#define FE_UPWARD		1
+#define FE_TONEAREST	2
+#define FE_TOWARDZERO	3
+
+typedef int fenv_t;
+
+#else
+
+/* Without an FPU there are no exception flags and only one rounding mode,
+   and C99 says that the macros of what isn't supported are not defined. */
+#define FE_ALL_EXCEPT	0
+#define FE_TONEAREST	0
+
+typedef int fenv_t;
+
+#endif /* __HAVE_68881__ */
+
 /****************************************************************************/
 
-typedef int fexcept_t;
+#define FE_DFL_ENV ((const fenv_t *)-1)
+
+/****************************************************************************/
+
+extern __stdargs int fegetenv(fenv_t * envp);
+extern __stdargs int fesetenv(const fenv_t * envp);
+extern __stdargs int feholdexcept(fenv_t * envp);
+extern __stdargs int feupdateenv(const fenv_t * envp);
 
 /****************************************************************************/
 
@@ -99,13 +138,6 @@ extern __stdargs int fesetexceptflag(const fexcept_t *flagp,int excepts);
 extern __stdargs int fetestexcept(int excepts);
 extern __stdargs int feraiseexcept(int excepts);
 extern __stdargs int feclearexcept(int excepts);
-
-/****************************************************************************/
-
-#define FE_DOWNWARD		0
-#define FE_UPWARD		1
-#define FE_TONEAREST	2
-#define FE_TOWARDZERO	3
 
 /****************************************************************************/
 
