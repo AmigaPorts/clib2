@@ -14,9 +14,9 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-#ifndef _MATH_HEADERS_H
-#include "math_headers.h"
-#endif /* _MATH_HEADERS_H */
+#ifndef _MATH_MUSL_H
+#include "math_musl.h"
+#endif /* _MATH_MUSL_H */
 
 /****************************************************************************/
 
@@ -32,6 +32,24 @@ long double
 scalblnl(long double x, long int n)
 {
 	return scalbln(x, n);
+}
+
+/****************************************************************************/
+
+#else
+
+/****************************************************************************/
+
+/* From musl 1.2.5, src/math/scalblnl.c, under its MIT license: Copyright (c) 2005-2020
+   Rich Felker, et al.  Further notices are in the text. */
+
+long double scalblnl(long double x, long n)
+{
+	if (n > INT_MAX)
+		n = INT_MAX;
+	else if (n < INT_MIN)
+		n = INT_MIN;
+	return scalbnl(x, n);
 }
 
 /****************************************************************************/

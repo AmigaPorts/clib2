@@ -14,9 +14,9 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-#ifndef _MATH_HEADERS_H
-#include "math_headers.h"
-#endif /* _MATH_HEADERS_H */
+#ifndef _MATH_MUSL_H
+#include "math_musl.h"
+#endif /* _MATH_MUSL_H */
 
 /****************************************************************************/
 
@@ -36,6 +36,54 @@ modfl(long double x, long double *iptr)
 	*iptr = d;
 
 	return r;
+}
+
+/****************************************************************************/
+
+#else
+
+/****************************************************************************/
+
+/* From musl 1.2.5, src/math/modfl.c, under its MIT license: Copyright (c) 2005-2020
+   Rich Felker, et al.  Further notices are in the text. */
+
+static const long double toint = 1/LDBL_EPSILON;
+
+long double modfl(long double x, long double *iptr)
+{
+	union ldshape u = {x};
+	int e = (u.i.se & 0x7fff) - 0x3fff;
+	int s = u.i.se >> 15;
+	long double absx;
+	long double y;
+
+	/* no fractional part */
+	if (e >= LDBL_MANT_DIG-1) {
+		*iptr = x;
+		if (isnan(x))
+			return x;
+		return s ? -0.0 : 0.0;
+	}
+
+	/* no integral part*/
+	if (e < 0) {
+		*iptr = s ? -0.0 : 0.0;
+		return x;
+	}
+
+	/* raises spurious inexact */
+	absx = s ? -x : x;
+	y = absx + toint - toint - absx;
+	if (y == 0) {
+		*iptr = x;
+		return s ? -0.0 : 0.0;
+	}
+	if (y > 0)
+		y -= 1;
+	if (s)
+		y = -y;
+	*iptr = x + y;
+	return -y;
 }
 
 /****************************************************************************/

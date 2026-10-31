@@ -301,6 +301,15 @@ MATH_LIB := \
 	math_sincosf.o \
 	math_trunc.o \
 	math_truncf.o \
+	math_exp10l.o \
+	math_invtrigl.o \
+	math_kernel_cosl.o \
+	math_kernel_sinl.o \
+	math_kernel_tanl.o \
+	math_polevll.o \
+	math_rem_pio2_large.o \
+	math_rem_pio2l.o \
+	math_sincosl.o \
 	math_truncl.o \
 	stdio_asprintf.o \
 	stdio_flush.o \

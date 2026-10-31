@@ -14,9 +14,9 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-#ifndef _MATH_HEADERS_H
-#include "math_headers.h"
-#endif /* _MATH_HEADERS_H */
+#ifndef _MATH_MUSL_H
+#include "math_musl.h"
+#endif /* _MATH_MUSL_H */
 
 /****************************************************************************/
 
@@ -32,6 +32,40 @@ long double
 floorl(long double x)
 {
 	return floor(x);
+}
+
+/****************************************************************************/
+
+#else
+
+/****************************************************************************/
+
+/* From musl 1.2.5, src/math/floorl.c, under its MIT license: Copyright (c) 2005-2020
+   Rich Felker, et al.  Further notices are in the text. */
+
+static const long double toint = 1/LDBL_EPSILON;
+
+long double floorl(long double x)
+{
+	union ldshape u = {x};
+	int e = u.i.se & 0x7fff;
+	long double y;
+
+	if (e >= 0x3fff+LDBL_MANT_DIG-1 || x == 0)
+		return x;
+	/* y = int(x) - x, where int(x) is an integer neighbor of x */
+	if (u.i.se >> 15)
+		y = x - toint + toint - x;
+	else
+		y = x + toint - toint - x;
+	/* special case because of non-nearest rounding modes */
+	if (e <= 0x3fff-1) {
+		FORCE_EVAL(y);
+		return u.i.se >> 15 ? -1 : 0;
+	}
+	if (y > 0)
+		return x + y - 1;
+	return x + y;
 }
 
 /****************************************************************************/

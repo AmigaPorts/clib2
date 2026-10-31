@@ -487,6 +487,7 @@ extern __stdargs double drem(double x, double y);
 extern __stdargs float dremf(float x, float y);
 extern __stdargs double lgamma_r(double x, int *sign);
 extern __stdargs float lgammaf_r(float x, int *sign);
+extern __stdargs long double lgammal_r(long double x, int *sign);
 
 #endif /* !__STRICT_ANSI__ || _DEFAULT_SOURCE || _BSD_SOURCE || _GNU_SOURCE */
 
@@ -498,6 +499,9 @@ extern __stdargs double exp10(double x);
 extern __stdargs float exp10f(float x);
 extern __stdargs double pow10(double x);
 extern __stdargs float pow10f(float x);
+extern __stdargs void sincosl(long double x, long double *s, long double *c);
+extern __stdargs long double exp10l(long double x);
+extern __stdargs long double pow10l(long double x);
 
 #endif /* !__STRICT_ANSI__ || _GNU_SOURCE */
 

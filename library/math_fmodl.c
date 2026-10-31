@@ -14,9 +14,9 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-#ifndef _MATH_HEADERS_H
-#include "math_headers.h"
-#endif /* _MATH_HEADERS_H */
+#ifndef _MATH_MUSL_H
+#include "math_musl.h"
+#endif /* _MATH_MUSL_H */
 
 /****************************************************************************/
 
@@ -32,6 +32,76 @@ long double
 fmodl(long double x, long double y)
 {
 	return fmod(x, y);
+}
+
+/****************************************************************************/
+
+#else
+
+/****************************************************************************/
+
+/* From musl 1.2.5, src/math/fmodl.c, under its MIT license: Copyright (c) 2005-2020
+   Rich Felker, et al.  Further notices are in the text. */
+
+long double fmodl(long double x, long double y)
+{
+	union ldshape ux = {x}, uy = {y};
+	int ex = ux.i.se & 0x7fff;
+	int ey = uy.i.se & 0x7fff;
+	int sx = ux.i.se & 0x8000;
+
+	if (y == 0 || isnan(y) || ex == 0x7fff)
+		return (x*y)/(x*y);
+	ux.i.se = ex;
+	uy.i.se = ey;
+	if (ux.f <= uy.f) {
+		if (ux.f == uy.f)
+			return 0*x;
+		return x;
+	}
+
+	/* normalize x and y */
+	if (!ex) {
+		ux.f *= 0x1p120f;
+		ex = ux.i.se - 120;
+	}
+	if (!ey) {
+		uy.f *= 0x1p120f;
+		ey = uy.i.se - 120;
+	}
+
+	/* x mod y */
+	uint64_t i, mx, my;
+	mx = ux.i.m;
+	my = uy.i.m;
+	for (; ex > ey; ex--) {
+		i = mx - my;
+		if (mx >= my) {
+			if (i == 0)
+				return 0*x;
+			mx = 2*i;
+		} else if (2*mx < mx) {
+			mx = 2*mx - my;
+		} else {
+			mx = 2*mx;
+		}
+	}
+	i = mx - my;
+	if (mx >= my) {
+		if (i == 0)
+			return 0*x;
+		mx = i;
+	}
+	for (; mx >> 63 == 0; mx *= 2, ex--);
+	ux.i.m = mx;
+
+	/* scale result */
+	if (ex <= 0) {
+		ux.i.se = (ex+120)|sx;
+		ux.f *= 0x1p-120f;
+	} else
+		ux.i.se = ex|sx;
+	return ux.f;
 }
 
 /****************************************************************************/

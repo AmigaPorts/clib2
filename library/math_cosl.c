@@ -14,9 +14,9 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-#ifndef _MATH_HEADERS_H
-#include "math_headers.h"
-#endif /* _MATH_HEADERS_H */
+#ifndef _MATH_MUSL_H
+#include "math_musl.h"
+#endif /* _MATH_MUSL_H */
 
 /****************************************************************************/
 
@@ -33,6 +33,63 @@ cosl(long double x)
 {
 	return cos(x);
 }
+
+/****************************************************************************/
+
+#else
+
+/****************************************************************************/
+
+/* From musl 1.2.5, src/math/cosl.c, under its MIT license: Copyright (c) 2005-2020
+   Rich Felker, et al.  Further notices are in the text. */
+
+#if defined(__mc68000__) && defined(M68881_FLOATING_POINT_SUPPORT)
+
+long double
+cosl(long double x)
+{
+	long double result;
+
+	__asm ("fcos%.x %1,%0" : "=f" (result) : "f" (x));
+
+	return(result);
+}
+
+#else
+
+long double cosl(long double x)
+{
+	union ldshape u = {x};
+	unsigned n;
+	long double y[2], hi, lo;
+
+	u.i.se &= 0x7fff;
+	if (u.i.se == 0x7fff)
+		return x - x;
+	x = u.f;
+	if (x < M_PI_4) {
+		if (u.i.se < 0x3fff - LDBL_MANT_DIG)
+			/* raise inexact if x!=0 */
+			return 1.0 + x;
+		return __cosl(x, 0);
+	}
+	n = __rem_pio2l(x, y);
+	hi = y[0];
+	lo = y[1];
+	switch (n & 3) {
+	case 0:
+		return __cosl(hi, lo);
+	case 1:
+		return -__sinl(hi, lo, 1);
+	case 2:
+		return -__cosl(hi, lo);
+	case 3:
+	default:
+		return __sinl(hi, lo, 1);
+	}
+}
+
+#endif /* __mc68000__ && M68881_FLOATING_POINT_SUPPORT */
 
 /****************************************************************************/
 

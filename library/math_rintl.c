@@ -14,9 +14,9 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-#ifndef _MATH_HEADERS_H
-#include "math_headers.h"
-#endif /* _MATH_HEADERS_H */
+#ifndef _MATH_MUSL_H
+#include "math_musl.h"
+#endif /* _MATH_MUSL_H */
 
 /****************************************************************************/
 
@@ -33,6 +33,51 @@ rintl(long double x)
 {
 	return rint(x);
 }
+
+/****************************************************************************/
+
+#else
+
+/****************************************************************************/
+
+/* From musl 1.2.5, src/math/rintl.c, under its MIT license: Copyright (c) 2005-2020
+   Rich Felker, et al.  Further notices are in the text. */
+
+#if defined(__mc68000__) && defined(M68881_FLOATING_POINT_SUPPORT)
+
+long double
+rintl(long double x)
+{
+	long double result;
+
+	__asm ("fint%.x %1,%0" : "=f" (result) : "f" (x));
+
+	return(result);
+}
+
+#else
+
+static const long double toint = 1/LDBL_EPSILON;
+
+long double rintl(long double x)
+{
+	union ldshape u = {x};
+	int e = u.i.se & 0x7fff;
+	int s = u.i.se >> 15;
+	long double y;
+
+	if (e >= 0x3fff+LDBL_MANT_DIG-1)
+		return x;
+	if (s)
+		y = x - toint + toint;
+	else
+		y = x + toint - toint;
+	if (y == 0)
+		return 0*x;
+	return y;
+}
+
+#endif /* __mc68000__ && M68881_FLOATING_POINT_SUPPORT */
 
 /****************************************************************************/
 
