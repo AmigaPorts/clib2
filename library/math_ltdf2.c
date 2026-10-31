@@ -51,6 +51,8 @@
 
 /****************************************************************************/
 
+/* IEEEDPCmp() has no answer for a NaN, which compares unordered: answer 1
+   here, which makes the comparison false. */
 asm(
 
 "	.text\n"
@@ -61,12 +63,30 @@ asm(
 
 "___ltdf2:\n"
 
+"	moveq	#1,d0\n"
+"	movel	sp@(4),d1\n"
+"	bclr	#31,d1\n"
+"	cmpl	#0x7ff00000,d1\n"
+"	bhis	9f\n"
+"	bnes	1f\n"
+"	tstl	sp@(8)\n"
+"	bnes	9f\n"
+"1:	movel	sp@(12),d1\n"
+"	bclr	#31,d1\n"
+"	cmpl	#0x7ff00000,d1\n"
+"	bhis	9f\n"
+"	bnes	2f\n"
+"	tstl	sp@(16)\n"
+"	bnes	9f\n"
+"2:\n"
+
 "	moveml	d2/d3/a6,sp@-\n"
 "	movel	"A4(_MathIeeeDoubBasBase)",a6\n"
 "	moveml	sp@(16),d0/d1/d2/d3\n"
 "	jsr		a6@(-42:W)\n"
 "	moveml	sp@+,d2/d3/a6\n"
 "	rts\n"
+"9:	rts\n"
 
 );
 

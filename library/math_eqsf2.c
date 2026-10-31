@@ -44,9 +44,17 @@
 float
 __eqsf2(float x,float y)
 {
+	union ieee_single ux, uy;
 	float result;
 
-	result = IEEESPCmp(x,y);
+	ux.value = x;
+	uy.value = y;
+
+	/* IEEESPCmp() has no answer for a NaN, which compares unordered. */
+	if((ux.raw[0] & 0x7fffffff) > 0x7f800000 || (uy.raw[0] & 0x7fffffff) > 0x7f800000)
+		result = 1.0f;
+	else
+		result = IEEESPCmp(x,y);
 
 	return(result);
 }
