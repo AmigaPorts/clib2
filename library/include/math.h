@@ -175,8 +175,8 @@ extern float __nan;
 
 /****************************************************************************/
 
-#define FP_INFINITE		0	/* -/+ infinity */
-#define FP_NAN			1	/* not a number */
+#define FP_NAN			0	/* not a number */
+#define FP_INFINITE		1	/* -/+ infinity */
 #define FP_NORMAL		2	/* normalized floating point number */
 #define FP_SUBNORMAL	3	/* very small floating point number; special
 							   case of IEEE 754 */
@@ -454,6 +454,17 @@ extern __stdargs long double scalbnl(long double x, int n);
 extern __stdargs long double tgammal(long double x);
 extern __stdargs long double truncl(long double x);
 extern __stdargs int ilogbl(long double x);
+
+/****************************************************************************/
+
+/* Not part of ISO C, so a strictly conforming program may have used
+   this name for itself. */
+#if !defined(__STRICT_ANSI__) || defined(_XOPEN_SOURCE) || defined(_DEFAULT_SOURCE) || \
+    defined(_BSD_SOURCE) || defined(_GNU_SOURCE)
+
+extern int signgam;
+
+#endif /* !__STRICT_ANSI__ || _XOPEN_SOURCE || _DEFAULT_SOURCE || _BSD_SOURCE || _GNU_SOURCE */
 
 /****************************************************************************/
 

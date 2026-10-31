@@ -270,12 +270,7 @@ __lgammaf(float x,int * gamma_sign_ptr)
 float
 lgammaf(float x)
 {
-	int gamma_sign;
-	float result;
-
-	result = __lgammaf(x,&gamma_sign);
-
-	return(result);
+	return(__lgammaf(x,&signgam));
 }
 
 /****************************************************************************/

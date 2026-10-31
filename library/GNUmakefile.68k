@@ -712,7 +712,9 @@ MATH_LIB = \
 	math_inff.o \
 	math_init_exit.o \
 	math_isfinite.o \
+	math_kernel_cos.o \
 	math_kernel_cosf.o \
+	math_kernel_sin.o \
 	math_kernel_sinf.o \
 	math_kernel_tanf.o \
 	math_ldexp.o \

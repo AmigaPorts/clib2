@@ -254,15 +254,14 @@ __lgamma(double x,int * gamma_sign_ptr)
 
 /****************************************************************************/
 
+int signgam;
+
+/****************************************************************************/
+
 double
 lgamma(double x)
 {
-	double result;
-	int gamma_sign;
-
-	result = __lgamma(x,&gamma_sign);
-
-	return(result);
+	return(__lgamma(x,&signgam));
 }
 
 /****************************************************************************/
