@@ -54,23 +54,29 @@
 
 /****************************************************************************/
 
-#if defined(IEEE_FLOATING_POINT_SUPPORT) || defined(M68881_FLOATING_POINT_SUPPORT)
+#if defined(M68881_FLOATING_POINT_SUPPORT)
 
 /****************************************************************************/
 
 float
 rintf(float x)
 {
-	return (float) floor(x + 0.5f);
+	float result;
+
+	__asm ("fint%.x %1,%0"
+	       : "=f" (result)
+	       : "f" (x));
+
+	return(result);
 }
 
 /****************************************************************************/
 
-#endif /* IEEE_FLOATING_POINT_SUPPORT || M68881_FLOATING_POINT_SUPPORT */
+#endif /* M68881_FLOATING_POINT_SUPPORT */
 
 /****************************************************************************/
 
-#if defined(PPC_FLOATING_POINT_SUPPORT)
+#if defined(IEEE_FLOATING_POINT_SUPPORT) || defined(PPC_FLOATING_POINT_SUPPORT)
 
 /****************************************************************************/
 
@@ -122,7 +128,7 @@ rintf(float x)
 
 /****************************************************************************/
 
-#endif /* PPC_FLOATING_POINT_SUPPORT */
+#endif /* IEEE_FLOATING_POINT_SUPPORT || PPC_FLOATING_POINT_SUPPORT */
 
 /****************************************************************************/
 

@@ -54,23 +54,29 @@
 
 /****************************************************************************/
 
-#if defined(IEEE_FLOATING_POINT_SUPPORT) || defined(M68881_FLOATING_POINT_SUPPORT)
+#if defined(M68881_FLOATING_POINT_SUPPORT)
 
 /****************************************************************************/
 
 double
 rint(double x)
 {
-	return floor( x+0.5 );
+	double result;
+
+	__asm ("fint%.x %1,%0"
+	       : "=f" (result)
+	       : "f" (x));
+
+	return(result);
 }
 
 /****************************************************************************/
 
-#endif /* IEEE_FLOATING_POINT_SUPPORT || M68881_FLOATING_POINT_SUPPORT */
+#endif /* M68881_FLOATING_POINT_SUPPORT */
 
 /****************************************************************************/
 
-#if defined(PPC_FLOATING_POINT_SUPPORT)
+#if defined(IEEE_FLOATING_POINT_SUPPORT) || defined(PPC_FLOATING_POINT_SUPPORT)
 
 /****************************************************************************/
 
@@ -129,7 +135,7 @@ rint(double x)
 
 /****************************************************************************/
 
-#endif /* PPC_FLOATING_POINT_SUPPORT */
+#endif /* IEEE_FLOATING_POINT_SUPPORT || PPC_FLOATING_POINT_SUPPORT */
 
 /****************************************************************************/
 
