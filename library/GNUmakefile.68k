@@ -95,7 +95,7 @@ endif
 
 ifeq (small_data,$(TYPE))
 CODE_TYPE	:= -m68000
-CODE_FLAGS	:= -fbaserel -DSMALL_DATA
+CODE_FLAGS	:= -fbaserel -DSMALL_DATA -DUSE_64_BIT_INTS
 endif
 
 ifeq (small_data32,$(TYPE))
@@ -110,7 +110,7 @@ endif
 
 ifeq (large_data,$(TYPE))
 CODE_TYPE	:= -m68000
-CODE_FLAGS	:=
+CODE_FLAGS	:= -DUSE_64_BIT_INTS
 endif
 
 ##############################################################################
