@@ -83,7 +83,7 @@ asm(
 "___log10:\n"
 
 "	movel	a6,sp@-\n"
-"	movel	"A4(_MathIeeeDoubBasBase)",a6\n"
+"	movel	"A4(_MathIeeeDoubTransBase)",a6\n"
 "	moveml	sp@(8),d0/d1\n"
 "	jsr		a6@(-126:W)\n"
 "	movel	sp@+,a6\n"

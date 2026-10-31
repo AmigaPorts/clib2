@@ -44,7 +44,7 @@
 float
 fdimf(float x,float y)
 {
-	float result;
+	volatile float result;
 
 	if(isnan(x) || isnan(y))
 		result = x + y;

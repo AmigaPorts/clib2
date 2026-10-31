@@ -91,7 +91,9 @@ extern double __inf(void);
 #if defined(M68881_FLOATING_POINT_SUPPORT)
 #define __domain_error(x) (((x) - (x)) / ((x) - (x)))
 #define __pole_error(x) (-1.0 / fabs(x))
+#define __raise_invalid() do { volatile double __zero = 0.0; __zero = __zero / __zero; } while(0)
 #else
+#define __raise_invalid() ((void)0)
 #define __domain_error(x) __builtin_nan("")
 #define __pole_error(x) (-__inf())
 #endif /* M68881_FLOATING_POINT_SUPPORT */

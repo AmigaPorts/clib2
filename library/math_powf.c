@@ -86,6 +86,18 @@ ivln2    =  1.4426950216e+00, /* 0x3fb8aa3b =1/ln2 */
 ivln2_h  =  1.4426879883e+00, /* 0x3fb8aa00 =16b 1/ln2*/
 ivln2_l  =  7.0526075433e-06; /* 0x36eca570 =1/ln2 tail*/
 
+#if defined(__mc68000__)
+
+/* Rounding every step to single precision adds up to two units in the
+   last place here; this is less than one. */
+float
+powf(float x, float y)
+{
+	return((float)pow(x,y));
+}
+
+#else
+
 float
 powf(float x, float y)
 {
@@ -280,6 +292,8 @@ powf(float x, float y)
 	else SET_FLOAT_WORD(z,j);
 	return s*z;
 }
+
+#endif /* __mc68000__ */
 
 /****************************************************************************/
 

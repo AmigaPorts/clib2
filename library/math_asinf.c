@@ -71,6 +71,18 @@ qS2 =  2.0209457874e+00, /* 0x4001572d */
 qS3 = -6.8828397989e-01, /* 0xbf303361 */
 qS4 =  7.7038154006e-02; /* 0x3d9dc62e */
 
+#if defined(__mc68000__)
+
+/* Rounding every step to single precision adds up to two units in the
+   last place here; this is less than one. */
+float
+asinf(float x)
+{
+	return((float)asin(x));
+}
+
+#else
+
 float
 asinf(float x)
 {
@@ -115,6 +127,8 @@ asinf(float x)
 	}
 	if(hx>0) return t; else return -t;
 }
+
+#endif /* __mc68000__ */
 
 /****************************************************************************/
 
