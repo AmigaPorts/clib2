@@ -36,6 +36,26 @@ copysignl(long double x, long double y)
 
 /****************************************************************************/
 
+#elif defined(__mc68000__)
+
+/****************************************************************************/
+
+/* The M68881's 80-bit format: the sign is the first long word's top bit. */
+long double
+copysignl(long double x, long double y)
+{
+	union ieee_long_double ux, uy;
+
+	ux.value = x;
+	uy.value = y;
+
+	ux.raw[0] = (ux.raw[0] & 0x7fffffff) | (uy.raw[0] & 0x80000000);
+
+	return(ux.value);
+}
+
+/****************************************************************************/
+
 #endif /* LDBL_MANT_DIG == DBL_MANT_DIG && LDBL_MAX_EXP == DBL_MAX_EXP */
 
 /****************************************************************************/
