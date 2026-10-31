@@ -190,6 +190,12 @@ log10(double x)
 	{
 		result = __log10(x);
 	}
+	else if(x < 0 || __builtin_isnan(x))
+	{
+		__set_errno(EDOM);
+
+		result = __builtin_nan("");
+	}
 	else
 	{
 		__set_errno(ERANGE);
