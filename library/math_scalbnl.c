@@ -28,22 +28,6 @@
 
 /****************************************************************************/
 
-#if defined(M68881_FLOATING_POINT_SUPPORT)
-
-long double
-scalbnl(long double x, int n)
-{
-	long double result;
-
-	__asm ("fscale%.l %2,%0"
-	       : "=f" (result)
-	       : "0" (x), "d" (n));
-
-	return(result);
-}
-
-#else
-
 long double
 scalbnl(long double x, int n)
 {
@@ -66,6 +50,22 @@ scalbnl(long double x, int n)
    0, where the integer bit may be set: unlike on the x87, that is a normal
    number.  Working on the bits needs no FPU, and is exact on the 68000, where
    long double arithmetic goes through double. */
+#if defined(M68881_FLOATING_POINT_SUPPORT)
+
+long double
+scalbnl(long double x, int n)
+{
+	long double result;
+
+	__asm ("fscale%.l %2,%0"
+	       : "=f" (result)
+	       : "0" (x), "d" (n));
+
+	return(result);
+}
+
+#else
+
 #if defined(M68881_FLOATING_POINT_SUPPORT)
 
 long double
