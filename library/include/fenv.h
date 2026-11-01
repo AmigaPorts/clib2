@@ -66,7 +66,7 @@ extern "C" {
 
 /****************************************************************************/
 
-typedef int fexcept_t;
+typedef unsigned int fexcept_t;
 
 /****************************************************************************/
 
@@ -86,13 +86,6 @@ typedef int fexcept_t;
 #define FE_DOWNWARD		(2<<4)
 #define FE_UPWARD		(3<<4)
 
-typedef struct
-{
-	unsigned long __fpcr;
-	unsigned long __fpsr;
-	unsigned long __fpiar;
-} fenv_t;
-
 #elif defined(__amigaos4__)
 
 #define FE_DIVBYZERO	(1<<0)
@@ -107,8 +100,6 @@ typedef struct
 #define FE_TONEAREST	2
 #define FE_TOWARDZERO	3
 
-typedef int fenv_t;
-
 #else
 
 /* Without an FPU there are no exception flags and only one rounding mode,
@@ -116,9 +107,26 @@ typedef int fenv_t;
 #define FE_ALL_EXCEPT	0
 #define FE_TONEAREST	0
 
+#endif /* __HAVE_68881__ */
+
+/****************************************************************************/
+
+#if defined(__amigaos4__)
+
 typedef int fenv_t;
 
-#endif /* __HAVE_68881__ */
+#else
+
+/* The same size with and without -m68881: code built without it can link with
+   the libm that fegetenv() writes all of this in. */
+typedef struct
+{
+	unsigned long __fpcr;
+	unsigned long __fpsr;
+	unsigned long __fpiar;
+} fenv_t;
+
+#endif /* __amigaos4__ */
 
 /****************************************************************************/
 
