@@ -44,7 +44,7 @@
 /****************************************************************************/
 
 char *
-fgets(char *s,int n,FILE *stream)
+fgets(char * __restrict s, int n, FILE * __restrict stream)
 {
 	char * result = s;
 	int c;

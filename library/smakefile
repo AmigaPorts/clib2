@@ -615,7 +615,6 @@ LIB_MATH_OBJS = \
 	math_inff.mo \
 	math_init_exit.mo \
 	math_isfinite.mo \
-	math_isunordered.mo \
 	math_kernel_cosf.mo \
 	math_kernel_sinf.mo \
 	math_kernel_tanf.mo \

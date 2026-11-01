@@ -44,7 +44,7 @@
 /****************************************************************************/
 
 int
-snprintf(char *s, size_t size, const char *format, ...)
+snprintf(char * __restrict s, size_t size, const char * __restrict format, ...)
 {
 	int result = EOF;
 	va_list arg;

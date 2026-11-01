@@ -40,6 +40,7 @@
 int
 iswprint(wint_t c)
 {
-	/* ZZZ unimplemented */
+	(void) c;
+
 	return(0);
 }

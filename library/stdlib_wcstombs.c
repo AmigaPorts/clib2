@@ -38,8 +38,12 @@
 /****************************************************************************/
 
 size_t
-wcstombs(char *s, const wchar_t *pwcs, size_t n)
+wcstombs(char * __restrict s, const wchar_t * __restrict pwcs, size_t n)
 {
+	(void) s;
+	(void) pwcs;
+	(void) n;
+
 	/* ZZZ unimplemented */
 	return(0);
 }

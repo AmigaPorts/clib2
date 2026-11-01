@@ -1,34 +1,26 @@
 /*
- * $Id: wchar_wcrtomb.c,v 1.3 2006-01-08 12:04:27 obarthel Exp $
+ * Copyright 2005-2020 Rich Felker, et al.
  *
- * :ts=4
+ * Permission is hereby granted, free of charge, to any person obtaining
+ * a copy of this software and associated documentation files (the
+ * "Software"), to deal in the Software without restriction, including
+ * without limitation the rights to use, copy, modify, merge, publish,
+ * distribute, sublicense, and/or sell copies of the Software, and to
+ * permit persons to whom the Software is furnished to do so, subject to
+ * the following conditions:
  *
- * Portable ISO 'C' (1994) runtime library for the Amiga computer
- * Copyright (c) 2002-2015 by Olaf Barthel <obarthel (at) gmx.net>
- * All rights reserved.
+ * The above copyright notice and this permission notice shall be
+ * included in all copies or substantial portions of the Software.
  *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions
- * are met:
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+ * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+ * IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+ * CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+ * TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+ * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  *
- *   - Redistributions of source code must retain the above copyright
- *     notice, this list of conditions and the following disclaimer.
- *
- *   - Neither the name of Olaf Barthel nor the names of contributors
- *     may be used to endorse or promote products derived from this
- *     software without specific prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
- * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
- * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
- * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
- * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
- * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
- * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
- * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
- * POSSIBILITY OF SUCH DAMAGE.
+ * Imported and modified 2021/01/25
  */
 
 #ifndef _WCHAR_HEADERS_H
@@ -38,8 +30,37 @@
 /****************************************************************************/
 
 size_t
-wcrtomb(char *s, wchar_t wc, mbstate_t *ps)
+wcrtomb(char * __restrict p, wchar_t c, mbstate_t * __restrict ps)
 {
-	/* ZZZ unimplemented */
-	return(0);
+	(void) ps;
+
+	if (!p) return 1;
+	if ((unsigned)c < 0x80) {
+		*p = c;
+		return 1;
+	} else if (MB_CUR_MAX == 1) {
+		if (!IS_CODEUNIT(c)) {
+			errno = EILSEQ;
+			return -1;
+		}
+		*p = c;
+		return 1;
+	} else if ((unsigned)c < 0x800) {
+		*p++ = 0xc0 | (c>>6);
+		*p = 0x80 | (c&0x3f);
+		return 2;
+	} else if ((unsigned)c < 0xd800 || (unsigned)c-0xe000 < 0x2000) {
+		*p++ = 0xe0 | (c>>12);
+		*p++ = 0x80 | ((c>>6)&0x3f);
+		*p = 0x80 | (c&0x3f);
+		return 3;
+	} else if ((unsigned)c-0x10000 < 0x100000) {
+		*p++ = 0xf0 | (c>>18);
+		*p++ = 0x80 | ((c>>12)&0x3f);
+		*p++ = 0x80 | ((c>>6)&0x3f);
+		*p = 0x80 | (c&0x3f);
+		return 4;
+	}
+	errno = EILSEQ;
+	return -1;
 }

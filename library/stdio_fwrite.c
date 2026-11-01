@@ -44,7 +44,8 @@
 /****************************************************************************/
 
 size_t
-fwrite(const void *ptr,size_t element_size,size_t count,FILE *stream)
+fwrite(const void * __restrict ptr, size_t element_size, size_t count,
+    FILE * __restrict stream)
 {
 	struct iob * file = (struct iob *)stream;
 	size_t result = 0;

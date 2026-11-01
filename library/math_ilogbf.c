@@ -61,7 +61,7 @@ ilogbf(float x)
 	GET_FLOAT_WORD(hx,x);
 	hx &= 0x7fffffff;
 	if(hx<0x00800000) {
-	    if(hx==0) 
+	    if(hx==0)
 		return - INT_MAX;	/* ilogb(0) = 0x80000001 */
 	    else			/* subnormal x */
 	        for (ix = -126,hx<<=8; hx>0; hx<<=1) ix -=1;

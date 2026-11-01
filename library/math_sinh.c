@@ -141,7 +141,7 @@ static const double one = 1.0, shuge = 1.0e307;
 
 INLINE STATIC double
 __sinh(double x)
-{	
+{
 	double t,w,h;
 	int ix,jx;
 	unsigned int lx;
@@ -151,7 +151,7 @@ __sinh(double x)
 	ix = jx&0x7fffffff;
 
     /* x is INF or NaN */
-	if(ix>=0x7ff00000) return x+x;	
+	if(ix>=0x7ff00000) return x+x;
 
 	h = 0.5;
 	if (jx<0) h = -h;

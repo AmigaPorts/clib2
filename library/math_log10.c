@@ -158,7 +158,7 @@ __log10(double x)
 	{
 		if (((hx&0x7fffffff)|lx)==0)
 			return -two54/zero;             /* log(+-0)=-inf */
-		if (hx<0) 
+		if (hx<0)
 			return (x-x)/zero;              /* log(-#) = NaN */
 		k -= 54; x *= two54;                /* subnormal number, scale up x */
 	    GET_HIGH_WORD(hx,x);
@@ -189,6 +189,12 @@ log10(double x)
 	if(x > 0)
 	{
 		result = __log10(x);
+	}
+	else if(x < 0 || __builtin_isnan(x))
+	{
+		__set_errno(EDOM);
+
+		result = __builtin_nan("");
 	}
 	else
 	{

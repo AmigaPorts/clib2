@@ -61,7 +61,7 @@
 float
 rintf(float x)
 {
-	return (float) floor ( x + 0.5f );
+	return (float) floor(x + 0.5f);
 }
 
 /****************************************************************************/

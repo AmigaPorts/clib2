@@ -40,6 +40,8 @@
 int
 iswctype(wint_t c, wctype_t desc)
 {
-	/* ZZZ unimplemented */
+	(void) c;
+	(void) desc;
+
 	return(0);
 }

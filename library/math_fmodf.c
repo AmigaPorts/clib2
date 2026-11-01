@@ -85,13 +85,13 @@ fmodf(float x, float y)
 	} else iy = (hy>>23)-127;
 
     /* set up {hx,lx}, {hy,ly} and align y to x */
-	if(ix >= -126) 
+	if(ix >= -126)
 	    hx = 0x00800000|(0x007fffff&hx);
 	else {		/* subnormal x, shift x to normal */
 	    n = -126-ix;
 	    hx = hx<<n;
 	}
-	if(iy >= -126) 
+	if(iy >= -126)
 	    hy = 0x00800000|(0x007fffff&hy);
 	else {		/* subnormal y, shift y to normal */
 	    n = -126-iy;
@@ -114,7 +114,7 @@ fmodf(float x, float y)
 
     /* convert back to floating value and restore the sign */
 	if(hx==0) 			/* return sign(x)*0 */
-	    return Zero[(ULONG)sx>>31];	
+	    return Zero[(ULONG)sx>>31];
 	while(hx<0x00800000) {		/* normalize x */
 	    hx = hx+hx;
 	    iy -= 1;

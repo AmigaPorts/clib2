@@ -3,3 +3,5 @@
 /library/compiler.log
 /library/netinclude
 *.map
+/test_programs/strtod_vectors.h
+/test_programs/strtod_test

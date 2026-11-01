@@ -73,7 +73,13 @@ getpid(void)
 	}
 	#else
 	{
-		result = (pid_t)FindTask(NULL);
+		struct Process *proc = (struct Process *) FindTask(NULL);
+
+		#ifdef __amigaos4__
+		result = (pid_t) GetPID(proc, GPID_PROCESS);
+		#else
+		result = (pid_t) proc;
+		#endif
 	}
 	#endif
 

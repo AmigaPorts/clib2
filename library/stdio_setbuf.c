@@ -44,7 +44,7 @@
 /****************************************************************************/
 
 void
-setbuf(FILE *stream,char *buf)
+setbuf(FILE * __restrict stream, char * __restrict buf)
 {
 	ENTER();
 

@@ -329,10 +329,10 @@ __memcpy(unsigned char * to,unsigned char * from,size_t len)
    where none are necessary. */
 #if defined(__GNUC__) && (__GNUC__ < 3)
 void *
-memcpy(void *dst, const void *src, unsigned long len)
+memcpy(void * __restrict dst, const void * __restrict src, unsigned long len)
 #else
 void *
-memcpy(void *dst, const void *src, size_t len)
+memcpy(void * __restrict dst, const void * __restrict src, size_t len)
 #endif /* __GNUC__ && __GNUC__ < 3 */
 {
 	void * result = dst;

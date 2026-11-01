@@ -218,19 +218,13 @@ __acos(double x)
 double
 acos(double x)
 {
-	double result;
-
 	if(-1.0 <= x && x <= 1.0)
 	{
-		result = __acos(x);
-	}
-	else
-	{
-		result = 0;
-		__set_errno(EDOM);
+		return __acos(x);
 	}
 
-	return(result);
+	__set_errno(EDOM);
+	return NAN;
 }
 
 /****************************************************************************/

@@ -80,7 +80,7 @@ atan2f(float y, float x)
     /* when y = 0 */
 	if(iy==0) {
 	    switch(m) {
-		case 0: 
+		case 0:
 		case 1: return y; 	/* atan(+-0,+anything)=+-0 */
 		case 2: return  pi+tiny;/* atan(+0,-anything) = pi */
 		case 3: return -pi-tiny;/* atan(-0,-anything) =-pi */
@@ -88,7 +88,7 @@ atan2f(float y, float x)
 	}
     /* when x = 0 */
 	if(ix==0) return (hy<0)?  -pi_o_2-tiny: pi_o_2+tiny;
-	    
+
     /* when x is INF */
 	if(ix==0x7f800000) {
 	    if(iy==0x7f800000) {

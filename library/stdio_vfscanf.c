@@ -64,7 +64,7 @@
 /****************************************************************************/
 
 int
-vfscanf(FILE *stream, const char *format, va_list arg)
+vfscanf(FILE * __restrict stream, const char * __restrict format, va_list arg)
 {
 	enum parameter_size_t
 	{

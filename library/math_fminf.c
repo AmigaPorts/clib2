@@ -53,7 +53,7 @@ fminf(float x,float y)
 		else
 			result = y;
 	}
-	else if (isnan(y))
+	else if(isnan(y))
 	{
 		result = x;
 	}

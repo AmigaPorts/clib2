@@ -44,7 +44,7 @@
 /****************************************************************************/
 
 int
-vsprintf(char *s,const char *format,va_list arg)
+vsprintf(char * __restrict s, const char * __restrict format, va_list arg)
 {
 	struct iob string_iob;
 	int result = EOF;

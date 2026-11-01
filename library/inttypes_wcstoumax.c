@@ -44,8 +44,12 @@
 /****************************************************************************/
 
 uintmax_t
-wcstoumax(const wchar_t *str, char **ptr, int base)
+wcstoumax(const wchar_t * __restrict str, char ** __restrict ptr, int base)
 {
+	(void) str;
+	(void) ptr;
+	(void) base;
+
 	/* ZZZ unimplemented */
 	return(0);
 }

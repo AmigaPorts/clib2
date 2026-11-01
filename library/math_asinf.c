@@ -112,8 +112,8 @@ asinf(float x)
 	    p  = (float)2.0*s*r-(pio2_lo-(float)2.0*c);
 	    q  = pio4_hi-(float)2.0*w;
 	    t  = pio4_hi-(p-q);
-	}    
-	if(hx>0) return t; else return -t;    
+	}
+	if(hx>0) return t; else return -t;
 }
 
 /****************************************************************************/

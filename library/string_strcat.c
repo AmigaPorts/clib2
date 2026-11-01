@@ -44,7 +44,7 @@
 /****************************************************************************/
 
 char *
-strcat(char *dest, const char *src)
+strcat(char * __restrict dest, const char * __restrict src)
 {
 	char * result = dest;
 

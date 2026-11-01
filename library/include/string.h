@@ -41,6 +41,12 @@
 #ifndef _STRING_H
 #define _STRING_H
 
+#if __STDC_VERSION__ >= 199901L
+#define __restrict restrict
+#elif !defined(__GNUC__)
+#define __restrict
+#endif
+
 /****************************************************************************/
 
 #ifndef _SYS_CLIB2_STDC_H
@@ -62,12 +68,14 @@ extern "C" {
 /****************************************************************************/
 
 extern __stdargs char *strerror(int error_number);
-extern __stdargs char *strcat(char *dest, const char *src);
-extern __stdargs char *strncat(char *dest, const char *src, size_t n);
+extern __stdargs char *strcat(char * __restrict dest, const char * __restrict src);
+extern __stdargs char *strncat(char * __restrict dest, const char * __restrict src,
+    size_t n);
 extern __stdargs int strcmp(const char *s1, const char * s2);
 extern __stdargs int strncmp(const char *s1, const char *s2, size_t n);
-extern __stdargs char *strcpy(char *dest, const char *src);
-extern __stdargs char *strncpy(char *dest, const char *src, size_t n);
+extern __stdargs char *strcpy(char * __restrict dest, const char * __restrict src);
+extern __stdargs char *strncpy(char * __restrict dest, const char * __restrict src,
+    size_t n);
 extern __stdargs size_t strnlen(const char *s, size_t maxlen);
 extern __stdargs size_t strlen(const char *s);
 extern __stdargs char *strchr(const char *s, int c);
@@ -75,13 +83,14 @@ extern __stdargs char *strrchr(const char *s, int c);
 extern __stdargs size_t strspn(const char *s, const char *set);
 extern __stdargs size_t strcspn(const char *s, const char *set);
 extern __stdargs char *strpbrk(const char *s, const char *set);
-extern __stdargs char *strtok(char *str, const char *set);
+extern __stdargs char *strtok(char * __restrict str, const char * __restrict set);
 extern __stdargs char *strstr(const char *src, const char *sub);
 
 /****************************************************************************/
 
 extern __stdargs int strcoll(const char *s1, const char *s2);
-extern __stdargs size_t strxfrm(char *dest, const char *src, size_t len);
+extern __stdargs size_t strxfrm(char * __restrict dest, const char * __restrict src,
+    size_t len);
 
 /****************************************************************************/
 
@@ -93,11 +102,17 @@ extern __stdargs void *memchr(const void * ptr, int val, size_t len);
    where none are necessary. */
 #if defined(__GNUC__) && (__GNUC__ < 3)
 extern __stdargs int memcmp(const void *ptr1, const void *ptr2, unsigned long len);
-extern __stdargs void *memcpy(void *dest, const void *src, unsigned long len);
+extern __stdargs void *memcpy(void * __restrict dest, const void * __restrict src,
+    unsigned long len);
+extern __stdargs void *memccpy(void * __restrict dst, const void * __restrict src, int c,
+    size_t count);
 extern __stdargs void *memset(void *ptr, int val, unsigned long len);
 #else
 extern __stdargs int memcmp(const void *ptr1, const void *ptr2, size_t len);
-extern __stdargs void *memcpy(void *dest, const void *src, size_t len);
+extern __stdargs void *memcpy(void * __restrict dest, const void * __restrict src,
+    size_t len);
+extern __stdargs void *memccpy(void * __restrict dst, const void * __restrict src,
+    int c, size_t count);
 extern __stdargs void *memset(void *ptr, int val, size_t len);
 #endif /* __GNUC__ && __GNUC__ < 3 */
 
@@ -120,6 +135,7 @@ extern __stdargs char * rindex(const char *s, int c);
 /****************************************************************************/
 
 extern __stdargs char * strdup(const char *s);
+extern __stdargs char * strndup(const char *s, size_t size);
 
 #ifdef __MEM_DEBUG
 extern __stdargs char * __strdup(const char *s,const char *file,int line);

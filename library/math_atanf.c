@@ -107,9 +107,9 @@ atanf(float x)
 	x = fabsf(x);
 	if (ix < 0x3f980000) {		/* |x| < 1.1875 */
 	    if (ix < 0x3f300000) {	/* 7/16 <=|x|<11/16 */
-		id = 0; x = ((float)2.0*x-one)/((float)2.0+x); 
+		id = 0; x = ((float)2.0*x-one)/((float)2.0+x);
 	    } else {			/* 11/16<=|x|< 19/16 */
-		id = 1; x  = (x-one)/(x+one); 
+		id = 1; x  = (x-one)/(x+one);
 	    }
 	} else {
 	    if (ix < 0x401c0000) {	/* |x| < 2.4375 */

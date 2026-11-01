@@ -44,7 +44,7 @@
 /****************************************************************************/
 
 char *
-strtok(char *str, const char *separator_set)
+strtok(char * __restrict str, const char * __restrict separator_set)
 {
 	static char * last;
 

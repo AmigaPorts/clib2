@@ -50,24 +50,24 @@
 float
 remquof(float x,float y,int * quo)
 {
-  int signx, signy, signres;
-  int wx;
-  int wy;
-  float x_over_y;
+	int signx, signy, signres;
+	int wx;
+	int wy;
+	float x_over_y;
 
-  GET_FLOAT_WORD(wx, x);
-  GET_FLOAT_WORD(wy, y);
+	GET_FLOAT_WORD(wx, x);
+	GET_FLOAT_WORD(wy, y);
 
-  signx = (wx & 0x80000000) >> 31;
-  signy = (wy & 0x80000000) >> 31;
+	signx = (wx & 0x80000000) >> 31;
+	signy = (wy & 0x80000000) >> 31;
 
-  signres = (signx ^ signy) ? -1 : 1;
+	signres = (signx ^ signy) ? -1 : 1;
 
-  x_over_y = fabsf(x / y);
+	x_over_y = fabsf(x / y);
 
-  *quo = signres * (lrintf(x_over_y) & 0x7f);
+	*quo = signres * (lrintf(x_over_y) & 0x7f);
 
-  return remainderf(x,y);
+	return remainderf(x,y);
 }
 
 /****************************************************************************/

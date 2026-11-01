@@ -48,7 +48,7 @@
 /****************************************************************************/
 
 unsigned long long
-strtoull(const char *str, char **ptr, int base)
+strtoull(const char * __restrict str, char ** __restrict ptr, int base)
 {
 	const char * stop = str;
 	size_t num_digits_converted = 0;

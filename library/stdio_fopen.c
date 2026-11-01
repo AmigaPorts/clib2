@@ -44,7 +44,7 @@
 /****************************************************************************/
 
 FILE *
-fopen(const char *filename, const char *mode)
+fopen(const char * __restrict filename, const char * __restrict mode)
 {
 	FILE * result = NULL;
 	int slot_number;

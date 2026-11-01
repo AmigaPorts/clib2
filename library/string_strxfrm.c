@@ -48,7 +48,7 @@
 /****************************************************************************/
 
 size_t
-strxfrm(char *dest, const char *src, size_t len)
+strxfrm(char * __restrict dest, const char * __restrict src, size_t len)
 {
 	DECLARE_LOCALEBASE();
 	size_t result = 0;

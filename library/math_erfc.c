@@ -73,7 +73,7 @@ qq3  =  5.08130628187576562776e-03, /* 0x3F74D022, 0xC4D36B0F */
 qq4  =  1.32494738004321644526e-04, /* 0x3F215DC9, 0x221C1A10 */
 qq5  = -3.96022827877536812320e-06, /* 0xBED09C43, 0x42A26120 */
 /*
- * Coefficients for approximation to  erf  in [0.84375,1.25] 
+ * Coefficients for approximation to  erf  in [0.84375,1.25]
  */
 pa0  = -2.36211856075265944077e-03, /* 0xBF6359B8, 0xBEF77538 */
 pa1  =  4.14856118683748331666e-01, /* 0x3FDA8D00, 0xAD92B34D */
@@ -157,7 +157,7 @@ erfc(double x)
 	    P = pa0+s*(pa1+s*(pa2+s*(pa3+s*(pa4+s*(pa5+s*pa6)))));
 	    Q = one+s*(qa1+s*(qa2+s*(qa3+s*(qa4+s*(qa5+s*qa6)))));
 	    if(hx>=0) {
-	        z  = one-erx; return z - P/Q; 
+	        z  = one-erx; return z - P/Q;
 	    } else {
 		z = erx+P/Q; return one+z;
 	    }

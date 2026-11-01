@@ -40,6 +40,9 @@
 int
 mblen(const char *s, size_t n)
 {
+	(void) s;
+	(void) n;
+
 	/* ZZZ unimplemented */
 	return(-1);
 }

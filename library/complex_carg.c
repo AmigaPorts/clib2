@@ -44,7 +44,7 @@
 double
 carg(double complex z)
 {
-	return(atan2(IMAG(z),REAL(z)));
+    return atan2(cimag(z), creal(z));
 }
 
 /****************************************************************************/

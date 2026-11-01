@@ -171,26 +171,42 @@ MATH_CONSTRUCTOR(math_init)
 	}
 	#endif /* IEEE_FLOATING_POINT_SUPPORT */
 
-	/* Now fill in HUGE_VAL and HUGE_VALF, respectively. TODO:
-	   also take care of HUGE_VALL. */
+	#if defined(__mc68000__)
+	{
+		/* On an FPU, the IEEE maths libraries set the whole FPCR of the
+		   task that opens them: mathieeesingbas.library to $40 (round to
+		   single precision), mathieeedoubbas.library to $10 (round toward
+		   zero).  A shell's commands also share its process and inherit
+		   the FPCR and FPSR that the previous one left.  Start from the
+		   FPU's reset values, which is what C expects (Annex F): round to
+		   nearest, extended precision, no traps and no exception flags.
+		   The instructions are hand-assembled because the soft-float
+		   libraries are built for CPUs without an FPU. */
+		if(FLAG_IS_SET(((struct ExecBase *)SysBase)->AttnFlags,AFF_68881))
+		{
+			__asm __volatile ("moveq #0,d0\n\t"
+			                  ".short 0xf200,0x9000\n\t"	/* fmove.l d0,fpcr */
+			                  ".short 0xf200,0x8800"		/* fmove.l d0,fpsr */
+			                  ::: "d0");
+		}
+	}
+	#endif /* __mc68000__ */
 
-	/* Exponent = +126, Mantissa = 8,388,607 */
+	/* Now fill in HUGE_VAL and HUGE_VALF, respectively, which are infinity. */
 	single_x = (union ieee_single *)&__huge_val_float;
-	single_x->raw[0] = 0x7f7fffff;
+	single_x->raw[0] = 0x7f800000;
 
-	/* Exponent = +1022, Mantissa = 4,503,599,627,370,495 */
 	double_x = (union ieee_double *)&__huge_val;
-	double_x->raw[0] = 0x7fefffff;
-	double_x->raw[1] = 0xffffffff;
+	double_x->raw[0] = 0x7ff00000;
+	double_x->raw[1] = 0x00000000;
 
 	#if defined(USE_LONG_DOUBLE)
 	{
 		union ieee_long_double * x = (union ieee_long_double *)&__huge_val_long_double;
 
-		/* Exponent = +32766, Mantissa = 18,446,744,073,709,551,615 */
-		x->raw[0] = 0x7ffe0000;
-		x->raw[1] = 0xffffffff;
-		x->raw[2] = 0xffffffff;
+		x->raw[0] = 0x7fff0000;
+		x->raw[1] = 0x00000000;
+		x->raw[2] = 0x00000000;
 	}
 	#endif /* USE_LONG_DOUBLE */
 

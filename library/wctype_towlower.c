@@ -40,6 +40,7 @@
 wint_t
 towlower(wint_t c)
 {
-	/* ZZZ unimplemented */
+	(void) c;
+
 	return(0);
 }

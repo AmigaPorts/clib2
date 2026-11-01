@@ -58,7 +58,7 @@ ilogb(double x)
 	EXTRACT_WORDS(hx,lx,x);
 	hx &= 0x7fffffff;
 	if(hx<0x00100000) {
-	    if((hx|lx)==0) 
+	    if((hx|lx)==0)
 		return - INT_MAX;	/* ilogb(0) = 0x80000001 */
 	    else			/* subnormal x */
 		if(hx==0) {

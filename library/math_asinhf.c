@@ -60,7 +60,7 @@ huge=  1.0000000000e+30;
 
 float
 asinhf(float x)
-{	
+{
 	float t,w;
 	LONG hx,ix;
 	GET_FLOAT_WORD(hx,x);
@@ -68,7 +68,7 @@ asinhf(float x)
 	if(ix>=0x7f800000) return x+x;	/* x is inf or NaN */
 	if(ix< 0x31800000) {	/* |x|<2**-28 */
 	    if(huge+x>one) return x;	/* return x inexact except 0 */
-	} 
+	}
 	if(ix>0x4d800000) {	/* |x| > 2**28 */
 	    w = logf(fabsf(x))+ln2;
 	} else if (ix>0x40000000) {	/* 2**28 > |x| > 2.0 */

@@ -44,7 +44,7 @@
 /****************************************************************************/
 
 int
-fgetpos(FILE *stream, fpos_t *pos)
+fgetpos(FILE * __restrict stream, fpos_t * __restrict pos)
 {
 	int result = EOF;
 	long position;

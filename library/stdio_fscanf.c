@@ -44,7 +44,7 @@
 /****************************************************************************/
 
 int
-fscanf(FILE *stream, const char *format, ...)
+fscanf(FILE * __restrict stream, const char * __restrict format, ...)
 {
 	int result = EOF;
 	va_list arg;
