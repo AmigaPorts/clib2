@@ -41,22 +41,28 @@
 
 /****************************************************************************/
 
-float
+int
 __gtsf2(float x,float y)
 {
 	union ieee_single ux, uy;
-	float result;
+	unsigned long ax, ay;
 
 	ux.value = x;
 	uy.value = y;
 
-	/* IEEESPCmp() has no answer for a NaN, which compares unordered. */
-	if((ux.raw[0] & 0x7fffffff) > 0x7f800000 || (uy.raw[0] & 0x7fffffff) > 0x7f800000)
-		result = -1.0f;
-	else
-		result = IEEESPCmp(x,y);
+	ax = ux.raw[0] & 0x7fffffff;
+	ay = uy.raw[0] & 0x7fffffff;
 
-	return(result);
+	/* IEEESPCmp() has no answer for a NaN, which compares unordered, and it
+	   need not treat the two zeros as equal: AROS's version compares their
+	   bits. */
+	if(ax > 0x7f800000 || ay > 0x7f800000)
+		return(-1);
+
+	if(ax == 0 && ay == 0)
+		return(0);
+
+	return(IEEESPCmp(x,y));
 }
 
 /****************************************************************************/

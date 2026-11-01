@@ -52,7 +52,8 @@
 /****************************************************************************/
 
 /* IEEEDPCmp() has no answer for a NaN, which compares unordered: answer 1
-   here, which makes the comparison true. */
+   here, which makes the comparison true. It need not treat the two zeros
+   as equal either: AROS\'s version compares their bits. */
 asm(
 
 "	.text\n"
@@ -78,7 +79,12 @@ asm(
 "	bnes	2f\n"
 "	tstl	sp@(16)\n"
 "	bnes	9f\n"
-"2:\n"
+"2:	movel	sp@(4),d0\n"
+"	bclr	#31,d0\n"
+"	orl	sp@(8),d0\n"
+"	orl	d1,d0\n"
+"	orl	sp@(16),d0\n"
+"	beqs	9f\n"
 
 "	moveml	d2/d3/a6,sp@-\n"
 "	movel	"A4(_MathIeeeDoubBasBase)",a6\n"
