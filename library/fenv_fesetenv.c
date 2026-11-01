@@ -37,16 +37,56 @@
 
 /****************************************************************************/
 
+#if defined(M68881_FLOATING_POINT_SUPPORT)
+#include "fenv_68881.h"
+#endif /* M68881_FLOATING_POINT_SUPPORT */
+
+/****************************************************************************/
+
 #if defined(FLOATING_POINT_SUPPORT)
+
+/****************************************************************************/
+
+#if defined(M68881_FLOATING_POINT_SUPPORT)
+
+/****************************************************************************/
+
+int
+fesetenv(const fenv_t * envp)
+{
+	/* The status comes first, so that the FPCR can't trap on old flags. */
+	if(envp == FE_DFL_ENV)
+	{
+		__fpu_set_fpsr(0);
+		__fpu_set_fpiar(0);
+		__fpu_set_fpcr(0);
+	}
+	else
+	{
+		__fpu_set_fpsr(envp->__fpsr);
+		__fpu_set_fpiar(envp->__fpiar);
+		__fpu_set_fpcr(envp->__fpcr);
+	}
+
+	return(0);
+}
+
+/****************************************************************************/
+
+#else
 
 /****************************************************************************/
 
 /* ZZZ unimplemented */
 int
-fesetenv(fenv_t * envp)
+fesetenv(const fenv_t * envp)
 {
 	return(0);
 }
+
+/****************************************************************************/
+
+#endif /* M68881_FLOATING_POINT_SUPPORT */
 
 /****************************************************************************/
 
