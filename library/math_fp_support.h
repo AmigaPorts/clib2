@@ -142,6 +142,9 @@ __finish_long_double(long double x)
 }
 #else
 #define __raise_invalid() ((void)0)
+#define __finish_double(x) ((double)(x))
+#define __finish_float(x) ((float)(x))
+#define __finish_long_double(x) ((long double)(x))
 #define __domain_error(x) __builtin_nan("")
 #define __pole_error(x) (-__inf())
 #endif /* M68881_FLOATING_POINT_SUPPORT */
