@@ -59,6 +59,42 @@ extern "C" {
 
 /****************************************************************************/
 
+#if !defined(__amigaos4__)
+
+/****************************************************************************/
+
+/* m68k-amigaos: the 'struct timeval' of NDK 3.2's <devices/timer.h>, with
+   both its member names and the POSIX ones, defined here rather than by
+   including <devices/timer.h>, which would pull in <exec/types.h> and its
+   BYTE, WORD, ... that clash with the same names in portable code.
+   Whichever of the two headers comes first defines the structure, and
+   _TIMEVAL_DEFINED keeps the other from defining it again. */
+#if !defined(__TIMEVAL_ALREADY_DEFINED) && !defined(_TIMEVAL_DEFINED)
+
+#define _TIMEVAL_DEFINED
+
+struct timeval
+{
+	union {
+		unsigned long tv_sec;
+		unsigned long tv_secs;
+	};
+	union {
+		unsigned long tv_usec;
+		unsigned long tv_micro;
+	};
+};
+
+#endif /* !__TIMEVAL_ALREADY_DEFINED && !_TIMEVAL_DEFINED */
+
+#define __TIMEVAL_ALREADY_DEFINED
+
+/****************************************************************************/
+
+#else
+
+/****************************************************************************/
+
 /* This is a tough one. Some code takes a bad turn if the <exec/types.h>
    header file is pulled in, which rules out that the structure definitions
    in <devices/timer.h> are used. We are only interested in the timeval
@@ -112,20 +148,8 @@ extern "C" {
 /* We will have to make our own... */
 struct timeval
 {
-#if defined(__amigaos4__)
 	unsigned long tv_secs;
 	unsigned long tv_micro;
-#else
-  /* m68k-amigaos: both names, as NDK 3.2's <devices/timer.h> has them */
-  union {
-	unsigned long tv_sec;
-	unsigned long tv_secs;
-  };
-  union {
-	unsigned long tv_usec;
-	unsigned long tv_micro;
-  };
-#endif /* __amigaos4__ */
 };
 
 /* Make sure that the 'struct timeval' is not redefined, should
@@ -139,8 +163,6 @@ struct timeval
 /****************************************************************************/
 
 /* AmigaOS 4: the POSIX names for the members. */
-#if defined(__amigaos4__)
-
 #ifndef tv_sec
 #define tv_sec tv_secs
 #endif /* tv_sec */
