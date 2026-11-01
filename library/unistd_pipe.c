@@ -29,7 +29,21 @@ struct pipe_data
 	int		pd_NumEnds;			/* 2, then 1, and it goes away at 0 */
 	BOOL	pd_WriterClosed;
 	BOOL	pd_ReaderClosed;
+
+	/* The two ends have a lock each, for their descriptors, and this one
+	   is for what they share. */
+	struct SignalSemaphore * pd_Lock;
 };
+
+/****************************************************************************/
+
+#if defined(__THREAD_SAFE)
+#define lock_pipe(pd)	ObtainSemaphore((pd)->pd_Lock)
+#define unlock_pipe(pd)	ReleaseSemaphore((pd)->pd_Lock)
+#else
+#define lock_pipe(pd)	((void)0)
+#define unlock_pipe(pd)	((void)0)
+#endif /* __THREAD_SAFE */
 
 /****************************************************************************/
 
@@ -38,19 +52,27 @@ read_pipe(struct fd * fd,struct pipe_data * pd,struct file_action_message * fam)
 {
 	size_t available;
 
+	lock_pipe(pd);
+
 	while(pd->pd_Start == pd->pd_End)
 	{
 		/* An end of file, once the other end is gone. */
 		if(pd->pd_WriterClosed)
+		{
+			unlock_pipe(pd);
 			return(0);
+		}
 
 		if(FLAG_IS_SET(fd->fd_Flags,FDF_NON_BLOCKING))
 		{
+			unlock_pipe(pd);
+
 			fam->fam_Error = EAGAIN;
 			return(ERROR);
 		}
 
 		/* Another thread of this program may write to it. */
+		unlock_pipe(pd);
 		__fd_unlock(fd);
 
 		__check_abort();
@@ -60,6 +82,7 @@ read_pipe(struct fd * fd,struct pipe_data * pd,struct file_action_message * fam)
 		PROFILE_ON();
 
 		__fd_lock(fd);
+		lock_pipe(pd);
 	}
 
 	available = pd->pd_End - pd->pd_Start;
@@ -68,6 +91,8 @@ read_pipe(struct fd * fd,struct pipe_data * pd,struct file_action_message * fam)
 
 	memmove(fam->fam_Data,&pd->pd_Buffer[pd->pd_Start],available);
 	pd->pd_Start += available;
+
+	unlock_pipe(pd);
 
 	return((int)available);
 }
@@ -79,8 +104,12 @@ write_pipe(struct pipe_data * pd,struct file_action_message * fam)
 {
 	size_t size = (size_t)fam->fam_Size;
 
+	lock_pipe(pd);
+
 	if(pd->pd_ReaderClosed)
 	{
+		unlock_pipe(pd);
+
 		fam->fam_Error = EPIPE;
 		return(ERROR);
 	}
@@ -102,6 +131,8 @@ write_pipe(struct pipe_data * pd,struct file_action_message * fam)
 
 			if(new_buffer == NULL)
 			{
+				unlock_pipe(pd);
+
 				fam->fam_Error = ENOMEM;
 				return(ERROR);
 			}
@@ -114,7 +145,24 @@ write_pipe(struct pipe_data * pd,struct file_action_message * fam)
 	memmove(&pd->pd_Buffer[pd->pd_End],fam->fam_Data,size);
 	pd->pd_End += size;
 
+	unlock_pipe(pd);
+
 	return((int)size);
+}
+
+/****************************************************************************/
+
+static void
+free_pipe(struct pipe_data * pd)
+{
+	#if defined(__THREAD_SAFE)
+	{
+		__delete_semaphore(pd->pd_Lock);
+	}
+	#endif /* __THREAD_SAFE */
+
+	free(pd->pd_Buffer);
+	free(pd);
 }
 
 /****************************************************************************/
@@ -157,16 +205,21 @@ pipe_hook_entry(struct fd * fd,struct file_action_message * fam)
 			}
 			else
 			{
+				int num_ends;
+
+				lock_pipe(pd);
+
 				if(FLAG_IS_SET(fd->fd_Flags,FDF_WRITE))
 					pd->pd_WriterClosed = TRUE;
 				else
 					pd->pd_ReaderClosed = TRUE;
 
-				if(--pd->pd_NumEnds == 0)
-				{
-					free(pd->pd_Buffer);
-					free(pd);
-				}
+				num_ends = --pd->pd_NumEnds;
+
+				unlock_pipe(pd);
+
+				if(num_ends == 0)
+					free_pipe(pd);
 			}
 
 			__fd_unlock(fd);
@@ -285,6 +338,19 @@ pipe(int fildes[2])
 		return(ERROR);
 	}
 
+	#if defined(__THREAD_SAFE)
+	{
+		pd->pd_Lock = __create_semaphore();
+		if(pd->pd_Lock == NULL)
+		{
+			free(pd);
+
+			__set_errno(ENOMEM);
+			return(ERROR);
+		}
+	}
+	#endif /* __THREAD_SAFE */
+
 	pd->pd_NumEnds = 2;
 
 	__stdio_lock();
@@ -295,15 +361,22 @@ pipe(int fildes[2])
 		fildes[1] = new_fd(pd,FDF_WRITE);
 
 		if(fildes[1] >= 0)
+		{
 			result = OK;
+		}
 		else
+		{
+			/* This is the only end there is, and it takes the rest along. */
+			pd->pd_NumEnds = 1;
+
 			close(fildes[0]);
+		}
 	}
 
 	__stdio_unlock();
 
 	if(result != OK && fildes[0] < 0)
-		free(pd);
+		free_pipe(pd);
 
 	return(result);
 }
