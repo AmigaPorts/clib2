@@ -32,4 +32,11 @@ llrintf(float x)
 
 /****************************************************************************/
 
+#if defined(__MATH_SETS_ERRNO)
+#undef llrintf
+__MATH_ERRNO_ROUND(float, long long, llrintf, rintf, __MATH_LONG_LONG_LIMIT)
+#endif /* __MATH_SETS_ERRNO */
+
+/****************************************************************************/
+
 #endif /* FLOATING_POINT_SUPPORT */

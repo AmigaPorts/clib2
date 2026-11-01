@@ -60,22 +60,92 @@ set_errno(int result_is_nan,int any_nan,int all_finite)
 
 /****************************************************************************/
 
-void
-__math_errno_double(double result,double x,double y)
+double
+__math_overflow(double sign)
 {
-	set_errno(isnan(result),isnan(x) || isnan(y),isfinite(x) && isfinite(y));
+	__set_errno(ERANGE);
+
+	return(copysign(HUGE_VAL,sign));
 }
 
-void
+/****************************************************************************/
+
+double
+__math_errno_double(double result,double x,double y)
+{
+	if(isfinite(result))
+	{
+		/* Nothing but an overflow gets there from smaller numbers. */
+		if(fabs(result) == DBL_MAX && fabs(x) < DBL_MAX && fabs(y) < DBL_MAX)
+			result = __math_overflow(result);
+	}
+	else
+	{
+		set_errno(isnan(result),isnan(x) || isnan(y),isfinite(x) && isfinite(y));
+	}
+
+	return(result);
+}
+
+float
 __math_errno_float(float result,float x,float y)
 {
 	set_errno(isnan(result),isnan(x) || isnan(y),isfinite(x) && isfinite(y));
+
+	return(result);
 }
 
-void
+long double
 __math_errno_long_double(long double result,long double x,long double y)
 {
 	set_errno(isnan(result),isnan(x) || isnan(y),isfinite(x) && isfinite(y));
+
+	return(result);
+}
+
+/****************************************************************************/
+
+/* mathieeedoubtrans.library takes NaN and infinity for ordinary numbers: the
+   sine of either is 0, and the cosine 1. */
+double
+__math_trig_special(double x)
+{
+	if(isnan(x))
+		return(x);
+
+	__set_errno(EDOM);
+
+	return(__builtin_nan(""));
+}
+
+/* It also runs out of room before the result does: exp(1000) is 1.7e308. */
+double
+__math_exp_special(double x)
+{
+	if(isnan(x))
+		return(x);
+
+	if(isinf(x))
+		return(x > 0 ? x : 0.0);
+
+	if(x > 0)
+		return(__math_overflow(1.0));
+
+	__set_errno(ERANGE);
+
+	return(0.0);
+}
+
+double
+__math_hyperbolic_special(double x,double sign)
+{
+	if(isnan(x))
+		return(x);
+
+	if(isinf(x))
+		return(copysign(HUGE_VAL,sign));
+
+	return(__math_overflow(sign));
 }
 
 /****************************************************************************/

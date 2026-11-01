@@ -218,7 +218,7 @@ sinh(double x)
 
 #if defined(__MATH_SETS_ERRNO)
 #undef sinh
-__MATH_ERRNO_1(double, double, sinh)
+__MATH_ERRNO_1_GUARD(double, double, sinh, if(!(x > -710.48 && x < 710.48)) return(__math_hyperbolic_special(x,x)))
 #endif /* __MATH_SETS_ERRNO */
 
 /****************************************************************************/

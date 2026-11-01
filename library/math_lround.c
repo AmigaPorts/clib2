@@ -103,4 +103,11 @@ lround(double x)
 
 /****************************************************************************/
 
+#if defined(__MATH_SETS_ERRNO)
+#undef lround
+__MATH_ERRNO_ROUND(double, long, lround, round, __MATH_LONG_LIMIT)
+#endif /* __MATH_SETS_ERRNO */
+
+/****************************************************************************/
+
 #endif /* FLOATING_POINT_SUPPORT */

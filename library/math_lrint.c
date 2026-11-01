@@ -123,4 +123,11 @@ lrint(double x)
 
 /****************************************************************************/
 
+#if defined(__MATH_SETS_ERRNO)
+#undef lrint
+__MATH_ERRNO_ROUND(double, long, lrint, rint, __MATH_LONG_LIMIT)
+#endif /* __MATH_SETS_ERRNO */
+
+/****************************************************************************/
+
 #endif /* FLOATING_POINT_SUPPORT */

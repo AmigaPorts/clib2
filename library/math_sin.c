@@ -206,7 +206,7 @@ sin(double x)
 
 #if defined(__MATH_SETS_ERRNO)
 #undef sin
-__MATH_ERRNO_1(double, double, sin)
+__MATH_ERRNO_1_GUARD(double, double, sin, if(__math_special_double(x)) return(__math_trig_special(x)))
 #endif /* __MATH_SETS_ERRNO */
 
 /****************************************************************************/

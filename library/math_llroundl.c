@@ -58,4 +58,11 @@ long long llroundl(long double x)
 
 /****************************************************************************/
 
+#if defined(__MATH_SETS_ERRNO)
+#undef llroundl
+__MATH_ERRNO_ROUND(long double, long long, llroundl, roundl, __MATH_LONG_LONG_LIMIT)
+#endif /* __MATH_SETS_ERRNO */
+
+/****************************************************************************/
+
 #endif /* FLOATING_POINT_SUPPORT */

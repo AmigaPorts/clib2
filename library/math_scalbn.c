@@ -81,6 +81,13 @@ scalbn (double x, int n)
 
 #else
 
+/* The arithmetic stops at DBL_MAX without an FPU, and has no flag to raise. */
+#if defined(__MATH_SETS_ERRNO)
+#define __scalbn_overflow(x) copysign(HUGE_VAL,x)
+#else
+#define __scalbn_overflow(x) (huge*copysign(huge,x))
+#endif /* __MATH_SETS_ERRNO */
+
 double
 scalbn (double x, int n)
 {
@@ -97,12 +104,12 @@ scalbn (double x, int n)
         if (k==0x7ff) return x+x;		/* NaN or Inf */
         if (n > 50000) n = 50000;		/* keep k+n from overflowing */
         k = k+n;
-        if (k >  0x7fe) return huge*copysign(huge,x); /* overflow  */
+        if (k >  0x7fe) return __scalbn_overflow(x); /* overflow  */
         if (k > 0) 				/* normal result */
 	    {SET_HIGH_WORD(x,(hx&0x800fffffU)|(k<<20)); return x;}
         if (k <= -54) {
             if (n > 50000) 	/* in case integer overflow in n+k */
-		return huge*copysign(huge,x);	/*overflow*/
+		return __scalbn_overflow(x);	/*overflow*/
 	    else return tiny*copysign(tiny,x); 	/*underflow*/
 	}
         k += 54;				/* subnormal result */

@@ -207,7 +207,7 @@ cosh(double x)
 
 #if defined(__MATH_SETS_ERRNO)
 #undef cosh
-__MATH_ERRNO_1(double, double, cosh)
+__MATH_ERRNO_1_GUARD(double, double, cosh, if(!(x > -710.48 && x < 710.48)) return(__math_hyperbolic_special(x,1.0)))
 #endif /* __MATH_SETS_ERRNO */
 
 /****************************************************************************/

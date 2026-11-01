@@ -32,4 +32,11 @@ llround(double x)
 
 /****************************************************************************/
 
+#if defined(__MATH_SETS_ERRNO)
+#undef llround
+__MATH_ERRNO_ROUND(double, long long, llround, round, __MATH_LONG_LONG_LIMIT)
+#endif /* __MATH_SETS_ERRNO */
+
+/****************************************************************************/
+
 #endif /* FLOATING_POINT_SUPPORT */

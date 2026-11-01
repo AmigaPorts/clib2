@@ -32,4 +32,11 @@ llroundf(float x)
 
 /****************************************************************************/
 
+#if defined(__MATH_SETS_ERRNO)
+#undef llroundf
+__MATH_ERRNO_ROUND(float, long long, llroundf, roundf, __MATH_LONG_LONG_LIMIT)
+#endif /* __MATH_SETS_ERRNO */
+
+/****************************************************************************/
+
 #endif /* FLOATING_POINT_SUPPORT */
