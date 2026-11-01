@@ -41,14 +41,28 @@
 
 /****************************************************************************/
 
-float
+int
 __eqsf2(float x,float y)
 {
-	float result;
+	union ieee_single ux, uy;
+	unsigned long ax, ay;
 
-	result = IEEESPCmp(x,y);
+	ux.value = x;
+	uy.value = y;
 
-	return(result);
+	ax = ux.raw[0] & 0x7fffffff;
+	ay = uy.raw[0] & 0x7fffffff;
+
+	/* IEEESPCmp() has no answer for a NaN, which compares unordered, and it
+	   need not treat the two zeros as equal: AROS's version compares their
+	   bits. */
+	if(ax > 0x7f800000 || ay > 0x7f800000)
+		return(1);
+
+	if(ax == 0 && ay == 0)
+		return(0);
+
+	return(IEEESPCmp(x,y));
 }
 
 /****************************************************************************/
