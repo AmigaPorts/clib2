@@ -86,6 +86,27 @@ extern double __inf(void);
 
 /****************************************************************************/
 
+#if defined(M68881_FLOATING_POINT_SUPPORT)
+
+/* Rounds |x| < 2^63 to an integer in the current rounding mode: fint is not in
+   the hardware of a 68040. Next to 2^63, the extended format has no fraction
+   left, so the addition rounds, once, and raises INEXACT if it has to. */
+static __inline__ long double
+__round_with_fpu(long double x, int negative)
+{
+	long double big = negative ? -0x1p63L : 0x1p63L;
+	long double result = (x + big) - big;
+
+	if(result == 0)
+		return(negative ? -0.0L : 0.0L);
+
+	return(result);
+}
+
+#endif /* M68881_FLOATING_POINT_SUPPORT */
+
+/****************************************************************************/
+
 /* The results of a domain error and of a pole, such as log(-1) and log(0). The
    FPU has to compute them, as that is what raises INVALID and DIVBYZERO. */
 #if defined(M68881_FLOATING_POINT_SUPPORT)
