@@ -47,7 +47,7 @@ nl_langinfo(nl_item item)
 	{
 		case CODESET:
 
-			return("UTF-8");
+			return(__utf8_encoding ? "UTF-8" : "ISO-8859-1");
 
 		case RADIXCHAR:
 

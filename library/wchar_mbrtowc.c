@@ -28,24 +28,14 @@
 #define STATE(v,m,l)		((v) | ((unsigned long)(m) << 24) | ((unsigned long)(l) << 26))
 
 size_t
-mbrtowc(wchar_t * __restrict wcp, const char * __restrict sp, size_t n,
+__utf8_to_wide(wchar_t * __restrict wcp, const char * __restrict sp, size_t n,
     mbstate_t * __restrict ps)
 {
-	static mbstate_t internal;
 	unsigned long state;
 	unsigned long value;
 	size_t consumed = 0;
 	int missing;
 	int length;
-
-	if (ps == NULL)
-		ps = &internal;
-
-	if (sp == NULL) {
-		sp = "";
-		n = 1;
-		wcp = NULL;
-	}
 
 	state = (unsigned long)*ps;
 	value = STATE_VALUE(state);
@@ -108,4 +98,34 @@ mbrtowc(wchar_t * __restrict wcp, const char * __restrict sp, size_t n,
 	__set_errno(EILSEQ);
 
 	return (size_t)-1;
+}
+
+/****************************************************************************/
+
+size_t
+mbrtowc(wchar_t * __restrict wcp, const char * __restrict sp, size_t n,
+    mbstate_t * __restrict ps)
+{
+	static mbstate_t internal;
+
+	if (ps == NULL)
+		ps = &internal;
+
+	if (sp == NULL) {
+		sp = "";
+		n = 1;
+		wcp = NULL;
+	}
+
+	if (__utf8_encoding)
+		return __utf8_to_wide(wcp, sp, n, ps);
+
+	/* A byte is a character. */
+	if (n == 0)
+		return (size_t)-2;
+
+	if (wcp != NULL)
+		*wcp = (unsigned char)*sp;
+
+	return *sp != '\0';
 }

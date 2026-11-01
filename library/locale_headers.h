@@ -121,4 +121,9 @@ extern void __close_all_locales(void);
 
 /****************************************************************************/
 
+/* Is the multibyte encoding UTF-8, rather than bytes as characters? */
+extern int __utf8_encoding;
+
+/****************************************************************************/
+
 #endif /* _LOCALE_HEADERS_H */
