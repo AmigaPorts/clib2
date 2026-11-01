@@ -52,7 +52,8 @@ exp2l(long double x)
 
 	__asm ("ftwotox%.x %1,%0" : "=f" (result) : "f" (x));
 
-	return(__finish_long_double(result));
+	/* Powers of two are exact, even the tiny ones. */
+	return(__builtin_floorl(x) == x ? result : __finish_long_double(result));
 }
 
 #else

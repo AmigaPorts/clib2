@@ -416,7 +416,7 @@ pow(double x,double y)
 	{
 		if(y < 0)
 		{
-			if(kind == 2)
+			if(isinf(y))
 			{
 				/* Not a pole: this is just infinity. */
 				result = __inf();
@@ -481,6 +481,19 @@ pow(double x,double y)
 	result = __pow(x,y);
 
  out:
+
+	#if defined(M68881_FLOATING_POINT_SUPPORT)
+	{
+		/* Only a power of two can have an exact tiny result. */
+		if(result != 0 && NOT isinf(y) && NOT isnan(y))
+		{
+			int exponent;
+
+			if(frexp(fabs(x),&exponent) != 0.5)
+				return(__finish_double(result));
+		}
+	}
+	#endif /* M68881_FLOATING_POINT_SUPPORT */
 
 	return(result);
 }

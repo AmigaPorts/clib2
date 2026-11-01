@@ -146,7 +146,7 @@ extern float __expf_unchecked(float x);
 float
 expf(float x)
 {
-	return(__finish_float(__expf_unchecked(x)));
+	return(__finish_float(exp(x)));
 }
 
 #endif /* M68881_FLOATING_POINT_SUPPORT */

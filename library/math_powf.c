@@ -93,7 +93,9 @@ ivln2_l  =  7.0526075433e-06; /* 0x36eca570 =1/ln2 tail*/
 float
 powf(float x, float y)
 {
-	return(__finish_float(pow(x,y)));
+	volatile float result = pow(x,y);
+
+	return(result);
 }
 
 #else

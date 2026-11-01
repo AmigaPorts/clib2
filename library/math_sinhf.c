@@ -107,7 +107,7 @@ extern float __sinhf_unchecked(float x);
 float
 sinhf(float x)
 {
-	return(__finish_float(__sinhf_unchecked(x)));
+	return(__finish_float(sinh(x)));
 }
 
 #endif /* M68881_FLOATING_POINT_SUPPORT */

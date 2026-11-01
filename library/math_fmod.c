@@ -258,7 +258,7 @@ fmod(double x,double y)
 {
 	double result;
 
-	if(y != 0.0)
+	if(y != 0.0 || isnan(x))
 	{
 		result = __fmod(x,y);
 	}
