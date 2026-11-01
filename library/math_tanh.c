@@ -187,6 +187,12 @@ tanh(double x)
 {
 	double result;
 
+#if defined(IEEE_FLOATING_POINT_SUPPORT)
+	/* IEEEDPTanh() returns 1 for it. */
+	if(x != x)
+		return(x);
+#endif /* IEEE_FLOATING_POINT_SUPPORT */
+
 	result = __tanh(x);
 
 	return(result);
