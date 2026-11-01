@@ -10,7 +10,32 @@
 
 /****************************************************************************/
 
-/* The multibyte functions all work in UTF-8, in every locale. */
+/* Whatever the locale, these are the strings of the "C" locale. */
+static const char * const c_locale_strings[] =
+{
+	"^[yY]",						/* YESEXPR */
+	"^[nN]",						/* NOEXPR */
+	"-",							/* CRNCYSTR */
+	"%a %b %e %H:%M:%S %Y",			/* D_T_FMT */
+	"%m/%d/%y",						/* D_FMT */
+	"%H:%M:%S",						/* T_FMT */
+	"%I:%M:%S %p",					/* T_FMT_AMPM */
+	"AM",							/* AM_STR */
+	"PM",							/* PM_STR */
+	"",								/* ERA */
+	"",								/* ERA_D_T_FMT */
+	"",								/* ERA_D_FMT */
+	"",								/* ERA_T_FMT */
+	"",								/* ALT_DIGITS */
+	"Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday",
+	"Sun","Mon","Tue","Wed","Thu","Fri","Sat",
+	"January","February","March","April","May","June","July",
+	"August","September","October","November","December",
+	"Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"
+};
+
+/****************************************************************************/
+
 char *
 nl_langinfo(nl_item item)
 {
@@ -39,6 +64,9 @@ nl_langinfo(nl_item item)
 			return(thousands_separator);
 
 		default:
+
+			if(item >= YESEXPR && item <= ABMON_12)
+				return((char *)c_locale_strings[item - YESEXPR]);
 
 			return("");
 	}

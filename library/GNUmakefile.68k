@@ -511,6 +511,7 @@ C_LIB = \
 	inttypes_wcstoumax.o \
 	stdlib_mblen.o \
 	stdlib_mbstowcs.o \
+	stdlib_mbtowc.o \
 	stdlib_wcstombs.o \
 	stdlib_wctomb.o \
 	string_memccpy.o \
