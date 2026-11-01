@@ -149,13 +149,21 @@ struct private_function
 
 /****************************************************************************/
 
-extern func_ptr __INIT_LIST__[];
-extern func_ptr __EXIT_LIST__[];
+/* The linker puts these lists in the text hunk, so with -fbaserel they can't
+   be reached through a4. */
+#if !defined(__far)
+#define __far
+#endif /* __far */
 
 /****************************************************************************/
 
-extern func_ptr __CTOR_LIST__[];
-extern func_ptr __DTOR_LIST__[];
+extern __far func_ptr __INIT_LIST__[];
+extern __far func_ptr __EXIT_LIST__[];
+
+/****************************************************************************/
+
+extern __far func_ptr __CTOR_LIST__[];
+extern __far func_ptr __DTOR_LIST__[];
 
 /****************************************************************************/
 
