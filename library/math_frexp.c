@@ -56,93 +56,9 @@
 
 /****************************************************************************/
 
-#if defined(IEEE_FLOATING_POINT_SUPPORT)
-
-INLINE STATIC const double
-__frexp(double x,int * nptr)
-{
-	int int_exponent = 0;
-	BOOL is_negative;
-
-	if(x < 0)
-	{
-		is_negative = TRUE;
-
-		x = (-x);
-	}
-	else
-	{
-		is_negative = FALSE;
-	}
-
-	if(x >= 1)
-	{
-		while(x >= 1)
-		{
-			int_exponent++;
-			x /= 2;
-		}
-	}
-	else if (0 < x && x < 0.5)
-	{
-		while(x < 0.5)
-		{
-			int_exponent--;
-			x *= 2;
-		}
-	}
-
-	(*nptr) = int_exponent;
-
-	if(is_negative)
-		x = (-x);
-
-	return(x);
-}
-
-#endif /* IEEE_FLOATING_POINT_SUPPORT */
-
-/****************************************************************************/
-
-#if defined(M68881_FLOATING_POINT_SUPPORT)
-
-INLINE STATIC const double
-__frexp(double x,int * nptr)
-{
-	double float_exponent;
-	int int_exponent;
-	double mantissa;
-
-	__asm ("fgetexp%.x %1,%0"
-	       : "=f" (float_exponent) /* integer-valued float */
-	       : "f" (x));
-
-	int_exponent = (int)float_exponent;
-
-	__asm ("fgetman%.x %1,%0"
-	       : "=f" (mantissa) /* 1.0 <= mantissa < 2.0 */
-	       : "f" (x));
-
-	if (mantissa != 0)
-	{
-		__asm ("fscale%.b %#-1,%0"
-		       : "=f" (mantissa) /* mantissa /= 2.0 */
-		       : "0" (mantissa));
-
-		int_exponent += 1;
-	}
-
-	(*nptr) = int_exponent;
-
-	return(mantissa);
-}
-
-#endif /* M68881_FLOATING_POINT_SUPPORT */
-
-/****************************************************************************/
-
-#if defined(PPC_FLOATING_POINT_SUPPORT)
-
+/* All of this is in the bits. Dividing by two until the number fits took up to
+   a thousand library calls without an FPU, and with one, fgetexp, fgetman and
+   fscale trap to software on the 68040 and the 68060. */
 static const double
 two54 =  1.80143985094819840000e+16; /* 0x43500000, 0x00000000 */
 
@@ -173,10 +89,6 @@ __frexp(double x,int * eptr)
 
 	return x;
 }
-
-#endif /* PPC_FLOATING_POINT_SUPPORT */
-
-/****************************************************************************/
 
 double
 frexp(double x,int *nptr)
