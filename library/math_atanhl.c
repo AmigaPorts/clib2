@@ -92,4 +92,11 @@ long double atanhl(long double x)
 
 /****************************************************************************/
 
+#if defined(__MATH_SETS_ERRNO)
+#undef atanhl
+__MATH_ERRNO_1(long double, long_double, atanhl)
+#endif /* __MATH_SETS_ERRNO */
+
+/****************************************************************************/
+
 #endif /* FLOATING_POINT_SUPPORT */

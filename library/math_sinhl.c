@@ -94,4 +94,11 @@ long double sinhl(long double x)
 
 /****************************************************************************/
 
+#if defined(__MATH_SETS_ERRNO)
+#undef sinhl
+__MATH_ERRNO_1(long double, long_double, sinhl)
+#endif /* __MATH_SETS_ERRNO */
+
+/****************************************************************************/
+
 #endif /* FLOATING_POINT_SUPPORT */

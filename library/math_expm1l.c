@@ -174,4 +174,11 @@ long double expm1l(long double x)
 
 /****************************************************************************/
 
+#if defined(__MATH_SETS_ERRNO)
+#undef expm1l
+__MATH_ERRNO_1(long double, long_double, expm1l)
+#endif /* __MATH_SETS_ERRNO */
+
+/****************************************************************************/
+
 #endif /* FLOATING_POINT_SUPPORT */

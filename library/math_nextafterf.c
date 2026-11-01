@@ -131,4 +131,11 @@ nextafterf(float x,float y)
 
 /****************************************************************************/
 
+#if defined(__MATH_SETS_ERRNO)
+#undef nextafterf
+__MATH_ERRNO_NEXT(float, float, nextafterf, float)
+#endif /* __MATH_SETS_ERRNO */
+
+/****************************************************************************/
+
 #endif /* FLOATING_POINT_SUPPORT */

@@ -55,4 +55,11 @@ long double remainderl(long double x, long double y)
 
 /****************************************************************************/
 
+#if defined(__MATH_SETS_ERRNO)
+#undef remainderl
+__MATH_ERRNO_2(long double, long_double, remainderl)
+#endif /* __MATH_SETS_ERRNO */
+
+/****************************************************************************/
+
 #endif /* FLOATING_POINT_SUPPORT */

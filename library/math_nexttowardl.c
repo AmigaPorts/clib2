@@ -54,4 +54,11 @@ long double nexttowardl(long double x, long double y)
 
 /****************************************************************************/
 
+#if defined(__MATH_SETS_ERRNO)
+#undef nexttowardl
+__MATH_ERRNO_NEXT(long double, long_double, nexttowardl, long double)
+#endif /* __MATH_SETS_ERRNO */
+
+/****************************************************************************/
+
 #endif /* FLOATING_POINT_SUPPORT */

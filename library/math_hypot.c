@@ -136,4 +136,11 @@ hypot(double x,double y)
 
 /****************************************************************************/
 
+#if defined(__MATH_SETS_ERRNO)
+#undef hypot
+__MATH_ERRNO_2(double, double, hypot)
+#endif /* __MATH_SETS_ERRNO */
+
+/****************************************************************************/
+
 #endif /* FLOATING_POINT_SUPPORT */

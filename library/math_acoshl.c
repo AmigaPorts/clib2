@@ -68,4 +68,11 @@ long double acoshl(long double x)
 
 /****************************************************************************/
 
+#if defined(__MATH_SETS_ERRNO)
+#undef acoshl
+__MATH_ERRNO_1(long double, long_double, acoshl)
+#endif /* __MATH_SETS_ERRNO */
+
+/****************************************************************************/
+
 #endif /* FLOATING_POINT_SUPPORT */

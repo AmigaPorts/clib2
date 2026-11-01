@@ -248,12 +248,18 @@ __finish_long_double(long double x)
 	return(x);
 }
 #else
-#define __raise_invalid() ((void)0)
 #define __finish_double(x) ((double)(x))
 #define __finish_float(x) ((float)(x))
 #define __finish_long_double(x) ((long double)(x))
+#if defined(__PPC__) && !defined(_SOFT_FLOAT)
+#define __domain_error(x) (((x) - (x)) / ((x) - (x)))
+#define __pole_error(x) (-1.0 / fabs(x))
+#define __raise_invalid() do { volatile double __zero = 0.0; __zero = __zero / __zero; } while(0)
+#else
+#define __raise_invalid() ((void)0)
 #define __domain_error(x) __builtin_nan("")
 #define __pole_error(x) (-__inf())
+#endif /* __PPC__ && !_SOFT_FLOAT */
 #endif /* M68881_FLOATING_POINT_SUPPORT */
 
 /****************************************************************************/

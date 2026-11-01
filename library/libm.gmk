@@ -135,6 +135,7 @@ MATH_LIB := \
 	math_coshl.o \
 	math_cosl.o \
 	math_erf.o \
+	math_errno.o \
 	math_erfc.o \
 	math_erfcf.o \
 	math_erfcl.o \

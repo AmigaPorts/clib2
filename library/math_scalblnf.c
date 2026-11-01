@@ -32,4 +32,11 @@ scalblnf(float x, long n)
 
 /****************************************************************************/
 
+#if defined(__MATH_SETS_ERRNO)
+#undef scalblnf
+__MATH_ERRNO_SCALE(float, float, scalblnf, long)
+#endif /* __MATH_SETS_ERRNO */
+
+/****************************************************************************/
+
 #endif /* FLOATING_POINT_SUPPORT */

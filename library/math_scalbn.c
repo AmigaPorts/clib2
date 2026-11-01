@@ -97,12 +97,12 @@ scalbn (double x, int n)
         if (k==0x7ff) return x+x;		/* NaN or Inf */
         if (n > 50000) n = 50000;		/* keep k+n from overflowing */
         k = k+n;
-        if (k >  0x7fe) return copysign(HUGE_VAL,x); /* overflow  */
+        if (k >  0x7fe) return huge*copysign(huge,x); /* overflow  */
         if (k > 0) 				/* normal result */
 	    {SET_HIGH_WORD(x,(hx&0x800fffffU)|(k<<20)); return x;}
         if (k <= -54) {
             if (n > 50000) 	/* in case integer overflow in n+k */
-		return copysign(HUGE_VAL,x);	/*overflow*/
+		return huge*copysign(huge,x);	/*overflow*/
 	    else return tiny*copysign(tiny,x); 	/*underflow*/
 	}
         k += 54;				/* subnormal result */
@@ -111,6 +111,13 @@ scalbn (double x, int n)
 }
 
 #endif /* M68881_FLOATING_POINT_SUPPORT */
+
+/****************************************************************************/
+
+#if defined(__MATH_SETS_ERRNO)
+#undef scalbn
+__MATH_ERRNO_SCALE(double, double, scalbn, int)
+#endif /* __MATH_SETS_ERRNO */
 
 /****************************************************************************/
 

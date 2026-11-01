@@ -58,4 +58,11 @@ fdimf(float x,float y)
 
 /****************************************************************************/
 
+#if defined(__MATH_SETS_ERRNO)
+#undef fdimf
+__MATH_ERRNO_2(float, float, fdimf)
+#endif /* __MATH_SETS_ERRNO */
+
+/****************************************************************************/
+
 #endif /* FLOATING_POINT_SUPPORT */

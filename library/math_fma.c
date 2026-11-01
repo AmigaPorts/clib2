@@ -355,4 +355,11 @@ fma(double x,double y,double z)
 
 /****************************************************************************/
 
+#if defined(__MATH_SETS_ERRNO)
+#undef fma
+__MATH_ERRNO_3(double, double, fma)
+#endif /* __MATH_SETS_ERRNO */
+
+/****************************************************************************/
+
 #endif /* FLOATING_POINT_SUPPORT */

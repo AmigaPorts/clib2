@@ -96,4 +96,11 @@ remainder(double x, double p)
 
 /****************************************************************************/
 
+#if defined(__MATH_SETS_ERRNO)
+#undef remainder
+__MATH_ERRNO_2(double, double, remainder)
+#endif /* __MATH_SETS_ERRNO */
+
+/****************************************************************************/
+
 #endif /* FLOATING_POINT_SUPPORT */

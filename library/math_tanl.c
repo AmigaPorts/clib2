@@ -86,4 +86,11 @@ long double tanl(long double x)
 
 /****************************************************************************/
 
+#if defined(__MATH_SETS_ERRNO)
+#undef tanl
+__MATH_ERRNO_1(long double, long_double, tanl)
+#endif /* __MATH_SETS_ERRNO */
+
+/****************************************************************************/
+
 #endif /* FLOATING_POINT_SUPPORT */

@@ -58,4 +58,11 @@ long double scalblnl(long double x, long n)
 
 /****************************************************************************/
 
+#if defined(__MATH_SETS_ERRNO)
+#undef scalblnl
+__MATH_ERRNO_SCALE(long double, long_double, scalblnl, long)
+#endif /* __MATH_SETS_ERRNO */
+
+/****************************************************************************/
+
 #endif /* FLOATING_POINT_SUPPORT */

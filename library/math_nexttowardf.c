@@ -83,4 +83,11 @@ float nexttowardf(float x, long double y)
 
 /****************************************************************************/
 
+#if defined(__MATH_SETS_ERRNO)
+#undef nexttowardf
+__MATH_ERRNO_NEXT(float, float, nexttowardf, long double)
+#endif /* __MATH_SETS_ERRNO */
+
+/****************************************************************************/
+
 #endif /* FLOATING_POINT_SUPPORT */

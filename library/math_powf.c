@@ -299,4 +299,11 @@ powf(float x, float y)
 
 /****************************************************************************/
 
+#if defined(__MATH_SETS_ERRNO)
+#undef powf
+__MATH_ERRNO_2(float, float, powf)
+#endif /* __MATH_SETS_ERRNO */
+
+/****************************************************************************/
+
 #endif /* FLOATING_POINT_SUPPORT */

@@ -317,4 +317,11 @@ small:
 
 /****************************************************************************/
 
+#if defined(__MATH_SETS_ERRNO)
+#undef tgammal
+__MATH_ERRNO_1(long double, long_double, tgammal)
+#endif /* __MATH_SETS_ERRNO */
+
+/****************************************************************************/
+
 #endif /* FLOATING_POINT_SUPPORT */
