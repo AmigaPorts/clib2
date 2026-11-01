@@ -102,6 +102,9 @@ powf(float x, float y)
     /* y==zero: x**0 = 1 */
 	if(iy==0) return one;
 
+    /* 1**y = 1, even for a NaN */
+	if(hx==0x3f800000) return one;
+
     /* +-NaN return x+y */
 	if(ix > 0x7f800000 ||
 	   iy > 0x7f800000)
@@ -125,7 +128,7 @@ powf(float x, float y)
     /* special value of y */
 	if (iy==0x7f800000) {	/* y is +-inf */
 	    if (ix==0x3f800000)
-	        return  y - y;	/* inf**+-1 is NaN */
+	        return  one;	/* (+-1)**+-inf is 1 */
 	    else if (ix > 0x3f800000)/* (|x|>1)**+-inf = inf,0 */
 	        return (hy>=0)? y: zero;
 	    else			/* (|x|<1)**-,+inf = inf,0 */

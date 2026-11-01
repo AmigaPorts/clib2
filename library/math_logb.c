@@ -50,26 +50,6 @@
 
 /****************************************************************************/
 
-#if defined(IEEE_FLOATING_POINT_SUPPORT) || defined(M68881_FLOATING_POINT_SUPPORT)
-
-/****************************************************************************/
-
-INLINE STATIC const double
-__logb(double x)
-{
-	double result;
-
-	result = log(x) / log((double)FLT_RADIX);
-
-	return(result);
-}
-
-#endif /* IEEE_FLOATING_POINT_SUPPORT || M68881_FLOATING_POINT_SUPPORT */
-
-/****************************************************************************/
-
-#if defined(PPC_FLOATING_POINT_SUPPORT)
-
 INLINE STATIC double
 __logb(double x)
 {
@@ -96,10 +76,6 @@ __logb(double x)
 	else if (hx>0x7ff00000 || lx)  return x;	/* x==NaN */
 	else  return HUGE_VAL;	/* x==inf (+ or -) */
 }
-
-#endif /* PPC_FLOATING_POINT_SUPPORT */
-
-/****************************************************************************/
 
 double
 logb(double x)

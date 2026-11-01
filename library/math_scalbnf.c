@@ -79,6 +79,7 @@ scalbnf (float x, int n)
             if (n< -50000) return tiny*x; 	/*underflow*/
 	    }
         if (k==0xff) return x+x;		/* NaN or Inf */
+        if (n > 50000) n = 50000;		/* keep k+n from overflowing */
         k = k+n;
         if (k >  0xfe) return copysignf(__inff(),x); /* overflow  */
         if (k > 0) 				/* normal result */

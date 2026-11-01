@@ -46,7 +46,9 @@ fdim(double x,double y)
 {
 	double result;
 
-	if(x > y)
+	if(isnan(x) || isnan(y))
+		result = x + y;
+	else if(x > y)
 		result = x - y;
 	else
 		result = 0;

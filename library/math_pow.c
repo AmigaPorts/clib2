@@ -119,59 +119,7 @@ __pow(double x,double y)
 
 /****************************************************************************/
 
-#if defined(M68881_FLOATING_POINT_SUPPORT)
-
-INLINE STATIC const double
-__exp(double x)
-{
-	double result;
-
-	__asm ("fetox%.x %1,%0"
-	       : "=f" (result)
-	       : "f" (x));
-
-	return(result);
-}
-
-INLINE STATIC const double
-__log(double x)
-{
-	double result;
-
-	__asm ("flogn%.x %1,%0"
-	       : "=f" (result)
-	       : "f" (x));
-
-	return(result);
-}
-
-INLINE STATIC const double
-__pow(double x,double y)
-{
-	double result;
-
-	if(x > 0)
-	{
-		result = __exp(y * __log(x));
-	}
-	else
-	{
-		int i = (int)y;
-
-		if((i & 1) == 0) /* even */
-			result = __exp(y) * __log(-x);
-		else
-            result = -(__exp(y) * __log(-x));
-	}
-
-	return(result);
-}
-
-#endif /* M68881_FLOATING_POINT_SUPPORT */
-
-/****************************************************************************/
-
-#if defined(__PPC__)
+#if defined(M68881_FLOATING_POINT_SUPPORT) || defined(__PPC__)
 
 /****************************************************************************/
 
@@ -416,35 +364,110 @@ __pow(double x,double y)
 	return s*z;
 }
 
-#endif /* PPC_FLOATING_POINT_SUPPORT */
+#endif /* M68881_FLOATING_POINT_SUPPORT || PPC_FLOATING_POINT_SUPPORT */
+
+/****************************************************************************/
+
+/* 0 if a finite y is not an integer, 1 if it is odd, 2 if it is even. */
+static int
+integer_kind(double y)
+{
+	double half;
+
+	/* From 2^53 on, every double is even. */
+	if(fabs(y) >= 9007199254740992.0)
+		return(2);
+
+	if(floor(y) != y)
+		return(0);
+
+	half = 0.5 * y;
+
+	return(floor(half) == half ? 2 : 1);
+}
 
 /****************************************************************************/
 
 double
 pow(double x,double y)
 {
-	double result;
+	int x_is_nan = isnan(x), y_is_nan = isnan(y);
+	int kind;
+	/* Stored, as an overflow in extended precision is none on the FPU yet. */
+	volatile double result;
 
-	if(x == 0 && y < 0)
+	/* C99's special cases. __pow() only has to work for a positive,
+	   finite x and a finite y. */
+	if((NOT y_is_nan && y == 0) || (NOT x_is_nan && x == 1))
 	{
-		__set_errno(EDOM);
+		result = 1;
+		goto out;
+	}
 
-		result = __get_huge_val();
+	if(x_is_nan || y_is_nan)
+	{
+		result = __builtin_nan("");
+		goto out;
+	}
+
+	kind = isinf(y) ? 2 : integer_kind(y);
+
+	if(x == 0)
+	{
+		if(y < 0)
+		{
+			__set_errno(ERANGE);
+
+			result = (kind == 1) ? copysign(-__pole_error(x),x) : -__pole_error(x);
+		}
+		else
+		{
+			result = (kind == 1) ? x : 0;
+		}
+
+		goto out;
+	}
+
+	if(isinf(y))
+	{
+		double abs_x = fabs(x);
+
+		if(abs_x == 1)
+			result = 1;
+		else if((abs_x > 1) == (y > 0))
+			result = __inf();
+		else
+			result = 0;
+
+		goto out;
+	}
+
+	if(isinf(x))
+	{
+		result = (y > 0) ? __inf() : 0;
+
+		if(x < 0 && kind == 1)
+			result = -result;
+
 		goto out;
 	}
 
 	if(x < 0)
 	{
-		double abs_y;
-
-		abs_y = fabs(y);
-		if(floor(abs_y) != abs_y)
+		if(kind == 0)
 		{
 			__set_errno(EDOM);
 
-			result = __get_huge_val();
+			result = __domain_error(x);
 			goto out;
 		}
+
+		result = __pow(-x,y);
+
+		if(kind == 1)
+			result = -result;
+
+		goto out;
 	}
 
 	result = __pow(x,y);

@@ -58,15 +58,14 @@
 float
 hypotf(float x, float y)
 {
-	float a=x,b=y,t1,t2,w;
+	float a=x,b=y,w;
 	LONG j,ha,hb;
 
+	/* An infinity wins, even over a NaN. */
+	if (isinf(x) || isinf(y))
+		return __get_huge_valf();
 	if (isunordered(x,y))
 		return (x-x)/(y-y);
-	if (!isfinite(x) || !isfinite(y)) {
-		__set_errno(ERANGE);
-		return __get_huge_valf();
-	}
 
 	GET_FLOAT_WORD(ha,x);
 	ha &= 0x7fffffff;
@@ -75,18 +74,11 @@ hypotf(float x, float y)
 	if(hb < ha) {a=y;b=x;j=ha; ha=hb;hb=j;} else {a=x;b=y;}
 	SET_FLOAT_WORD(a,ha);	/* a <- |a| */
 	SET_FLOAT_WORD(b,hb);	/* b <- |b| */
-	t1 = (a > 0) ? (a/b) : 0;
-	if ((t1 >= SQRT_FLT_MAX) && isfinite(x) && isfinite(y)) {
+	/* The squares and their sum are exact enough in a double. */
+	w = (float)sqrt((double)a * a + (double)b * b);
+
+	if (isinf(w))
 		__set_errno(ERANGE);
-		return __get_huge_valf();
-	}
-	t1 *= t1;
-	t2 = sqrtf(++t1);
-	if ((t2 > 1) && (b >= FLT_MAX)) {
-		__set_errno(ERANGE);
-		return __get_huge_valf();
-	}
-	w = t2 * b;
 
 	       return w;
 }

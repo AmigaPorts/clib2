@@ -54,23 +54,35 @@
 
 /****************************************************************************/
 
-#if defined(IEEE_FLOATING_POINT_SUPPORT) || defined(M68881_FLOATING_POINT_SUPPORT)
+#if defined(M68881_FLOATING_POINT_SUPPORT)
 
 /****************************************************************************/
 
 float
 rintf(float x)
 {
-	return (float) floor(x + 0.5f);
+	union ieee_single u;
+	int exponent;
+
+	u.value = x;
+	exponent = (int)((u.raw[0] >> 23) & 0xff) - 127;
+
+	if(exponent == 128)
+		return(x + x);
+
+	if(exponent >= 23)
+		return(x);
+
+	return(__round_with_fpu(x, (u.raw[0] & 0x80000000UL) != 0));
 }
 
 /****************************************************************************/
 
-#endif /* IEEE_FLOATING_POINT_SUPPORT || M68881_FLOATING_POINT_SUPPORT */
+#endif /* M68881_FLOATING_POINT_SUPPORT */
 
 /****************************************************************************/
 
-#if defined(PPC_FLOATING_POINT_SUPPORT)
+#if defined(IEEE_FLOATING_POINT_SUPPORT) || defined(PPC_FLOATING_POINT_SUPPORT)
 
 /****************************************************************************/
 
@@ -122,7 +134,7 @@ rintf(float x)
 
 /****************************************************************************/
 
-#endif /* PPC_FLOATING_POINT_SUPPORT */
+#endif /* IEEE_FLOATING_POINT_SUPPORT || PPC_FLOATING_POINT_SUPPORT */
 
 /****************************************************************************/
 

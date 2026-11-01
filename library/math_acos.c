@@ -122,7 +122,8 @@ __acos(double x)
 INLINE STATIC const double
 __acos(double x)
 {
-	double result;
+	/* Stored, to be a double with the flags of one, not what is in fp0. */
+	volatile double result;
 
 	__asm ("facos%.x %1,%0"
 	       : "=f" (result)
@@ -224,7 +225,7 @@ acos(double x)
 	}
 
 	__set_errno(EDOM);
-	return NAN;
+	return __domain_error(x);
 }
 
 /****************************************************************************/

@@ -59,7 +59,8 @@ fmax(double x,double y)
 	}
 	else
 	{
-		if(x > y)
+		/* +0 counts as larger than -0. */
+		if(x > y || (x == y && NOT signbit(x)))
 			result = x;
 		else
 			result = y;

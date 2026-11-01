@@ -242,6 +242,10 @@ ceil(double x)
 
 	result = __ceil(x);
 
+	/* ceil(-0.5) is -0. */
+	if(result == 0)
+		result = copysign(result,x);
+
 	return(result);
 }
 

@@ -54,23 +54,35 @@
 
 /****************************************************************************/
 
-#if defined(IEEE_FLOATING_POINT_SUPPORT) || defined(M68881_FLOATING_POINT_SUPPORT)
+#if defined(M68881_FLOATING_POINT_SUPPORT)
 
 /****************************************************************************/
 
 double
 rint(double x)
 {
-	return floor( x+0.5 );
+	union ieee_double u;
+	int exponent;
+
+	u.value = x;
+	exponent = (int)((u.raw[0] >> 20) & 0x7ff) - 1023;
+
+	if(exponent == 1024)
+		return(x + x);
+
+	if(exponent >= 52)
+		return(x);
+
+	return(__round_with_fpu(x, (u.raw[0] & 0x80000000UL) != 0));
 }
 
 /****************************************************************************/
 
-#endif /* IEEE_FLOATING_POINT_SUPPORT || M68881_FLOATING_POINT_SUPPORT */
+#endif /* M68881_FLOATING_POINT_SUPPORT */
 
 /****************************************************************************/
 
-#if defined(PPC_FLOATING_POINT_SUPPORT)
+#if defined(IEEE_FLOATING_POINT_SUPPORT) || defined(PPC_FLOATING_POINT_SUPPORT)
 
 /****************************************************************************/
 
@@ -129,7 +141,7 @@ rint(double x)
 
 /****************************************************************************/
 
-#endif /* PPC_FLOATING_POINT_SUPPORT */
+#endif /* IEEE_FLOATING_POINT_SUPPORT || PPC_FLOATING_POINT_SUPPORT */
 
 /****************************************************************************/
 

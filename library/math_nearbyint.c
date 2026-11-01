@@ -44,8 +44,31 @@
 double
 nearbyint(double x)
 {
-	/* ZZZ is this such a good idea? */
-	return rint(x);
+	double result;
+	#if defined(M68881_FLOATING_POINT_SUPPORT)
+	unsigned long fpsr, inexact;
+
+	/* Unlike rint(), this one must not raise INEXACT, but a signalling NaN
+	   still raises INVALID. */
+	__asm __volatile ("fmove%.l fpsr,%0"
+	                  : "=dm" (fpsr)
+	                  : /* no inputs */ );
+	inexact = fpsr & 0x08;
+	#endif /* M68881_FLOATING_POINT_SUPPORT */
+
+	result = rint(x);
+
+	#if defined(M68881_FLOATING_POINT_SUPPORT)
+	__asm __volatile ("fmove%.l fpsr,%0"
+	                  : "=dm" (fpsr)
+	                  : /* no inputs */ );
+	fpsr = (fpsr & ~0x08UL) | inexact;
+	__asm __volatile ("fmove%.l %0,fpsr"
+	                  : /* no outputs */
+	                  : "dmi" (fpsr));
+	#endif /* M68881_FLOATING_POINT_SUPPORT */
+
+	return(result);
 }
 
 /****************************************************************************/

@@ -86,7 +86,7 @@ expf(float x)
 	if(hx >= 0x42b17218) {			/* if |x|>=88.721... */
  	    if(hx == 0x42b17218) {		/* if |x| == 88.7228... */
  		if (xsb == 0)
- 		    return FLT_MAX;
+ 		    return __inff();
  	    }
 	    if(hx>0x7f800000)
 		 return x+x;	 		/* NaN */

@@ -122,7 +122,8 @@ __atan(double x)
 INLINE STATIC const double
 __atan(double x)
 {
-	double result;
+	/* Stored, to be a double with the flags of one, not what is in fp0. */
+	volatile double result;
 
 	__asm ("fatan%.x %1,%0"
 	       : "=f" (result)

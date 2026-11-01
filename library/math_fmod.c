@@ -50,33 +50,6 @@
 
 /****************************************************************************/
 
-#if defined(IEEE_FLOATING_POINT_SUPPORT)
-
-/****************************************************************************/
-
-INLINE STATIC const double
-__fmod(double x,double y)
-{
-	double q,p,result;
-
-	q = x / y;
-
-	if(q < 0.0)
-		p = ceil(q) - q;
-	else
-		p = q - floor(q);
-
-	result = p * y;
-
-	return(result);
-}
-
-/****************************************************************************/
-
-#endif /* IEEE_FLOATING_POINT_SUPPORT */
-
-/****************************************************************************/
-
 #if defined(M68881_FLOATING_POINT_SUPPORT)
 
 INLINE STATIC const double
@@ -96,7 +69,7 @@ __fmod(double x,double y)
 
 /****************************************************************************/
 
-#if defined(PPC_FLOATING_POINT_SUPPORT)
+#if defined(IEEE_FLOATING_POINT_SUPPORT) || defined(PPC_FLOATING_POINT_SUPPORT)
 
 static const double
 one = 1.0,
@@ -269,7 +242,7 @@ __fmod(double x,double y)
 	return x;		/* exact output */
 }
 
-#endif /* PPC_FLOATING_POINT_SUPPORT */
+#endif /* IEEE_FLOATING_POINT_SUPPORT || PPC_FLOATING_POINT_SUPPORT */
 
 /****************************************************************************/
 
@@ -284,7 +257,7 @@ fmod(double x,double y)
 	}
 	else
 	{
-		result = x;
+		result = __domain_error(y);
 		__set_errno(EDOM);
 	}
 
