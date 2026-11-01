@@ -192,6 +192,32 @@ get_float_parts(__long_double_t v,unsigned long long * mantissa,long * exponent,
 	return(FP_IS_FINITE);
 }
 
+/* format_decimal() below follows fmt_fp() in src/stdio/vfprintf.c of musl:
+ *
+ * Copyright (c) 2005-2020 Rich Felker, et al.
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining
+ * a copy of this software and associated documentation files (the
+ * "Software"), to deal in the Software without restriction, including
+ * without limitation the rights to use, copy, modify, merge, publish,
+ * distribute, sublicense, and/or sell copies of the Software, and to
+ * permit persons to whom the Software is furnished to do so, subject to
+ * the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be
+ * included in all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+ * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+ * IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+ * CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+ * TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+ * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ *
+ * Imported and modified 2021/01/25
+ */
+
 /* Writes word to the left of end, and returns where it begins. */
 STATIC char *
 format_word(unsigned long word,char * end)
@@ -207,11 +233,11 @@ format_word(unsigned long word,char * end)
    integer part in the words up to r and the fraction in the ones after it.
    Multiplying by 2^29, or dividing by 2^9, which a word can do without
    losing anything to the next one but 5^9 times its remainder, brings the
-   exponent to 0.  This is the method of fmt_fp() in musl, which is
-   Copyright (c) 2005-2020 Rich Felker et al. and under the MIT license.
+   exponent to 0.  This is the method of fmt_fp() in musl, see below.
    Returns the length of the text, which ends up in *text, and what has to
-   follow it, or -1 if there is no memory. */
-STATIC int
+   follow it, or -1 if there is no memory.  It stays a function of its own,
+   as its array would otherwise be on the stack for every printf(). */
+__attribute__((noinline)) STATIC int
 format_decimal(unsigned long long mantissa,long exponent,int p,int t,BOOL alternate,BOOL capitals,
 	char * buffer,size_t size,char ** internal_buffer,size_t * internal_buffer_size,
 	char ** text,int * trailing_zeroes,char * trail)
@@ -1580,14 +1606,35 @@ vfprintf(FILE * __restrict stream, const char * __restrict format, va_list arg)
 
 				#if defined(USE_64_BIT_INTS) && defined(__GNUC__)
 				{
-					while((v >> 32) != 0)
+					/* Long division in 16 bit steps, which the radix leaves
+					   room for, so that a plain printf() needs no 64 bit
+					   division from the compiler's library. */
+					unsigned long high = (unsigned long)(v >> 32);
+					unsigned long low = (unsigned long)v;
+
+					while(high != 0)
 					{
+						unsigned long middle;
+						unsigned long remainder;
+
+						remainder = high % radix;
+						high /= radix;
+
+						middle = (remainder << 16) | (low >> 16);
+						remainder = middle % radix;
+						middle /= radix;
+
+						low = (remainder << 16) | (low & 0xFFFF);
+						remainder = low % radix;
+						low = (low / radix) | (middle << 16);
+
 						output_buffer--;
 						output_len++;
 
-						(*output_buffer) = digit_encoding[v % radix];
-						v /= radix;
+						(*output_buffer) = digit_encoding[remainder];
 					}
+
+					v = low;
 				}
 				#endif /* __GNUC__ */
 
