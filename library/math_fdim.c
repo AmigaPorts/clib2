@@ -60,7 +60,7 @@ fdim(double x,double y)
 
 #if defined(__MATH_SETS_ERRNO)
 #undef fdim
-__MATH_ERRNO_2_OVERFLOW(double, double, fdim, x / 2 - y / 2 >= DBL_MAX / 2)
+__MATH_ERRNO_2_OVERFLOW(double, double, fdim, x / 2 - y / 2 > DBL_MAX / 2)
 #endif /* __MATH_SETS_ERRNO */
 
 /****************************************************************************/
