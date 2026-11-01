@@ -21,13 +21,29 @@
 /****************************************************************************/
 
 int
-vswprintf(wchar_t * __restrict s, size_t maxlen,
-    const wchar_t * __restrict format, va_list arg)
+vswprintf(wchar_t * __restrict s, size_t maxlen, const wchar_t * __restrict format,
+    va_list arg)
 {
-	(void) s;
-	(void) maxlen;
-	(void) format;
-	(void) arg;
+	char *text;
+	size_t size;
+	size_t count;
+	int length;
+	int result = -1;
 
-	return 0;
+	if (maxlen == 0)
+		return -1;
+
+	length = __vwide_format(&text, &size, format, arg);
+	if (length >= 0) {
+		count = __utf8_to_wide_string(s, maxlen - 1, text, size);
+		s[count] = L'\0';
+
+		/* It has to fit with its terminating NUL. */
+		if ((size_t)length < maxlen)
+			result = length;
+
+		free(text);
+	}
+
+	return result;
 }

@@ -23,9 +23,22 @@
 long
 wcstol(const wchar_t * __restrict p, wchar_t ** __restrict q, int base)
 {
-	(void) p;
-	(void) q;
-	(void) base;
+	const wchar_t * start;
+	char buffer[72];
+	char * narrow;
+	char * stop = NULL;
+	long result = 0;
 
-	return 0;
+	narrow = __wcsto_narrow(p,buffer,sizeof(buffer),&start);
+
+	if(narrow != NULL)
+		result = strtol(narrow,&stop,base);
+
+	if(q != NULL)
+		(*q) = (wchar_t *)((stop == NULL || stop == narrow) ? p : start + (stop - narrow));
+
+	if(narrow != NULL && narrow != buffer)
+		free(narrow);
+
+	return(result);
 }

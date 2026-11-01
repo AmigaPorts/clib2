@@ -71,9 +71,12 @@ extern "C" {
 
 /****************************************************************************/
 
-/* Maximum number of bytes in a multibyte character */
+/* Maximum number of bytes in a multibyte character: one, unless setlocale()
+   chose UTF-8 */
+extern __stdargs int __locale_mb_cur_max(void);
+
 #undef  MB_CUR_MAX
-#define MB_CUR_MAX 2
+#define MB_CUR_MAX ((size_t)__locale_mb_cur_max())
 
 /****************************************************************************/
 

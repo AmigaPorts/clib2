@@ -95,7 +95,7 @@ endif
 
 ifeq (small_data,$(TYPE))
 CODE_TYPE	:= -m68000
-CODE_FLAGS	:= -fbaserel -DSMALL_DATA
+CODE_FLAGS	:= -fbaserel -DSMALL_DATA -DUSE_64_BIT_INTS
 endif
 
 ifeq (small_data32,$(TYPE))
@@ -110,7 +110,7 @@ endif
 
 ifeq (large_data,$(TYPE))
 CODE_TYPE	:= -m68000
-CODE_FLAGS	:=
+CODE_FLAGS	:= -DUSE_64_BIT_INTS
 endif
 
 ##############################################################################
@@ -183,6 +183,8 @@ C_LIB = \
 	locale_init_exit.o \
 	locale_localeconv.o \
 	locale_open_locale.o \
+	locale_encoding.o \
+	locale_nl_langinfo.o \
 	locale_setlocale.o \
 	mount_convertinfo.o \
 	mount_fstatfs.o \
@@ -405,6 +407,10 @@ C_LIB = \
 	string_bzero.o \
 	string_index.o \
 	string_memchr.o \
+	string_memmem.o \
+	unistd_fnmatch.o \
+	unistd_pipe.o \
+	wchar_narrow.o \
 	string_memcmp.o \
 	string_memcpy.o \
 	string_memmove.o \
@@ -506,6 +512,7 @@ C_LIB = \
 	inttypes_wcstoumax.o \
 	stdlib_mblen.o \
 	stdlib_mbstowcs.o \
+	stdlib_mbtowc.o \
 	stdlib_wcstombs.o \
 	stdlib_wctomb.o \
 	string_memccpy.o \
@@ -912,6 +919,18 @@ MATH_LIB = \
 	math_tgammal.o \
 	math_truncl.o \
 	stdlib_strtold.o \
+	wchar_fwprintf.o \
+	wchar_fwscanf.o \
+	wchar_narrow.o \
+	wchar_swprintf.o \
+	wchar_swscanf.o \
+	wchar_vfwprintf.o \
+	wchar_vfwscanf.o \
+	wchar_vswprintf.o \
+	wchar_vswscanf.o \
+	wchar_vwprintf.o \
+	wchar_wprintf.o \
+	wchar_wscanf.o \
 	wchar_wcstod.o \
 	wchar_wcstod_narrow.o \
 	wchar_wcstof.o \

@@ -54,9 +54,11 @@ strtoll(const char * __restrict str, char ** __restrict ptr, int base)
 	size_t num_digits_converted = 0;
 	BOOL is_negative;
 	long long result = 0;
-	long long new_sum;
-	long long sum;
-	char c;
+	unsigned long long limit;
+	unsigned long long max_sum;
+	unsigned long long sum = 0;
+	int max_digit;
+	BOOL overflow = FALSE;
 
 	ENTER();
 
@@ -78,55 +80,34 @@ strtoll(const char * __restrict str, char ** __restrict ptr, int base)
 	}
 	#endif /* CHECK_FOR_NULL_POINTERS */
 
-	if(base < 0)
+	if(base < 0 || base == 1 || base > 36)
 	{
 		SHOWMSG("invalid base parameter");
 
-		__set_errno(ERANGE);
+		__set_errno(EINVAL);
 		goto out;
 	}
 
 	/* Skip all leading blanks. */
-	while((c = (*str)) != '\0')
-	{
-		if(NOT isspace(c))
-			break;
-
+	while(isspace((unsigned char)(*str)))
 		str++;
-	}
 
 	/* The first character may be a sign. */
-	if(c == '-')
-	{
-		/* It's a negative number. */
-		is_negative = TRUE;
+	is_negative = (BOOL)((*str) == '-');
 
+	if((*str) == '-' || (*str) == '+')
 		str++;
-	}
-	else
-	{
-		/* It's not going to be negative. */
-		is_negative = FALSE;
 
-		/* But there may be a sign we will choose to
-		   ignore. */
-		if(c == '+')
-			str++;
-	}
-
-	c = (*str);
-
-	/* There may be a leading '0x' to indicate that what
-	   follows is a hexadecimal number. */
+	/* There may be a leading '0x' to indicate that what follows is a
+	   hexadecimal number, if there is one; otherwise the '0' is the
+	   number. */
 	if(base == 0 || base == 16)
 	{
-		if((c == '0') && (str[1] == 'x' || str[1] == 'X'))
+		if(str[0] == '0' && (str[1] == 'x' || str[1] == 'X') && isxdigit((unsigned char)str[2]))
 		{
 			base = 16;
 
 			str += 2;
-
-			c = (*str);
 		}
 	}
 
@@ -135,64 +116,61 @@ strtoll(const char * __restrict str, char ** __restrict ptr, int base)
 	   probably a number in octal notation. */
 	if(base == 0)
 	{
-		if(c == '0')
+		if((*str) == '0')
 			base = 8;
 		else
 			base = 10;
 	}
 
-	sum = 0;
+	limit = is_negative ? ((unsigned long long)LLONG_MAX + 1) : (unsigned long long)LLONG_MAX;
+	max_sum = limit / (unsigned int)base;
+	max_digit = (int)(limit % (unsigned int)base);
 
-	if(1 <= base && base <= 36)
+	while(TRUE)
 	{
-		while(c != '\0')
-		{
-			if('0' <= c && c <= '9')
-				c -= '0';
-			else if ('a' <= c)
-				c -= 'a' - 10;
-			else if ('A' <= c)
-				c -= 'A' - 10;
-			else
-				break;
+		int c = (*str);
 
-			/* Ignore invalid numbers. */
-			if(c >= base)
-				break;
+		if('0' <= c && c <= '9')
+			c -= '0';
+		else if ('a' <= c && c <= 'z')
+			c -= 'a' - 10;
+		else if ('A' <= c && c <= 'Z')
+			c -= 'A' - 10;
+		else
+			break;
 
-			new_sum = base * sum + c;
-			if(new_sum < sum) /* overflow? */
-			{
-				__set_errno(ERANGE);
+		/* Ignore invalid numbers. */
+		if(c >= base)
+			break;
 
-				if(is_negative)
-					result = LONG_MIN;
-				else
-					result = LONG_MAX;
+		/* Too large numbers are still read to their end. */
+		if(sum > max_sum || (sum == max_sum && c > max_digit))
+			overflow = TRUE;
+		else
+			sum = base * sum + c;
 
-				goto out;
-			}
+		str++;
 
-			sum = new_sum;
-
-			str++;
-
-			c = (*str);
-
-			num_digits_converted++;
-		}
+		num_digits_converted++;
 	}
 
 	/* Did we convert anything? */
 	if(num_digits_converted == 0)
 		goto out;
 
-	if(is_negative)
-		result = (-sum);
-	else
-		result = sum;
-
 	stop = str;
+
+	if(overflow)
+	{
+		SHOWMSG("overflow");
+
+		__set_errno(ERANGE);
+
+		result = is_negative ? LLONG_MIN : LLONG_MAX;
+		goto out;
+	}
+
+	result = is_negative ? (long long)(0 - sum) : (long long)sum;
 
  out:
 

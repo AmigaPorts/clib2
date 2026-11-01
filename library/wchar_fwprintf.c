@@ -23,8 +23,12 @@
 int
 fwprintf(FILE * __restrict f, const wchar_t * __restrict format, ...)
 {
-	(void) f;
-	(void) format;
+	int ret;
+	va_list ap;
 
-	return 0;
+	va_start(ap, format);
+	ret = vfwprintf(f, format, ap);
+	va_end(ap);
+
+	return ret;
 }

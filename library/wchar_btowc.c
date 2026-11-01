@@ -32,6 +32,10 @@
 wint_t
 btowc(int c)
 {
-	int b = (unsigned char) c;
-	return b < 128U ? b : (MB_CUR_MAX == 1 && c != EOF) ? CODEUNIT(c) : WEOF;
+	if (c == EOF)
+		return WEOF;
+
+	c = (unsigned char) c;
+
+	return (c < 128 || !__utf8_encoding) ? (wint_t)c : WEOF;
 }

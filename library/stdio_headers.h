@@ -214,6 +214,30 @@ typedef int (*file_action_iob_t)(struct iob * iob,struct file_action_message * f
 
 /****************************************************************************/
 
+/* What the wide character functions tell vfprintf() and vfscanf(), through
+   the stream.  Their format and text are multibyte strings, and width,
+   precision and %n count characters rather than bytes.  In wm_IsTransport,
+   the text is in UTF-8 whatever the encoding of the program is, and the
+   conversions of strings need help that an ordinary printf() has no use
+   for. */
+struct wide_mode
+{
+	BOOL	wm_IsTransport;
+
+	/* %c or, with is_wide, %lc as text.  Returns its length, or -1. */
+	int		(*wm_Character)(long c,BOOL is_wide,char * text);
+
+	/* A wide or a multibyte string as text, in buffer if that is large
+	   enough, or else in (*internal_buffer), which goes with realloc().
+	   Returns it, or NULL, with its length and how many characters that is. */
+	char *	(*wm_String)(const void * string,BOOL is_wide,int precision,
+				char * buffer,size_t size,
+				char ** internal_buffer,size_t * internal_buffer_size,
+				int * length,int * num_characters);
+};
+
+/****************************************************************************/
+
 /* Each file handle is represented by the following structure. Note that this
    must match the layout of the public 'FILE' structure in <stdio.h> or
    things will take a turn for the worse! */
@@ -273,6 +297,15 @@ struct iob
 												   files */
 
 	struct SignalSemaphore * iob_Lock;			/* For thread locking */
+
+	const struct wide_mode * iob_WideMode;		/* Set for the duration of a
+												   wide printf() or scanf() */
+
+	UBYTE				iob_PendingBytes[8];	/* What ungetwc() and wide scanf()
+												   pushed back, last one first:
+												   a multibyte character needn't
+												   fit what's left of the buffer */
+	int					iob_NumPendingBytes;
 };
 
 /****************************************************************************/

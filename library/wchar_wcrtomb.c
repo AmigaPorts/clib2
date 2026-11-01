@@ -29,38 +29,57 @@
 
 /****************************************************************************/
 
+/* Writes c in UTF-8, and returns how many bytes that takes, or -1. */
+int
+__utf8_from_wide(char * p, wchar_t c)
+{
+	unsigned long u = (unsigned long)c;
+
+	if (u < 0x80) {
+		*p = c;
+		return 1;
+	} else if (u < 0x800) {
+		*p++ = 0xc0 | (u>>6);
+		*p = 0x80 | (u&0x3f);
+		return 2;
+	} else if (u < 0xd800 || u-0xe000 < 0x2000) {
+		*p++ = 0xe0 | (u>>12);
+		*p++ = 0x80 | ((u>>6)&0x3f);
+		*p = 0x80 | (u&0x3f);
+		return 3;
+	} else if (u-0x10000 < 0x100000) {
+		*p++ = 0xf0 | (u>>18);
+		*p++ = 0x80 | ((u>>12)&0x3f);
+		*p++ = 0x80 | ((u>>6)&0x3f);
+		*p = 0x80 | (u&0x3f);
+		return 4;
+	}
+
+	return -1;
+}
+
+/****************************************************************************/
+
 size_t
 wcrtomb(char * __restrict p, wchar_t c, mbstate_t * __restrict ps)
 {
+	int n = 1;
+
 	(void) ps;
 
 	if (!p) return 1;
-	if ((unsigned)c < 0x80) {
+
+	if (__utf8_encoding)
+		n = __utf8_from_wide(p, c);
+	else if ((unsigned long)c < 256)
 		*p = c;
-		return 1;
-	} else if (MB_CUR_MAX == 1) {
-		if (!IS_CODEUNIT(c)) {
-			errno = EILSEQ;
-			return -1;
-		}
-		*p = c;
-		return 1;
-	} else if ((unsigned)c < 0x800) {
-		*p++ = 0xc0 | (c>>6);
-		*p = 0x80 | (c&0x3f);
-		return 2;
-	} else if ((unsigned)c < 0xd800 || (unsigned)c-0xe000 < 0x2000) {
-		*p++ = 0xe0 | (c>>12);
-		*p++ = 0x80 | ((c>>6)&0x3f);
-		*p = 0x80 | (c&0x3f);
-		return 3;
-	} else if ((unsigned)c-0x10000 < 0x100000) {
-		*p++ = 0xf0 | (c>>18);
-		*p++ = 0x80 | ((c>>12)&0x3f);
-		*p++ = 0x80 | ((c>>6)&0x3f);
-		*p = 0x80 | (c&0x3f);
-		return 4;
+	else
+		n = -1;
+
+	if (n < 0) {
+		__set_errno(EILSEQ);
+		return (size_t)-1;
 	}
-	errno = EILSEQ;
-	return -1;
+
+	return (size_t)n;
 }

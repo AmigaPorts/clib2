@@ -99,6 +99,8 @@ The `main(int argc,char **argv);` function may be called with an `argc` value of
 
 The current locale is derived from the current Amiga operating system locale settings. The `setlocale("")` function call will choose the current Amiga operating system locale settings. Any other name passed to the `setlocale()` function, with the exception of `"C"`, which selects the 'C' locale, must be a locale name, as used by the Amiga operating system function `OpenLocale()` in `locale.library`.
 
+A byte is the character with the same code, as text on AmigaOS is ISO 8859-1: `MB_CUR_MAX` is 1, and `nl_langinfo(CODESET)` returns `ISO-8859-1`. `setlocale()` with `LC_CTYPE` or `LC_ALL` and a locale name that contains `UTF-8` or `utf8`, in any case, makes UTF-8 the multibyte encoding instead, with `MB_CUR_MAX` 4. No such locale exists on AmigaOS, so everything else stays as in the "C" locale. In the wide character functions, widths, precisions and `%n` count characters.
+
 ##### Floating-point
 
 The 68k version of *clib2* supports single and double precision floating point numbers, according to the *IEEE 754* standard. The software floating point number support is built upon the Amiga operating system libraries `mathieeesingbas.library`, `mathieeedoubbas.library` and `mathieeedoubtrans.library`. The hardware floating point number support uses the M68881/M68882/M68040/M68060 floating point unit instead.

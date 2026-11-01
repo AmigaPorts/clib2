@@ -37,13 +37,12 @@
 
 /****************************************************************************/
 
+#include <wchar.h>
+
+/****************************************************************************/
+
 size_t
 wcstombs(char * __restrict s, const wchar_t * __restrict pwcs, size_t n)
 {
-	(void) s;
-	(void) pwcs;
-	(void) n;
-
-	/* ZZZ unimplemented */
-	return(0);
+	return wcsrtombs(s, &pwcs, n, NULL);
 }

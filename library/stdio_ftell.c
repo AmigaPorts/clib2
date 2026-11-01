@@ -131,6 +131,9 @@ ftell(FILE *stream)
 		position += __iob_num_unwritten_bytes(file);
 	}
 
+	/* What ungetwc() left is a part of the file that was read already. */
+	position -= file->iob_NumPendingBytes;
+
 	result = position;
 
  out:

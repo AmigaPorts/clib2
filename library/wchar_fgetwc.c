@@ -23,7 +23,35 @@
 wint_t
 fgetwc(FILE *f)
 {
-	(void) f;
+	struct iob * iob = (struct iob *)f;
+	mbstate_t state = 0;
 
-	return WEOF;
+	for (;;) {
+		wchar_t wc;
+		char b;
+		size_t l;
+		int c;
+
+		/* What ungetwc() left comes first. */
+		if (iob->iob_NumPendingBytes > 0)
+			c = iob->iob_PendingBytes[--iob->iob_NumPendingBytes];
+		else
+			c = fgetc(f);
+
+		if (c == EOF) {
+			if (state != 0)
+				__set_errno(EILSEQ);
+
+			return WEOF;
+		}
+
+		b = c;
+		l = mbrtowc(&wc, &b, 1, &state);
+
+		if (l == (size_t)-1)
+			return WEOF;
+
+		if (l != (size_t)-2)
+			return wc;
+	}
 }

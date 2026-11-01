@@ -47,6 +47,10 @@
 #include "locale_headers.h"
 #endif /* _LOCALE_HEADERS_H */
 
+#ifndef _WCHAR_HEADERS_H
+#include "wchar_headers.h"
+#endif /* _WCHAR_HEADERS_H */
+
 /****************************************************************************/
 
 #if defined(FLOATING_POINT_SUPPORT) && !defined(_MATH_HEADERS_H)
@@ -60,6 +64,475 @@
  * define this is in the Makefile!
  */
 /*#define USE_64_BIT_INTS*/
+
+/****************************************************************************/
+
+/* What was pushed back comes first. */
+STATIC int
+scan_getc(FILE * stream)
+{
+	struct iob * iob = (struct iob *)stream;
+
+	if(iob->iob_NumPendingBytes > 0)
+		return(iob->iob_PendingBytes[--iob->iob_NumPendingBytes]);
+
+	return(__getc(stream));
+}
+
+/* A wide conversion may have to push back a whole multibyte character, and
+   ungetc() only can if it still is in the buffer. */
+STATIC int
+scan_ungetc(int c,FILE * stream)
+{
+	struct iob * iob = (struct iob *)stream;
+
+	if(iob->iob_WideMode == NULL || (iob->iob_NumPendingBytes == 0 && iob->iob_BufferPosition > 0))
+		return(ungetc(c,stream));
+
+	if(iob->iob_NumPendingBytes == sizeof(iob->iob_PendingBytes))
+	{
+		__set_errno(ENOBUFS);
+		return(EOF);
+	}
+
+	iob->iob_PendingBytes[iob->iob_NumPendingBytes++] = c;
+
+	return(c);
+}
+
+/****************************************************************************/
+
+#if defined(FLOATING_POINT_SUPPORT)
+
+/****************************************************************************/
+
+#define NUMBER_IS_COMPLETE	0
+#define NUMBER_IS_INVALID	1
+#define NUMBER_AT_EOF		2
+
+/* The input for a floating point conversion, one character at a time. */
+struct number_reader
+{
+	FILE *	nr_stream;
+	int		nr_width;		/* how many may still be read, if not negative */
+	char **	nr_buffer;
+	char *	nr_stack_buffer;
+	size_t	nr_size;
+	size_t	nr_length;
+	int		nr_next;		/* next character, not stored yet */
+	BOOL	nr_failed;		/* out of memory */
+};
+
+/* Looks at the next character, which stays where it is until it's taken. */
+STATIC VOID
+next_character(struct number_reader * nr)
+{
+	if(nr->nr_width == 0)
+	{
+		nr->nr_next = EOF;
+	}
+	else
+	{
+		nr->nr_next = scan_getc(nr->nr_stream);
+
+		if(nr->nr_width > 0 && nr->nr_next != EOF)
+			nr->nr_width--;
+	}
+}
+
+/* Stores the next character and moves on.  Without memory for it, the number
+   ends here, which stops everything that reads it.  Returns FALSE then. */
+STATIC BOOL
+take_character(struct number_reader * nr)
+{
+	if(nr->nr_length + 2 > nr->nr_size)
+	{
+		size_t new_size = 2 * nr->nr_size;
+		char * new_buffer;
+
+		if((*nr->nr_buffer) == nr->nr_stack_buffer)
+		{
+			new_buffer = malloc(new_size);
+			if(new_buffer != NULL)
+				memcpy(new_buffer,nr->nr_stack_buffer,nr->nr_length);
+		}
+		else
+		{
+			new_buffer = realloc((*nr->nr_buffer),new_size);
+		}
+
+		if(new_buffer == NULL)
+		{
+			__set_errno(ENOMEM);
+
+			nr->nr_failed = TRUE;
+			nr->nr_next = EOF;
+
+			return(FALSE);
+		}
+
+		(*nr->nr_buffer) = new_buffer;
+		nr->nr_size = new_size;
+	}
+
+	(*nr->nr_buffer)[nr->nr_length++] = nr->nr_next;
+
+	next_character(nr);
+
+	return(TRUE);
+}
+
+/* Takes characters as long as they match the lower case word, and returns
+   how many it took. */
+STATIC size_t
+take_word(struct number_reader * nr,const char * word)
+{
+	size_t length = 0;
+
+	while(word[length] != '\0' && nr->nr_next != EOF && tolower(nr->nr_next) == word[length])
+	{
+		if(NOT take_character(nr))
+			break;
+
+		length++;
+	}
+
+	return(length);
+}
+
+/* Is c the decimal point?  Both the locale's and '.' are accepted. */
+STATIC BOOL
+is_decimal_point(int c)
+{
+	BOOL result = (BOOL)(c == '.');
+
+	__locale_lock();
+
+	if(__locale_table[LC_NUMERIC] != NULL)
+	{
+		const unsigned char * point = (const unsigned char *)__locale_table[LC_NUMERIC]->loc_DecimalPoint;
+
+		if(point != NULL && c == (*point))
+			result = TRUE;
+	}
+
+	__locale_unlock();
+
+	return(result);
+}
+
+/* Reads the longest sequence that is, or begins, a number as strtod()
+   takes it into (*buffer), which is a NUL terminated copy of it afterwards,
+   and in memory from malloc() if it isn't the one that was passed.  At most
+   one character after it has to go back to the stream, which is all that
+   can be relied on.  If that sequence is not a number, as in "10e", it
+   is gone from the stream all the same, and this is a matching failure. */
+STATIC int
+read_number(FILE * stream,int width,char ** buffer,size_t size,int * num_chars_read)
+{
+	struct number_reader nr;
+	int status = NUMBER_IS_INVALID;
+	size_t length;
+	BOOL is_hex = FALSE;
+	int num_digits = 0;
+
+	nr.nr_stream = stream;
+	nr.nr_width = width;
+	nr.nr_buffer = buffer;
+	nr.nr_stack_buffer = (*buffer);
+	nr.nr_size = size;
+	nr.nr_length = 0;
+	nr.nr_failed = FALSE;
+
+	next_character(&nr);
+
+	if(nr.nr_next == EOF)
+	{
+		status = NUMBER_AT_EOF;
+		goto out;
+	}
+
+	if(nr.nr_next == '-' || nr.nr_next == '+')
+		take_character(&nr);
+
+	if(nr.nr_next == 'i' || nr.nr_next == 'I')
+	{
+		length = take_word(&nr,"inf");
+
+		if(length == 3)
+		{
+			status = NUMBER_IS_COMPLETE;
+
+			if(nr.nr_next == 'i' || nr.nr_next == 'I')
+			{
+				if(take_word(&nr,"inity") != 5)
+					status = NUMBER_IS_INVALID;
+			}
+		}
+
+		goto out;
+	}
+
+	if(nr.nr_next == 'n' || nr.nr_next == 'N')
+	{
+		length = take_word(&nr,"nan");
+
+		if(length == 3)
+		{
+			status = NUMBER_IS_COMPLETE;
+
+			if(nr.nr_next == '(')
+			{
+				status = NUMBER_IS_INVALID;
+
+				take_character(&nr);
+
+				while(nr.nr_next != EOF && (isalnum(nr.nr_next) || nr.nr_next == '_'))
+					take_character(&nr);
+
+				if(nr.nr_next == ')')
+				{
+					take_character(&nr);
+
+					status = NUMBER_IS_COMPLETE;
+				}
+			}
+		}
+
+		goto out;
+	}
+
+	if(nr.nr_next == '0')
+	{
+		take_character(&nr);
+
+		num_digits++;
+
+		if(nr.nr_next == 'x' || nr.nr_next == 'X')
+		{
+			take_character(&nr);
+
+			is_hex = TRUE;
+			num_digits = 0;
+		}
+	}
+
+	while(nr.nr_next != EOF && (is_hex ? isxdigit(nr.nr_next) : isdigit(nr.nr_next)))
+	{
+		take_character(&nr);
+
+		num_digits++;
+	}
+
+	if(nr.nr_next != EOF && is_decimal_point(nr.nr_next))
+	{
+		take_character(&nr);
+
+		while(nr.nr_next != EOF && (is_hex ? isxdigit(nr.nr_next) : isdigit(nr.nr_next)))
+		{
+			take_character(&nr);
+
+			num_digits++;
+		}
+	}
+
+	if(num_digits == 0)
+		goto out;
+
+	status = NUMBER_IS_COMPLETE;
+
+	if(nr.nr_next != EOF && tolower(nr.nr_next) == (is_hex ? 'p' : 'e'))
+	{
+		status = NUMBER_IS_INVALID;
+
+		take_character(&nr);
+
+		if(nr.nr_next == '-' || nr.nr_next == '+')
+			take_character(&nr);
+
+		while(nr.nr_next != EOF && isdigit(nr.nr_next))
+		{
+			take_character(&nr);
+
+			status = NUMBER_IS_COMPLETE;
+		}
+	}
+
+ out:
+
+	if(nr.nr_failed)
+		status = NUMBER_IS_INVALID;
+
+	if(nr.nr_next != EOF)
+		scan_ungetc(nr.nr_next,stream);
+
+	(*buffer)[nr.nr_length] = '\0';
+	(*num_chars_read) = (int)nr.nr_length;
+
+	return(status);
+}
+
+/****************************************************************************/
+
+#endif /* FLOATING_POINT_SUPPORT */
+
+/****************************************************************************/
+
+/* Stores a byte of a string, or with is_wide, of a multibyte sequence that
+   turns into a wide character.  With is_transport, the byte is part of a
+   UTF-8 sequence for wide scanf(), and a string gets the encoding of the
+   program.  Returns FALSE if that doesn't work out. */
+STATIC BOOL
+store_character(char ** target,int c,BOOL is_wide,BOOL is_transport,mbstate_t * state)
+{
+	if(is_wide || is_transport)
+	{
+		char byte = c;
+		wchar_t wc;
+		size_t n;
+
+		if(is_transport)
+			n = __utf8_to_wide(&wc,&byte,1,state);
+		else
+			n = mbrtowc(&wc,&byte,1,state);
+
+		if(n == (size_t)-1)
+			return(FALSE);
+
+		if(n != (size_t)-2)
+		{
+			if(is_wide)
+			{
+				wchar_t * wide_target = (wchar_t *)(*target);
+
+				(*wide_target++) = wc;
+				(*target) = (char *)wide_target;
+			}
+			else
+			{
+				n = wcrtomb((*target),wc,NULL);
+				if(n == (size_t)-1)
+					return(FALSE);
+
+				(*target) += n;
+			}
+		}
+	}
+	else
+	{
+		(*target)[0] = c;
+		(*target)++;
+	}
+
+	return(TRUE);
+}
+
+/* The bytes of the character that begins with c, which are one unless the
+   input is UTF-8.  Returns how many, or 0 if the input ends too early. */
+STATIC int
+read_character(FILE * stream,int c,BOOL is_utf8,unsigned char * bytes)
+{
+	int num_bytes = 1;
+	int num_missing = 0;
+
+	bytes[0] = c;
+
+	if(is_utf8 && c >= 0xC0)
+		num_missing = (c < 0xE0) ? 1 : (c < 0xF0) ? 2 : 3;
+
+	while(num_missing-- > 0)
+	{
+		c = scan_getc(stream);
+		if(c == EOF)
+			return(0);
+
+		bytes[num_bytes++] = c;
+	}
+
+	return(num_bytes);
+}
+
+/* Stores the character that begins with c, if target isn't NULL.  Returns FALSE
+   if that doesn't work out. */
+STATIC BOOL
+store_whole_character(FILE * stream,char ** target,int c,BOOL is_wide,BOOL is_transport,BOOL is_utf8,mbstate_t * state)
+{
+	unsigned char bytes[MB_LEN_MAX];
+	int num_bytes;
+	int i;
+
+	num_bytes = read_character(stream,c,is_utf8,bytes);
+	if(num_bytes == 0)
+		return(FALSE);
+
+	if(target != NULL)
+	{
+		for(i = 0 ; i < num_bytes ; i++)
+		{
+			if(NOT store_character(target,bytes[i],is_wide,is_transport,state))
+				return(FALSE);
+		}
+	}
+
+	return(TRUE);
+}
+
+/* Is wc in the first length bytes of the UTF-8 text of a %[ conversion?  As
+   elsewhere in here, 'a-z' is a range unless it comes first or last. */
+STATIC BOOL
+in_utf8_scanset(const unsigned char * scanset,size_t length,wchar_t wc)
+{
+	wchar_t previous = 0;
+	wchar_t current;
+	BOOL in_range = FALSE;
+	size_t i = 0;
+
+	while(i < length)
+	{
+		mbstate_t state = 0;
+		size_t n = __utf8_to_wide(&current,(const char *)&scanset[i],length - i,&state);
+
+		if(n == (size_t)-1 || n == (size_t)-2 || n == 0)
+			break;
+
+		if(in_range)
+		{
+			if(previous <= wc && wc <= current)
+				return(TRUE);
+
+			in_range = FALSE;
+		}
+		else if (current == L'-' && i > 0 && i + n < length)
+		{
+			in_range = TRUE;
+		}
+		else
+		{
+			if(current == wc)
+				return(TRUE);
+
+			previous = current;
+		}
+
+		i += n;
+	}
+
+	return(FALSE);
+}
+
+STATIC VOID
+terminate_string(char * target,BOOL is_wide)
+{
+	if(is_wide)
+		(*(wchar_t *)target) = L'\0';
+	else
+		(*target) = '\0';
+}
+
+/****************************************************************************/
+
+/* In UTF-8, a byte above 127 isn't white space of any kind. */
+#define IS_SPACE(c) (isspace(c) && (NOT is_wide_format || (c) < 0x80))
 
 /****************************************************************************/
 
@@ -89,6 +562,9 @@ vfscanf(FILE * __restrict stream, const char * __restrict format, va_list arg)
 	int num_assignments = 0;
 	int conversion_type;
 	int c;
+	BOOL is_wide_format;
+	BOOL is_transport;
+	BOOL is_utf8;
 
 	ENTER();
 
@@ -116,18 +592,23 @@ vfscanf(FILE * __restrict stream, const char * __restrict format, va_list arg)
 	   an 'end of file' condition. */
 	clearerr(stream);
 
+	/* For wide scanf(), a character may be several bytes. */
+	is_wide_format = (BOOL)(((struct iob *)stream)->iob_WideMode != NULL);
+	is_transport = (BOOL)(is_wide_format && ((struct iob *)stream)->iob_WideMode->wm_IsTransport);
+	is_utf8 = (BOOL)(is_transport || (is_wide_format && __utf8_encoding));
+
 	while((c = (*(unsigned char *)format)) != '\0')
 	{
 		D(("next format character is '%lc'",c));
 
-		if(isspace(c))
+		if(IS_SPACE(c))
 		{
 			/* Skip all blank spaces in the stream. */
 			format++;
 
-			while((c = __getc(stream)) != EOF)
+			while((c = scan_getc(stream)) != EOF)
 			{
-				if(isspace(c))
+				if(IS_SPACE(c))
 				{
 					total_num_chars_read++;
 				}
@@ -136,7 +617,7 @@ vfscanf(FILE * __restrict stream, const char * __restrict format, va_list arg)
 					/* End of the white space; we push the last
 					 * character read back into the stream.
 					 */
-					if(ungetc(c,stream) == EOF)
+					if(scan_ungetc(c,stream) == EOF)
 						goto out;
 
 					/* Resume scanning. */
@@ -161,14 +642,14 @@ vfscanf(FILE * __restrict stream, const char * __restrict format, va_list arg)
 		}
 		else if (c != '%')
 		{
+			unsigned char bytes[MB_LEN_MAX];
+			int num_bytes;
 			int d;
 
 			SHOWMSG("next character must match exactly");
 
 			/* Match the next character in the stream. */
-			format++;
-
-			d = __getc(stream);
+			d = scan_getc(stream);
 			if(d == EOF)
 			{
 				SHOWMSG("end of file");
@@ -179,18 +660,27 @@ vfscanf(FILE * __restrict stream, const char * __restrict format, va_list arg)
 
 				break;
 			}
-			else if (c == d)
+
+			num_bytes = read_character(stream,d,is_utf8,bytes);
+			if(num_bytes == 0)
+				goto out;
+
+			if(memcmp(format,bytes,num_bytes) == SAME)
 			{
 				SHOWMSG("it matches");
 
+				format += num_bytes;
 				total_num_chars_read++;
 			}
 			else
 			{
 				SHOWMSG("it does not match");
 
-				if(ungetc(d,stream) == EOF)
-					goto out;
+				while(num_bytes > 0)
+				{
+					if(scan_ungetc(bytes[--num_bytes],stream) == EOF)
+						goto out;
+				}
 
 				break;
 			}
@@ -411,9 +901,9 @@ vfscanf(FILE * __restrict stream, const char * __restrict format, va_list arg)
 		   conversion_type != 'n' &&
 		   conversion_type != '[')
 		{
-			while((c = __getc(stream)) != EOF)
+			while((c = scan_getc(stream)) != EOF)
 			{
-				if(isspace(c))
+				if(IS_SPACE(c))
 				{
 					total_num_chars_read++;
 				}
@@ -422,7 +912,7 @@ vfscanf(FILE * __restrict stream, const char * __restrict format, va_list arg)
 					/* End of the white space; we push the last
 					 * character read back into the stream.
 					 */
-					if(ungetc(c,stream) == EOF)
+					if(scan_ungetc(c,stream) == EOF)
 						goto out;
 
 					/* Proceed with the conversion operation. */
@@ -437,6 +927,8 @@ vfscanf(FILE * __restrict stream, const char * __restrict format, va_list arg)
 
 		if(conversion_type == 'c')
 		{
+			BOOL is_wide = (BOOL)(parameter_size == parameter_size_long);
+			mbstate_t state = 0;
 			char * c_ptr;
 			int i;
 
@@ -482,7 +974,7 @@ vfscanf(FILE * __restrict stream, const char * __restrict format, va_list arg)
 
 			for(i = 0 ; i < maximum_field_width ; i++)
 			{
-				c = __getc(stream);
+				c = scan_getc(stream);
 				if(c == EOF)
 				{
 					/* Bail out if we hit the end of the stream. */
@@ -494,8 +986,8 @@ vfscanf(FILE * __restrict stream, const char * __restrict format, va_list arg)
 
 				total_num_chars_read++;
 
-				if(NOT assignment_suppressed)
-					(*c_ptr++) = c;
+				if(NOT store_whole_character(stream,assignment_suppressed ? NULL : &c_ptr,c,is_wide,is_transport,is_utf8,&state))
+					goto out;
 
 				num_chars_processed++;
 			}
@@ -513,15 +1005,11 @@ vfscanf(FILE * __restrict stream, const char * __restrict format, va_list arg)
 		{
 			#if defined(FLOATING_POINT_SUPPORT)
 			{
-				__long_double_t sum = 0.0;
-				__long_double_t new_sum;
-				BOOL is_negative = FALSE;
-				BOOL decimal_point_matches = FALSE;
-				BOOL have_exponent = FALSE;
 				void * next_parameter = NULL;
+				char stack_buffer[64];
+				char * number = stack_buffer;
+				int status;
 
-				/* We boldly try to initialize the parameter to a well-
-				   defined value before we begin the conversion. */
 				if(NOT assignment_suppressed)
 				{
 					assert( arg != NULL );
@@ -566,645 +1054,41 @@ vfscanf(FILE * __restrict stream, const char * __restrict format, va_list arg)
 						}
 					}
 					#endif /* CHECK_FOR_NULL_POINTERS */
+				}
 
+				status = read_number(stream,maximum_field_width,&number,sizeof(stack_buffer),&num_chars_processed);
+
+				total_num_chars_read += num_chars_processed;
+
+				if(status == NUMBER_IS_COMPLETE && NOT assignment_suppressed)
+				{
 					if(parameter_size == parameter_size_default)
-					{
-						*((float *)next_parameter) = 0;
-					}
+						*((float *)next_parameter) = strtof(number,NULL);
 					else if (parameter_size == parameter_size_long)
-					{
-						*((double *)next_parameter) = 0;
-					}
+						*((double *)next_parameter) = strtod(number,NULL);
 					else
-					{
-						*((__long_double_t *)next_parameter) = 0;
-					}
+						*((__long_double_t *)next_parameter) = strtold(number,NULL);
+
+					num_assignments++;
 				}
 
-				if(maximum_field_width != 0)
+				if(number != stack_buffer)
+					free(number);
+
+				if(status == NUMBER_IS_COMPLETE)
 				{
-					c = __getc(stream);
-					if(c != EOF)
-					{
-						/* Skip the sign. */
-						if(c == '-')
-						{
-							SHOWMSG("negative floating point number");
-
-							is_negative = 1;
-
-							total_num_chars_read++;
-
-							if(maximum_field_width > 0)
-								maximum_field_width--;
-						}
-						else if (c == '+')
-						{
-							SHOWMSG("ignoring positive sign");
-
-							total_num_chars_read++;
-
-							if(maximum_field_width > 0)
-								maximum_field_width--;
-						}
-						else
-						{
-							D(("first character '%lc' is not a sign",c));
-
-							/* It's not a sign; reread this later. */
-							if(ungetc(c,stream) == EOF)
-							{
-								SHOWMSG("couldn't push this character back");
-								goto out;
-							}
-						}
-					}
-				}
-
-				/* Now it gets complicated. We need to pick up a keyword
-				   such as "inf", "infinity" or "nan" if it's present.
-				   This is tricky because we won't be able to push all
-				   the characters back we read during scanning. */
-				if(maximum_field_width != 0)
-				{
-					const char infinity_string[] = "infinity";
-					const char infinity_nan[] = "nan";
-					char chars_read_so_far[80];
-					size_t num_chars_read_so_far = 0;
-					size_t infinity_match = 0;
-					size_t nan_match = 0;
-
-					while(maximum_field_width != 0 && num_chars_read_so_far < sizeof(chars_read_so_far) && (c = __getc(stream)) != EOF)
-					{
-						D(("c = '%lc'",c));
-
-						if(tolower(c) == infinity_string[infinity_match])
-						{
-							SHOWVALUE(infinity_match);
-
-							nan_match = 0;
-
-							chars_read_so_far[num_chars_read_so_far++] = c;
-							if(maximum_field_width > 0)
-								maximum_field_width--;
-
-							/* Did we match the complete word? */
-							infinity_match++;
-							if(infinity_match == sizeof(infinity_string)-1)
-							{
-								SHOWMSG("we have a match for infinity");
-								break;
-							}
-						}
-						else if (infinity_match == 3) /* Did we match the "inf" of "infinity"? */
-						{
-							SHOWVALUE(infinity_match);
-
-							nan_match = 0;
-
-							if(ungetc(c,stream) == EOF)
-							{
-								SHOWMSG("couldn't push this character back");
-								goto out;
-							}
-
-							SHOWMSG("we have a match for inf");
-							break;
-						}
-						else if (tolower(c) == infinity_nan[nan_match])
-						{
-							SHOWVALUE(nan_match);
-
-							infinity_match = 0;
-
-							chars_read_so_far[num_chars_read_so_far++] = c;
-							if(maximum_field_width > 0)
-								maximum_field_width--;
-
-							/* Did we match the complete word? */
-							nan_match++;
-							if(nan_match == sizeof(infinity_nan)-1)
-							{
-								SHOWMSG("we have a match for nan");
-
-								/* Check for the () to follow the nan. */
-								if(maximum_field_width != 0 && num_chars_read_so_far < sizeof(chars_read_so_far) && (c = __getc(stream)) != EOF)
-								{
-									/* Is this the opening parenthesis of the "nan()" keyword? */
-									if(c == '(')
-									{
-										SHOWMSG("there's something following the nan");
-
-										nan_match++;
-
-										if(maximum_field_width > 0)
-											maximum_field_width--;
-
-										/* Look for the closing parenthesis. */
-										while(maximum_field_width != 0 && (c = __getc(stream)) != EOF)
-										{
-											nan_match++;
-
-											if(maximum_field_width > 0)
-												maximum_field_width--;
-
-											if(c == ')')
-												break;
-										}
-									}
-									else
-									{
-										if(ungetc(c,stream) == EOF)
-										{
-											SHOWMSG("couldn't push this character back");
-											goto out;
-										}
-									}
-								}
-
-								break;
-							}
-						}
-						else
-						{
-							SHOWMSG("we didn't find a match for infinity/nan");
-
-							nan_match = infinity_match = 0;
-
-							if(ungetc(c,stream) == EOF)
-							{
-								SHOWMSG("couldn't push this character back");
-								goto out;
-							}
-
-							maximum_field_width += num_chars_read_so_far;
-
-							/* Let's try our best here... */
-							while(num_chars_read_so_far > 0)
-								ungetc(chars_read_so_far[--num_chars_read_so_far],stream);
-
-							break;
-						}
-					}
-
-					SHOWVALUE(infinity_match);
-
-					if(infinity_match >= 3)
-					{
-						SHOWMSG("infinity");
-
-						sum = __inf();
-
-						total_num_chars_read = num_chars_processed = infinity_match;
-					}
-					else if (nan_match >= 3)
-					{
-						SHOWMSG("not a number");
-
-						sum = nan(NULL);
-
-						total_num_chars_read = num_chars_processed = nan_match;
-					}
-				}
-
-				/* If we didn't find a keyword above, look for digits. */
-				if(num_chars_processed == 0)
-				{
-					int radix = 10;
-
-					/* Check if there's a hex prefix introducing this number. */
-					if(maximum_field_width != 0 && (c = __getc(stream)) != EOF)
-					{
-						D(("c = '%lc'",c));
-
-						if(c == '0')
-						{
-							/* Use the leading zero as is. */
-							total_num_chars_read++;
-							num_chars_processed++;
-
-							if(maximum_field_width > 0)
-								maximum_field_width--;
-
-							if(maximum_field_width != 0 && (c = __getc(stream)) != EOF)
-							{
-								if(tolower(c) == 'x')
-								{
-									SHOWMSG("found the 0x prefix; setting radix to 16");
-
-									/* The floating point number will be encoded
-									   in hexadecimal/binary notation. */
-									radix = 16;
-
-									total_num_chars_read++;
-									num_chars_processed++;
-
-									if(maximum_field_width > 0)
-										maximum_field_width--;
-								}
-								else
-								{
-									/* Put this back. */
-									if(ungetc(c,stream) == EOF)
-									{
-										SHOWMSG("couldn't push this character back");
-										goto out;
-									}
-								}
-							}
-						}
-						else
-						{
-							/* Put this back. */
-							if(ungetc(c,stream) == EOF)
-							{
-								SHOWMSG("couldn't push this character back");
-								goto out;
-							}
-						}
-					}
-
-					if(maximum_field_width != 0)
-					{
-						int digit;
-
-						while(maximum_field_width != 0 && (c = __getc(stream)) != EOF)
-						{
-							/* Is this a digit? */
-							if('0' <= c && c <= '9')
-								digit = c - '0';
-							else if ('a' <= c && c <= 'f')
-								digit = c - 'a' + 10;
-							else if ('A' <= c && c <= 'F')
-								digit = c - 'A' + 10;
-							else
-								digit = radix;
-
-							if(digit < radix)
-							{
-								D(("got another digit '%lc'",c));
-
-								new_sum = (radix * sum) + digit;
-								if(new_sum < sum) /* overflow? */
-								{
-									/* Put this back. */
-									if(ungetc(c,stream) == EOF)
-									{
-										SHOWMSG("couldn't push this character back");
-										goto out;
-									}
-
-									break;
-								}
-
-								sum = new_sum;
-							}
-							else
-							{
-								D(("'%lc' is not a digit",c));
-
-								/* It's not a digit; reread this later. */
-								if(ungetc(c,stream) == EOF)
-								{
-									SHOWMSG("couldn't push this character back");
-									goto out;
-								}
-
-								break;
-							}
-
-							total_num_chars_read++;
-							num_chars_processed++;
-
-							if(maximum_field_width > 0)
-								maximum_field_width--;
-						}
-
-						if(c == EOF && num_chars_processed == 0 && num_conversions == 0)
-							goto out;
-					}
-
-					if(maximum_field_width != 0)
-					{
-						SHOWMSG("looking for decimal point");
-
-						c = __getc(stream);
-						if(c != EOF)
-						{
-							D(("c = '%lc'",c));
-
-							__locale_lock();
-
-							/* Did we find the decimal point? We accept both the
-							 * locale configured decimal point and the plain old
-							 * dot.
-							 */
-							if(__locale_table[LC_NUMERIC] != NULL)
-							{
-								const unsigned char * point;
-
-								point = (const unsigned char *)__locale_table[LC_NUMERIC]->loc_DecimalPoint;
-
-								if(c == (*point) || c == '.')
-								{
-									SHOWMSG("found a decimal point");
-
-									decimal_point_matches = TRUE;
-								}
-								else
-								{
-									D(("'%lc' is not a decimal point",c));
-								}
-							}
-							else
-							{
-								if(c == '.')
-								{
-									SHOWMSG("found a decimal point");
-
-									decimal_point_matches = TRUE;
-								}
-								else
-								{
-									D(("'%lc' is not a decimal point",c));
-								}
-							}
-
-							__locale_unlock();
-
-							if(decimal_point_matches)
-							{
-								total_num_chars_read++;
-
-								if(maximum_field_width > 0)
-									maximum_field_width--;
-							}
-							else if ((radix == 10 && (c == 'e' || c == 'E')) ||
-							         (radix == 16 && (c == 'p' || c == 'P')))
-							{
-								SHOWMSG("found an exponent specifier");
-
-								total_num_chars_read++;
-
-								have_exponent = TRUE;
-
-								if(maximum_field_width > 0)
-									maximum_field_width--;
-							}
-							else
-							{
-								if(ungetc(c,stream) == EOF)
-								{
-									SHOWMSG("couldn't push this character back");
-									goto out;
-								}
-							}
-						}
-
-						if(decimal_point_matches)
-						{
-							double multiplier = 1.0 / radix;
-							int digit;
-
-							SHOWMSG("found a decimal point");
-							num_chars_processed++;
-
-							/* Process all digits following the decimal point. */
-							while(maximum_field_width != 0 && (c = __getc(stream)) != EOF)
-							{
-								/* Is this a digit? */
-								if('0' <= c && c <= '9')
-									digit = c - '0';
-								else if ('a' <= c && c <= 'f')
-									digit = c - 'a' + 10;
-								else if ('A' <= c && c <= 'F')
-									digit = c - 'A' + 10;
-								else
-									digit = radix;
-
-								if(digit < radix)
-								{
-									D(("got another digit '%lc'",c));
-
-									if(multiplier != 0.0)
-									{
-										new_sum = sum + digit * multiplier;
-										if(new_sum < sum) /* overflow? */
-										{
-											SHOWMSG("got an overflow");
-
-											/* Put this back. */
-											if(ungetc(c,stream) == EOF)
-											{
-												SHOWMSG("couldn't push this character back");
-												goto out;
-											}
-
-											break;
-										}
-
-										sum = new_sum;
-
-										multiplier = multiplier / radix;
-									}
-
-									total_num_chars_read++;
-									num_chars_processed++;
-
-									if(maximum_field_width > 0)
-										maximum_field_width--;
-								}
-								else if ((radix == 10 && (c == 'e' || c == 'E')) ||
-								         (radix == 16 && (c == 'p' || c == 'P')))
-								{
-									SHOWMSG("found an exponent specifier");
-
-									total_num_chars_read++;
-									num_chars_processed++;
-
-									if(maximum_field_width > 0)
-										maximum_field_width--;
-
-									have_exponent = TRUE;
-									break;
-								}
-								else
-								{
-									if(ungetc(c,stream) == EOF)
-									{
-										SHOWMSG("couldn't push this character back");
-										goto out;
-									}
-
-									break;
-								}
-							}
-						}
-
-						if(have_exponent)
-						{
-							BOOL exponent_is_negative = FALSE;
-							int new_exponent;
-							int exponent = 0;
-							int exponent_radix;
-
-							SHOWMSG("processing exponent");
-
-							/* The exponent may be a binary number. */
-							if(radix == 16)
-								exponent_radix = 2;
-							else
-								exponent_radix = 10;
-
-							if(maximum_field_width != 0)
-							{
-								c = __getc(stream);
-								if(c != EOF)
-								{
-									int digit;
-
-									D(("c = '%lc'",c));
-
-									/* Skip the sign. */
-									if(c == '-')
-									{
-										exponent_is_negative = TRUE;
-
-										total_num_chars_read++;
-										num_chars_processed++;
-
-										if(maximum_field_width > 0)
-											maximum_field_width--;
-									}
-									else if (c == '+')
-									{
-										total_num_chars_read++;
-										num_chars_processed++;
-
-										if(maximum_field_width > 0)
-											maximum_field_width--;
-									}
-									else
-									{
-										/* It's not a sign; reread this later. */
-										if(ungetc(c,stream) == EOF)
-										{
-											SHOWMSG("couldn't push this character back");
-											goto out;
-										}
-									}
-
-									while(maximum_field_width != 0 && (c = __getc(stream)) != EOF)
-									{
-										if('0' <= c && c <= '9')
-											digit = c - '0';
-										else
-											digit = exponent_radix;
-
-										if(digit < exponent_radix)
-										{
-											D(("got another digit '%lc'",c));
-
-											new_exponent = (exponent_radix * exponent) + digit;
-											if(new_exponent < exponent) /* overflow? */
-											{
-												SHOWMSG("overflow!");
-
-												if(ungetc(c,stream) == EOF)
-												{
-													SHOWMSG("couldn't push this character back");
-													goto out;
-												}
-
-												break;
-											}
-
-											exponent = new_exponent;
-
-											total_num_chars_read++;
-											num_chars_processed++;
-
-											if(maximum_field_width > 0)
-												maximum_field_width--;
-										}
-										else
-										{
-											SHOWMSG("invalid digit");
-
-											if(ungetc(c,stream) == EOF)
-											{
-												SHOWMSG("couldn't push this character back");
-												goto out;
-											}
-
-											break;
-										}
-									}
-
-									/* If the exponent is valid, scale the number
-									 * accordingly.
-									 */
-									if(exponent != 0)
-									{
-										if(exponent_is_negative)
-										{
-											double divisor;
-
-											/* A negative exponent means division. */
-											divisor = pow((double)radix,(double)exponent);
-											if(divisor != 0.0)
-												sum = sum / divisor;
-										}
-										else
-										{
-											/* A positive exponent means multiplication. */
-											new_sum = sum * pow((double)radix,(double)exponent);
-											if(new_sum >= sum)
-												sum = new_sum;
-											else
-												sum = __get_huge_val();
-										}
-									}
-								}
-							}
-						}
-					}
-				}
-
-				SHOWMSG("conversion finished..");
-
-				if(num_chars_processed > 0)
-				{
-					if(NOT assignment_suppressed)
-					{
-						if(is_negative)
-							sum = (-sum);
-
-						if(parameter_size == parameter_size_default)
-						{
-							*((float *)next_parameter) = sum;
-						}
-						else if (parameter_size == parameter_size_long)
-						{
-							*((double *)next_parameter) = sum;
-						}
-						else
-						{
-							*((__long_double_t *)next_parameter) = sum;
-						}
-
-						num_assignments++;
-
-						D(("number of assignments = %ld\n", num_assignments));
-					}
-
 					num_conversions++;
-
-					D(("number of conversions = %ld\n", num_conversions));
 				}
 				else
 				{
-					SHOWMSG("no characters were actually processed");
+					/* Running out of input before the first conversion is
+					   an input failure. */
+					if(status == NUMBER_AT_EOF && num_chars_processed == 0 && num_conversions == 0)
+						goto out;
+
+					SHOWMSG("not a number");
+
+					break;
 				}
 			}
 			#else
@@ -1276,8 +1160,6 @@ vfscanf(FILE * __restrict stream, const char * __restrict format, va_list arg)
 			int radix;
 			void * next_parameter = NULL;
 
-			/* We boldly try to initialize the parameter to a well-
-			   defined value before we begin the conversion. */
 			if(NOT assignment_suppressed)
 			{
 				assert( arg != NULL );
@@ -1327,30 +1209,6 @@ vfscanf(FILE * __restrict stream, const char * __restrict format, va_list arg)
 					}
 				}
 				#endif /* CHECK_FOR_NULL_POINTERS */
-
-				if(parameter_size == parameter_size_short)
-				{
-					*((short *)next_parameter) = 0;
-				}
-				else if (parameter_size == parameter_size_byte)
-				{
-					*((char *)next_parameter) = 0;
-				}
-				else
-				{
-					#if defined(USE_64_BIT_INTS) && defined(__GNUC__)
-					{
-						if(parameter_size == parameter_size_long_long || parameter_size == parameter_size_intmax_t)
-							*((long long *)next_parameter) = 0;
-						else
-							*((int *)next_parameter) = 0;
-					}
-					#else
-					{
-						*((int *)next_parameter) = 0;
-					}
-					#endif /* __GNUC__ */
-				}
 			}
 
 			/* Chose a base according to the conversion to be
@@ -1366,7 +1224,7 @@ vfscanf(FILE * __restrict stream, const char * __restrict format, va_list arg)
 
 			if(maximum_field_width != 0)
 			{
-				c = __getc(stream);
+				c = scan_getc(stream);
 				if(c != EOF)
 				{
 					/* Skip the sign. */
@@ -1400,7 +1258,7 @@ vfscanf(FILE * __restrict stream, const char * __restrict format, va_list arg)
 							/* This could be an octal number, the
 							 * '0x' prefix or just a zero.
 							 */
-							c = __getc(stream);
+							c = scan_getc(stream);
 
 							/* This takes care of the '0x' prefix for hexadecimal
 							   numbers ('%x') and also picks the right type of
@@ -1431,20 +1289,20 @@ vfscanf(FILE * __restrict stream, const char * __restrict format, va_list arg)
 								radix = 8;
 
 								/* Process the rest later. */
-								if(ungetc(c,stream) == EOF)
+								if(scan_ungetc(c,stream) == EOF)
 									goto out;
 							}
 							else if (c != EOF)
 							{
 								/* It's something else; put it back. */
-								if(ungetc(c,stream) == EOF)
+								if(scan_ungetc(c,stream) == EOF)
 									goto out;
 							}
 						}
 					}
 					else
 					{
-						if(ungetc(c,stream) == EOF)
+						if(scan_ungetc(c,stream) == EOF)
 							goto out;
 					}
 				}
@@ -1463,7 +1321,7 @@ vfscanf(FILE * __restrict stream, const char * __restrict format, va_list arg)
 			{
 				int digit;
 
-				while(maximum_field_width != 0 && (c = __getc(stream)) != EOF)
+				while(maximum_field_width != 0 && (c = scan_getc(stream)) != EOF)
 				{
 					/* Is this a digit or hexadecimal value? */
 					if('0' <= c && c <= '9')
@@ -1480,7 +1338,7 @@ vfscanf(FILE * __restrict stream, const char * __restrict format, va_list arg)
 					{
 						SHOWMSG("digit is larger than radix");
 
-						if(ungetc(c,stream) == EOF)
+						if(scan_ungetc(c,stream) == EOF)
 							goto out;
 
 						break;
@@ -1497,7 +1355,7 @@ vfscanf(FILE * __restrict stream, const char * __restrict format, va_list arg)
 								SHOWMSG("overflow!");
 
 								/* Put this back. */
-								if(ungetc(c,stream) == EOF)
+								if(scan_ungetc(c,stream) == EOF)
 									goto out;
 
 								break;
@@ -1508,7 +1366,7 @@ vfscanf(FILE * __restrict stream, const char * __restrict format, va_list arg)
 							SHOWMSG("overflow!");
 
 							/* Put this back. */
-							if(ungetc(c,stream) == EOF)
+							if(scan_ungetc(c,stream) == EOF)
 								goto out;
 
 							break;
@@ -1521,7 +1379,7 @@ vfscanf(FILE * __restrict stream, const char * __restrict format, va_list arg)
 							SHOWMSG("overflow!");
 
 							/* Put this back. */
-							if(ungetc(c,stream) == EOF)
+							if(scan_ungetc(c,stream) == EOF)
 								goto out;
 
 							break;
@@ -1578,9 +1436,16 @@ vfscanf(FILE * __restrict stream, const char * __restrict format, va_list arg)
 
 				num_conversions++;
 			}
+			else
+			{
+				/* A matching failure: only the prefix "0x", say, or a sign. */
+				break;
+			}
 		}
 		else if (conversion_type == 's')
 		{
+			BOOL is_wide = (BOOL)(parameter_size == parameter_size_long);
+			mbstate_t state = 0;
 			char * s_ptr;
 
 			if(NOT assignment_suppressed)
@@ -1618,16 +1483,16 @@ vfscanf(FILE * __restrict stream, const char * __restrict format, va_list arg)
 
 			/* Try to NUL terminate this even in case of failure. */
 			if(NOT assignment_suppressed)
-				(*s_ptr) = '\0';
+				terminate_string(s_ptr,is_wide);
 
 			if(maximum_field_width != 0)
 			{
-				while(maximum_field_width != 0 && (c = __getc(stream)) != EOF)
+				while(maximum_field_width != 0 && (c = scan_getc(stream)) != EOF)
 				{
 					/* Blank spaces stop the conversion process. */
-					if(isspace(c))
+					if(IS_SPACE(c))
 					{
-						if(ungetc(c,stream) == EOF)
+						if(scan_ungetc(c,stream) == EOF)
 							goto out;
 
 						break;
@@ -1636,11 +1501,11 @@ vfscanf(FILE * __restrict stream, const char * __restrict format, va_list arg)
 					total_num_chars_read++;
 					num_chars_processed++;
 
+					if(NOT store_whole_character(stream,assignment_suppressed ? NULL : &s_ptr,c,is_wide,is_transport,is_utf8,&state))
+						goto out;
+
 					if(NOT assignment_suppressed)
-					{
-						(*s_ptr++)	= c;
-						(*s_ptr)	= '\0'; /* Try to NUL terminate this even in case of failure. */
-					}
+						terminate_string(s_ptr,is_wide); /* Try to NUL terminate this even in case of failure. */
 
 					if(maximum_field_width > 0)
 						maximum_field_width--;
@@ -1787,7 +1652,7 @@ vfscanf(FILE * __restrict stream, const char * __restrict format, va_list arg)
 		{
 			int d;
 
-			d = __getc(stream);
+			d = scan_getc(stream);
 			if(d == EOF)
 			{
 				SHOWMSG("end of file");
@@ -1805,7 +1670,7 @@ vfscanf(FILE * __restrict stream, const char * __restrict format, va_list arg)
 			else
 			{
 				/* This is not what we expected. We're finished. */
-				if(ungetc(d,stream) == EOF)
+				if(scan_ungetc(d,stream) == EOF)
 					goto out;
 
 				break;
@@ -1813,11 +1678,14 @@ vfscanf(FILE * __restrict stream, const char * __restrict format, va_list arg)
 		}
 		else if (c == '[')
 		{
+			BOOL is_wide = (BOOL)(parameter_size == parameter_size_long);
+			mbstate_t state = 0;
 			char * s_ptr;
 			char set[256];
 			const unsigned char * scanset;
 			size_t scanset_length,i;
 			int pick;
+			BOOL has_bracket = FALSE;
 
 			if(NOT assignment_suppressed)
 			{
@@ -1875,6 +1743,7 @@ vfscanf(FILE * __restrict stream, const char * __restrict format, va_list arg)
 			if(c == ']')
 			{
 				set[c] = pick;
+				has_bracket = TRUE;
 
 				format++;
 			}
@@ -1929,29 +1798,61 @@ vfscanf(FILE * __restrict stream, const char * __restrict format, va_list arg)
 
 			/* Try to NUL terminate this even in case of failure. */
 			if(NOT assignment_suppressed)
-				(*s_ptr) = '\0';
+				terminate_string(s_ptr,is_wide);
 
 			if(maximum_field_width != 0)
 			{
-				while(maximum_field_width != 0 && (c = __getc(stream)) != EOF)
+				while(maximum_field_width != 0 && (c = scan_getc(stream)) != EOF)
 				{
+					unsigned char bytes[MB_LEN_MAX];
+					int num_bytes;
+					int matches;
+
 					assert( 0 <= c && c <= 255 );
+
+					num_bytes = read_character(stream,c,is_utf8,bytes);
+					if(num_bytes == 0)
+						goto out;
+
+					if(is_utf8)
+					{
+						mbstate_t character_state = 0;
+						wchar_t wc = 0;
+
+						__utf8_to_wide(&wc,(const char *)bytes,num_bytes,&character_state);
+
+						matches = (in_utf8_scanset(scanset,scanset_length,wc) || (has_bracket && wc == L']'));
+						if(pick == 0)
+							matches = !matches;
+					}
+					else
+					{
+						matches = set[c];
+					}
 
 					/* If the character is not part of the
 					 * range we stop further processing.
 					 */
-					if(set[c] == 0)
+					if(NOT matches)
 					{
-						if(ungetc(c,stream) == EOF)
-							goto out;
+						while(num_bytes > 0)
+						{
+							if(scan_ungetc(bytes[--num_bytes],stream) == EOF)
+								goto out;
+						}
 
 						break;
 					}
 
 					if(NOT assignment_suppressed)
 					{
-						(*s_ptr++)	= c;
-						(*s_ptr)	= '\0'; /* Try to NUL terminate this even in case of failure. */
+						for(i = 0 ; i < (size_t)num_bytes ; i++)
+						{
+							if(NOT store_character(&s_ptr,bytes[i],is_wide,is_transport,&state))
+								goto out;
+						}
+
+						terminate_string(s_ptr,is_wide); /* Try to NUL terminate this even in case of failure. */
 					}
 
 					total_num_chars_read++;

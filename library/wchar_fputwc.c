@@ -23,8 +23,17 @@
 wint_t
 fputwc(wchar_t c, FILE *f)
 {
-	(void) c;
-	(void) f;
+	char buffer[MB_LEN_MAX];
+	size_t l = wcrtomb(buffer, c, NULL);
+	size_t i;
 
-	return WEOF;
+	if (l == (size_t)-1)
+		return WEOF;
+
+	for (i = 0; i < l; i++) {
+		if (fputc((unsigned char)buffer[i], f) == EOF)
+			return WEOF;
+	}
+
+	return c;
 }

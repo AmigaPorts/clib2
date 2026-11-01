@@ -23,9 +23,28 @@
 wchar_t *
 fgetws(wchar_t * __restrict p, int n, FILE * __restrict f)
 {
-	(void) p;
-	(void) n;
-	(void) f;
+	int i = 0;
 
-	return NULL;
+	if (n <= 0)
+		return NULL;
+
+	while (i < n - 1) {
+		wint_t c = fgetwc(f);
+
+		if (c == (wint_t)WEOF) {
+			if (i == 0 || ferror(f))
+				return NULL;
+
+			break;
+		}
+
+		p[i++] = c;
+
+		if (c == L'\n')
+			break;
+	}
+
+	p[i] = L'\0';
+
+	return p;
 }

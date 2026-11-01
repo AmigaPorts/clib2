@@ -37,11 +37,33 @@
 
 /****************************************************************************/
 
+/* AmigaOS has no such locales, but the name of one is how a program asks for
+   UTF-8 as its multibyte encoding. */
+STATIC BOOL
+names_utf8(const char * locale)
+{
+	const char * s;
+
+	for(s = locale ; (*s) != '\0' ; s++)
+	{
+		if(strncasecmp(s,"UTF",3) == SAME)
+		{
+			if(s[3] == '8' || (s[3] == '-' && s[4] == '8'))
+				return(TRUE);
+		}
+	}
+
+	return(FALSE);
+}
+
+/****************************************************************************/
+
 char *
 setlocale(int category, const char *locale)
 {
 	DECLARE_LOCALEBASE();
 	char * result = NULL;
+	BOOL is_utf8 = FALSE;
 
 	ENTER();
 
@@ -85,9 +107,11 @@ setlocale(int category, const char *locale)
 		 * try to open a locale if we managed to open
 		 * locale.library before.
 		 */
+		is_utf8 = names_utf8(locale);
+
 		if(LocaleBase != NULL)
 		{
-			if(strcmp(locale,"C") != SAME)
+			if(strcmp(locale,"C") != SAME && NOT is_utf8)
 			{
 				SHOWMSG("this is not the 'C' locale");
 
@@ -151,6 +175,10 @@ setlocale(int category, const char *locale)
 		}
 	}
 
+	/* This only sets the multibyte encoding after the locale was changed. */
+	if(locale != NULL && (category == LC_ALL || category == LC_CTYPE))
+		__utf8_encoding = is_utf8;
+
 	result = __locale_name_table[category];
 
 	SHOWSTRING(result);
@@ -164,6 +192,3 @@ setlocale(int category, const char *locale)
 }
 
 
-int __locale_mb_cur_max (void) {
-	return 0xff;
-}

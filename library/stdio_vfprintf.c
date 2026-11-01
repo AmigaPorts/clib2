@@ -40,6 +40,9 @@
 #include "stdio_headers.h"
 #endif /* _STDIO_HEADERS_H */
 
+#include <float.h>
+#include <wchar.h>
+
 /****************************************************************************/
 
 /*
@@ -64,48 +67,604 @@
 
 /****************************************************************************/
 
+/* Room for length characters: buffer, or more memory if size isn't enough. */
+STATIC char *
+text_buffer(char * buffer,size_t size,char ** internal_buffer,size_t * internal_buffer_size,size_t length)
+{
+	char * new_internal_buffer;
+
+	if(length <= size)
+		return(buffer);
+
+	if(length <= (*internal_buffer_size))
+		return(*internal_buffer);
+
+	new_internal_buffer = realloc(*internal_buffer,length);
+	if(new_internal_buffer == NULL)
+	{
+		__set_errno(ENOMEM);
+		return(NULL);
+	}
+
+	(*internal_buffer) = new_internal_buffer;
+	(*internal_buffer_size) = length;
+
+	return(new_internal_buffer);
+}
+
+/****************************************************************************/
+
 #if defined(FLOATING_POINT_SUPPORT)
 
 /****************************************************************************/
 
-#define max(a,b) ((a) > (b) ? (a) : (b))
+#define FP_IS_FINITE	0
+#define FP_IS_INFINITE	1
+#define FP_IS_NAN		2
 
-/****************************************************************************/
+/* Base 10^9 digits, as used by the conversion below. */
+#define BASE 1000000000UL
+#define BASE_DIGITS 9
 
+/* Enough for all doubles.  More takes a long double, and malloc(). */
+#define NUM_STACK_WORDS 130
+
+/* The number of bits in the mantissa, whatever the type. */
+#define MANTISSA_BITS 64
+
+/* The parts of v: a magnitude of mantissa * 2^exponent, with the top bit of
+   the mantissa set unless it is 0.  This works on the bits, as neither the
+   conversions nor the comparisons of the soft-float code are safe to use on
+   infinity, NaN and denormal numbers. */
 STATIC int
-get_num_leading_digits(__long_double_t v,int radix)
+get_float_parts(__long_double_t v,unsigned long long * mantissa,long * exponent,BOOL * is_negative)
 {
-	int num_digits;
+	long e;
+	unsigned long long m;
 
-	SHOWVALUE(radix);
-
-	if(v < radix)
+	#if LDBL_MANT_DIG == 64 && defined(__mc68000__)
 	{
-		num_digits = 1;
+		union
+		{
+			long double ld;
+			struct
+			{
+				unsigned long		sign_exponent;
+				unsigned long long	mantissa;
+			} bits;
+		} u;
+
+		u.ld = v;
+
+		(*is_negative) = (u.bits.sign_exponent >> 31) != 0;
+
+		e = (long)((u.bits.sign_exponent >> 16) & 0x7FFF);
+		m = u.bits.mantissa;
+
+		if(e == 0x7FFF)
+			return((m << 1) == 0 ? FP_IS_INFINITE : FP_IS_NAN);
+
+		e -= 16383 + 63;
+	}
+	#else
+	{
+		union
+		{
+			double				d;
+			unsigned long long	bits;
+		} u;
+
+		u.d = v;
+
+		(*is_negative) = (u.bits >> 63) != 0;
+
+		e = (long)((u.bits >> 52) & 0x7FF);
+		m = u.bits & 0xFFFFFFFFFFFFFULL;
+
+		if(e == 0x7FF)
+			return(m == 0 ? FP_IS_INFINITE : FP_IS_NAN);
+
+		if(e != 0)
+			m |= 1ULL << 52;
+		else
+			e = 1;
+
+		e -= 1023 + 52;
+	}
+	#endif /* LDBL_MANT_DIG == 64 && __mc68000__ */
+
+	if(m != 0)
+	{
+		while((m >> 63) == 0)
+		{
+			m <<= 1;
+			e--;
+		}
 	}
 	else
 	{
-		/* For some reason log() can crash on GCC 68k... */
-		#if (!defined(__GNUC__) || defined(__PPC__))
-		{
-			num_digits = 1 + floor(log(v) / log((double)radix));
-		}
-		#else
-		{
-			/* Perform the conversion one digit at a time... */
-			num_digits = 0;
-
-			while(floor(v) > 0.0)
-			{
-				num_digits++;
-
-				v /= radix;
-			}
-		}
-		#endif /* __GNUC__ && !__PPC__ */
+		e = 0;
 	}
 
-	return(num_digits);
+	(*mantissa) = m;
+	(*exponent) = e;
+
+	return(FP_IS_FINITE);
+}
+
+/* format_decimal() below follows fmt_fp() in src/stdio/vfprintf.c of musl:
+ *
+ * Copyright (c) 2005-2020 Rich Felker, et al.
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining
+ * a copy of this software and associated documentation files (the
+ * "Software"), to deal in the Software without restriction, including
+ * without limitation the rights to use, copy, modify, merge, publish,
+ * distribute, sublicense, and/or sell copies of the Software, and to
+ * permit persons to whom the Software is furnished to do so, subject to
+ * the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be
+ * included in all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+ * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+ * IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+ * CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+ * TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+ * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ *
+ * Imported and modified 2021/01/25
+ */
+
+/* Writes word to the left of end, and returns where it begins. */
+STATIC char *
+format_word(unsigned long word,char * end)
+{
+	for( ; word != 0 ; word /= 10)
+		(*--end) = '0' + (word % 10);
+
+	return(end);
+}
+
+/* Formats mantissa * 2^exponent for %e, %f and %g, exactly, rounding to
+   nearest with ties to even.  The number is kept in base 10^9, with the
+   integer part in the words up to r and the fraction in the ones after it.
+   Multiplying by 2^29, or dividing by 2^9, which a word can do without
+   losing anything to the next one but 5^9 times its remainder, brings the
+   exponent to 0.  This is the method of fmt_fp() in musl, see below.
+   Returns the length of the text, which ends up in *text, and what has to
+   follow it, or -1 if there is no memory.  It stays a function of its own,
+   as its array would otherwise be on the stack for every printf(). */
+__attribute__((noinline)) STATIC int
+format_decimal(unsigned long long mantissa,long exponent,int p,int t,BOOL alternate,BOOL capitals,
+	char * buffer,size_t size,char ** internal_buffer,size_t * internal_buffer_size,
+	char ** text,int * trailing_zeroes,char * trail)
+{
+	unsigned long stack_words[NUM_STACK_WORDS];
+	unsigned long * words = stack_words;
+	unsigned long * a;
+	unsigned long * d;
+	unsigned long * r;
+	unsigned long * z;
+	char digits[BASE_DIGITS + 1];
+	char * end = &digits[BASE_DIGITS];
+	char * s;
+	char * out;
+	char * t_start;
+	size_t length;
+	long num_words;
+	long e;
+	long j;
+	unsigned long i;
+	int result = -1;
+
+	if(mantissa != 0)
+	{
+		while((mantissa & 1) == 0)
+		{
+			mantissa >>= 1;
+			exponent++;
+		}
+	}
+
+	if(exponent >= 0)
+		num_words = 6 + exponent / 29;
+	else
+		num_words = 7 + (-exponent) / BASE_DIGITS;
+
+	if(num_words > NUM_STACK_WORDS)
+	{
+		words = malloc(num_words * sizeof(*words));
+		if(words == NULL)
+		{
+			__set_errno(ENOMEM);
+			goto out;
+		}
+	}
+
+	if(exponent >= 0)
+		r = &words[num_words - 1];
+	else
+		r = &words[3];
+
+	r[0] = (unsigned long)(mantissa % BASE);
+	mantissa /= BASE;
+	r[-1] = (unsigned long)(mantissa % BASE);
+	r[-2] = (unsigned long)(mantissa / BASE);
+
+	a = r - 2;
+	z = r + 1;
+
+	while(a < r && (*a) == 0)
+		a++;
+
+	if((*a) == 0)
+		z = a;
+
+	while(exponent > 0)
+	{
+		unsigned long carry = 0;
+		int shift = (exponent > 29) ? 29 : (int)exponent;
+
+		for(d = z - 1 ; d >= a ; d--)
+		{
+			unsigned long long x = (((unsigned long long)(*d)) << shift) + carry;
+
+			carry = (unsigned long)(x / BASE);
+			(*d) = (unsigned long)(x - (unsigned long long)carry * BASE);
+		}
+
+		if(carry != 0)
+			(*--a) = carry;
+
+		while(z > a && z[-1] == 0)
+			z--;
+
+		exponent -= shift;
+	}
+
+	while(exponent < 0)
+	{
+		unsigned long carry = 0;
+		unsigned long * b;
+		long need = 1 + (long)(((unsigned long)p + MANTISSA_BITS / 3 + 8) / BASE_DIGITS);
+		int shift = (exponent < -9) ? 9 : (int)(-exponent);
+
+		for(d = a ; d < z ; d++)
+		{
+			unsigned long rest = (*d) & ((1UL << shift) - 1);
+
+			(*d) = ((*d) >> shift) + carry;
+			carry = (BASE >> shift) * rest;
+		}
+
+		if((*a) == 0)
+			a++;
+
+		if(carry != 0)
+			(*z++) = carry;
+
+		/* Digits far past the ones asked for can't matter. */
+		b = (t == 'f') ? r : a;
+		if(z - b > need)
+			z = b + need;
+
+		exponent += shift;
+	}
+
+	while(z > a && z[-1] == 0)
+		z--;
+
+	e = 0;
+
+	if(a < z)
+	{
+		e = BASE_DIGITS * (long)(r - a);
+
+		for(i = 10 ; (*a) >= i ; i *= 10)
+			e++;
+	}
+
+	/* j digits after the decimal point are to stay; it can be negative. */
+	j = (long)p - ((t != 'f') ? e : 0) - ((t == 'g' && p != 0) ? 1 : 0);
+
+	if(j < BASE_DIGITS * (long)(z - r - 1))
+	{
+		unsigned long x;
+		long word_number;
+
+		if(j >= 0)
+			word_number = j / BASE_DIGITS;
+		else
+			word_number = -1 - (-j - 1) / BASE_DIGITS;
+
+		d = r + 1 + word_number;
+
+		j -= word_number * BASE_DIGITS;
+
+		for(i = 10, j++ ; j < BASE_DIGITS ; i *= 10, j++)
+			;
+
+		x = (*d) % i;
+
+		if(x != 0 || d + 1 != z)
+		{
+			BOOL is_odd = (((*d) / i) & 1) != 0 || (i == BASE && d > a && (d[-1] & 1) != 0);
+			BOOL round_up;
+
+			if(x < i / 2)
+				round_up = FALSE;
+			else if (x == i / 2 && d + 1 == z)
+				round_up = is_odd;
+			else
+				round_up = TRUE;
+
+			(*d) -= x;
+
+			if(round_up)
+			{
+				(*d) += i;
+
+				while((*d) >= BASE)
+				{
+					(*d--) = 0;
+
+					if(d < a)
+						(*--a) = 0;
+
+					(*d)++;
+				}
+
+				e = BASE_DIGITS * (long)(r - a);
+
+				for(i = 10 ; (*a) >= i ; i *= 10)
+					e++;
+			}
+		}
+
+		if(z > d + 1)
+			z = d + 1;
+	}
+
+	while(z > a && z[-1] == 0)
+		z--;
+
+	if(t == 'g')
+	{
+		if(p == 0)
+			p = 1;
+
+		if(p > e && e >= -4)
+		{
+			t = 'f';
+			p -= e + 1;
+		}
+		else
+		{
+			t = 'e';
+			p--;
+		}
+
+		if(NOT alternate)
+		{
+			long last;
+
+			/* Trailing zeroes are not shown. */
+			if(z > a)
+			{
+				for(i = 10, j = 0 ; (z[-1] % i) == 0 ; i *= 10, j++)
+					;
+			}
+			else
+			{
+				j = BASE_DIGITS;
+			}
+
+			last = BASE_DIGITS * (long)(z - r - 1) - j;
+
+			if(t == 'e')
+				last += e;
+
+			if(last < 0)
+				last = 0;
+
+			if(p > last)
+				p = last;
+		}
+	}
+
+	if(t == 'f')
+	{
+		long num_fraction_words = (z > r + 1) ? (long)(z - r - 1) : 0;
+
+		if(a > r)
+			a = r;
+
+		length = BASE_DIGITS * ((size_t)(r - a) + 1 + num_fraction_words) + 2;
+
+		out = t_start = text_buffer(buffer,size,internal_buffer,internal_buffer_size,length);
+		if(out == NULL)
+			goto out;
+
+		for(d = a ; d <= r ; d++)
+		{
+			s = format_word(*d,end);
+
+			if(d != a)
+			{
+				while(s > digits)
+					(*--s) = '0';
+			}
+			else if (s == end)
+			{
+				(*--s) = '0';
+			}
+
+			memcpy(out,s,end - s);
+			out += end - s;
+		}
+
+		if(p > 0 || alternate)
+			(*out++) = '.';
+
+		for( ; d < z && p > 0 ; d++, p -= BASE_DIGITS)
+		{
+			s = format_word(*d,end);
+
+			while(s > digits)
+				(*--s) = '0';
+
+			memcpy(out,s,(p < BASE_DIGITS) ? (size_t)p : BASE_DIGITS);
+			out += (p < BASE_DIGITS) ? p : BASE_DIGITS;
+		}
+
+		if(p > 0)
+			(*trailing_zeroes) = p;
+	}
+	else
+	{
+		char exponent_digits[12];
+		char * x = &exponent_digits[sizeof(exponent_digits)];
+		size_t x_length;
+
+		if(z <= a)
+			z = a + 1;
+
+		length = BASE_DIGITS * (size_t)(z - a) + 2;
+
+		out = t_start = text_buffer(buffer,size,internal_buffer,internal_buffer_size,length);
+		if(out == NULL)
+			goto out;
+
+		for(d = a ; d < z && p >= 0 ; d++)
+		{
+			size_t num_digits;
+
+			s = format_word(*d,end);
+
+			if(s == end)
+				(*--s) = '0';
+
+			if(d != a)
+			{
+				while(s > digits)
+					(*--s) = '0';
+			}
+			else
+			{
+				(*out++) = (*s++);
+
+				if(p > 0 || alternate)
+					(*out++) = '.';
+			}
+
+			num_digits = (size_t)(end - s);
+
+			memcpy(out,s,((long)num_digits < p) ? num_digits : (size_t)p);
+			out += ((long)num_digits < p) ? (long)num_digits : p;
+
+			p -= (int)num_digits;
+		}
+
+		if(p > 0)
+			(*trailing_zeroes) = p;
+
+		x = format_word((unsigned long)((e < 0) ? -e : e),x);
+
+		while(&exponent_digits[sizeof(exponent_digits)] - x < 2)
+			(*--x) = '0';
+
+		(*trail++) = capitals ? 'E' : 'e';
+		(*trail++) = (e < 0) ? '-' : '+';
+
+		x_length = (size_t)(&exponent_digits[sizeof(exponent_digits)] - x);
+		memcpy(trail,x,x_length);
+		trail[x_length] = '\0';
+	}
+
+	(*text) = t_start;
+	result = (int)(out - t_start);
+
+ out:
+
+	if(words != stack_words && words != NULL)
+		free(words);
+
+	return(result);
+}
+
+/* Formats mantissa * 2^exponent for %a, rounding to nearest with ties to
+   even.  Returns the length of the text in buffer, which has to hold at
+   least 20 characters. */
+STATIC int
+format_hexadecimal(unsigned long long mantissa,long exponent,int p,BOOL alternate,BOOL capitals,
+	char * buffer,int * trailing_zeroes,char * trail)
+{
+	const char * digit_encoding = capitals ? "0123456789ABCDEF" : "0123456789abcdef";
+	unsigned long long fraction = mantissa << 1;
+	char exponent_digits[12];
+	char * end = &exponent_digits[sizeof(exponent_digits)];
+	char * x;
+	char * out = buffer;
+	int first_digit = (mantissa != 0) ? 1 : 0;
+	int i;
+
+	if(mantissa != 0)
+		exponent += 63;
+
+	if(0 <= p && p < 16)
+	{
+		unsigned long long rest = (p == 0) ? fraction : (fraction << (4 * p));
+		unsigned long long unit = (p == 0) ? 0 : (1ULL << (64 - 4 * p));
+		int is_odd = (p == 0) ? (first_digit & 1) : (int)((fraction >> (64 - 4 * p)) & 1);
+
+		fraction = (p == 0) ? 0 : (fraction & ~(unit - 1));
+
+		if(rest > (1ULL << 63) || (rest == (1ULL << 63) && is_odd))
+		{
+			if(p == 0)
+			{
+				first_digit++;
+			}
+			else
+			{
+				fraction += unit;
+
+				if(fraction == 0)
+					first_digit++;
+			}
+		}
+	}
+
+	(*out++) = digit_encoding[first_digit];
+
+	if(fraction != 0 || p > 0 || alternate)
+		(*out++) = '.';
+
+	for(i = 0 ; (p < 0 ? fraction != 0 : i < p) && i < 16 ; i++)
+	{
+		(*out++) = digit_encoding[(int)(fraction >> 60)];
+
+		fraction <<= 4;
+	}
+
+	if(p > 16)
+		(*trailing_zeroes) = p - 16;
+
+	x = format_word((unsigned long)((exponent < 0) ? -exponent : exponent),end);
+
+	if(x == end)
+		(*--x) = '0';
+
+	(*trail++) = capitals ? 'P' : 'p';
+	(*trail++) = (exponent < 0) ? '-' : '+';
+
+	memcpy(trail,x,end - x);
+	trail[end - x] = '\0';
+
+	return((int)(out - buffer));
 }
 
 /****************************************************************************/
@@ -150,10 +709,14 @@ vfprintf(FILE * __restrict stream, const char * __restrict format, va_list arg)
 	int i;
 	int c;
 
+	char * internal_buffer = NULL;
+	size_t internal_buffer_size = 0;
+	int num_leading_zeroes;
+	const struct wide_mode * wide_mode;
+	int num_extra_bytes;
+
  #if defined(FLOATING_POINT_SUPPORT)
- 	char * internal_buffer = NULL;
- 	size_t internal_buffer_size = 0;
-	char trail_string[8];
+	char trail_string[12];
 	int trail_string_len;
 	int num_trailing_zeroes;
  #endif /* FLOATING_POINT_SUPPORT */
@@ -193,6 +756,8 @@ vfprintf(FILE * __restrict stream, const char * __restrict format, va_list arg)
 	if(__fputc_check(stream) < 0)
 		goto out;
 
+	wide_mode = iob->iob_WideMode;
+
 	while((c = (*format++)) != '\0')
 	{
 		/* I this isn't a % charater, copy the input to the output. */
@@ -201,7 +766,9 @@ vfprintf(FILE * __restrict stream, const char * __restrict format, va_list arg)
 			if(__putc(c,stream,buffer_mode) == EOF)
 				goto out;
 
-			len++;
+			/* A UTF-8 continuation byte doesn't start a character. */
+			if(wide_mode == NULL || (c & 0xC0) != 0x80)
+				len++;
 
 			continue;
 		}
@@ -314,7 +881,10 @@ vfprintf(FILE * __restrict stream, const char * __restrict format, va_list arg)
 
 				minimum_field_width = va_arg(arg,int);
 				if(minimum_field_width < 0)
-					minimum_field_width = 0;
+				{
+					SET_FLAG(format_flags,FORMATF_LeftJustified);
+					minimum_field_width = (-minimum_field_width);
+				}
 
 				format++;
 			}
@@ -393,9 +963,10 @@ vfprintf(FILE * __restrict stream, const char * __restrict format, va_list arg)
 				}
 				#endif /* CHECK_FOR_NULL_POINTERS */
 
+				/* A negative precision is taken as if it was omitted. */
 				precision = va_arg(arg,int);
 				if(precision < 0)
-					precision = 0;
+					precision = -1;
 
 				format++;
 			}
@@ -553,6 +1124,9 @@ vfprintf(FILE * __restrict stream, const char * __restrict format, va_list arg)
 		}
 		#endif /* FLOATING_POINT_SUPPORT */
 
+		num_leading_zeroes = 0;
+		num_extra_bytes = 0;
+
 		D(("conversion_type (preliminary) = %lc",c));
 
 		switch(c)
@@ -571,6 +1145,16 @@ vfprintf(FILE * __restrict stream, const char * __restrict format, va_list arg)
 				SET_FLAG(format_flags,FORMATF_CapitalLetters);
 
 				conversion_type = 'x';
+
+				format++;
+				break;
+
+			/* floating point number */
+			case 'F':
+
+				SET_FLAG(format_flags,FORMATF_CapitalLetters);
+
+				conversion_type = 'f';
 
 				format++;
 				break;
@@ -686,6 +1270,32 @@ vfprintf(FILE * __restrict stream, const char * __restrict format, va_list arg)
 
 				ch = byte_integer;
 			}
+			else if (parameter_size == parameter_size_long)
+			{
+				/* A wide character, as a multibyte sequence. */
+				wint_t wide_character = va_arg(arg, wint_t);
+				mbstate_t state = 0;
+				size_t n;
+
+				output_buffer = buffer;
+
+				if(wide_mode != NULL)
+				{
+					n = (size_t)(*wide_mode->wm_Character)((long)wide_character,TRUE,output_buffer);
+
+					num_extra_bytes = (int)n - 1;
+				}
+				else
+				{
+					n = wcrtomb(output_buffer,(wchar_t)wide_character,&state);
+				}
+
+				if(n == (size_t)-1)
+					goto out;
+
+				output_len = (int)n;
+				ch = (*output_buffer);
+			}
 			else
 			{
 				#if defined(USE_64_BIT_INTS) && defined(__GNUC__)
@@ -704,10 +1314,26 @@ vfprintf(FILE * __restrict stream, const char * __restrict format, va_list arg)
 
 			D(("output = %lc",ch));
 
-			output_buffer--;
-			output_len++;
+			if(output_len == 0)
+			{
+				if(wide_mode != NULL)
+				{
+					output_buffer = buffer;
 
-			(*output_buffer) = ch;
+					output_len = (*wide_mode->wm_Character)((long)(unsigned char)ch,FALSE,output_buffer);
+					if(output_len < 0)
+						goto out;
+
+					num_extra_bytes = output_len - 1;
+				}
+				else
+				{
+					output_buffer--;
+					output_len++;
+
+					(*output_buffer) = ch;
+				}
+			}
 
 			CLEAR_FLAG(format_flags,FORMATF_ProduceSign);
 			CLEAR_FLAG(format_flags,FORMATF_ProduceSpace);
@@ -733,30 +1359,13 @@ vfprintf(FILE * __restrict stream, const char * __restrict format, va_list arg)
 
 			#if defined(FLOATING_POINT_SUPPORT)
 			{
-				const char *	buffer_stop		= &buffer[sizeof(buffer)-1];
-				char *			buffer_start	= buffer;
-
-				const char * digit_encoding;
+				unsigned long long mantissa = 0;
 				__long_double_t v;
-				int radix;
-
-				if(conversion_type == 'a')
-				{
-					SET_FLAG(format_flags,FORMATF_HexPrefix);
-
-					radix = 16;
-				}
-				else
-				{
-					radix = 10;
-				}
-
-				if(FLAG_IS_SET(format_flags,FORMATF_CapitalLetters))
-					digit_encoding = "0123456789ABCDEF";
-				else
-					digit_encoding = "0123456789abcdef";
-
-				output_buffer = buffer_start;
+				long exponent = 0;
+				BOOL is_negative = FALSE;
+				BOOL capitals = FLAG_IS_SET(format_flags,FORMATF_CapitalLetters);
+				BOOL alternate = FLAG_IS_SET(format_flags,FORMATF_AlternateConversion);
+				int kind;
 
 				D(("sizeof(long double) == %ld",sizeof(v)));
 
@@ -765,65 +1374,35 @@ vfprintf(FILE * __restrict stream, const char * __restrict format, va_list arg)
 				else
 					v = va_arg(arg, double);
 
-				if(isinf(v))
+				kind = get_float_parts(v,&mantissa,&exponent,&is_negative);
+
+				if(is_negative)
+					SET_FLAG(format_flags,FORMATF_IsNegative);
+
+				if(kind != FP_IS_FINITE)
 				{
-					SHOWMSG("infinity");
+					SHOWMSG("infinity or not a number");
 
-					strcpy(output_buffer,"inf");
+					output_buffer = buffer;
+
+					if(kind == FP_IS_INFINITE)
+						strcpy(output_buffer,capitals ? "INF" : "inf");
+					else
+						strcpy(output_buffer,capitals ? "NAN" : "nan");
+
 					output_len = 3;
-
-					if(v < 0)
-						SET_FLAG(format_flags,FORMATF_IsNegative);
-
 					fill_character = ' ';
 				}
-				else if (isnan(v))
+				else if (conversion_type == 'a')
 				{
-					SHOWMSG("not a number");
+					SET_FLAG(format_flags,FORMATF_HexPrefix);
 
-					strcpy(output_buffer,"nan");
-					output_len = 3;
-
-					if(FLAG_IS_SET(format_flags,FORMATF_ProduceSign))
-					{
-						SET_FLAG(format_flags,FORMATF_ProduceSpace);
-
-						CLEAR_FLAG(format_flags,FORMATF_ProduceSign);
-					}
-
-					fill_character = ' ';
+					output_buffer = buffer;
+					output_len = format_hexadecimal(mantissa,exponent,precision,alternate,capitals,
+						output_buffer,&num_trailing_zeroes,trail_string);
 				}
 				else
 				{
-					BOOL strip_trailing_zeroes = FALSE;
-					__long_double_t roundoff_fudge = 0.0;
-					int num_output_characters;
-					int num_leading_digits;
-					int max_digits = -1;
-					int exponent = 0;
-					int digit;
-
-					/* This takes care of the sign. */
-					if(v < 0.0)
-					{
-						SHOWMSG("negative number");
-
-						SET_FLAG(format_flags,FORMATF_IsNegative);
-						v = (-v);
-					}
-
-					D(("sizeof(v) == %ld",sizeof(v)));
-
-					#if DEBUG
-					{
-						unsigned long n[2];
-
-						memcpy(n,&v,sizeof(n));
-
-						D(("v = 0x%08lx%08lx",n[0],n[1]));
-					}
-					#endif /* DEBUG */
-
 					/* Default precision is 6 digits. */
 					if(precision < 0)
 					{
@@ -831,312 +1410,15 @@ vfprintf(FILE * __restrict stream, const char * __restrict format, va_list arg)
 						precision = 6;
 					}
 
-					/* Figure out whether 'e' or 'f' format should be used. */
-					if(conversion_type == 'g' || conversion_type == 'e' || conversion_type == 'a')
-					{
-						__long_double_t local_v = v;
-						int local_exponent = 0;
+					output_len = format_decimal(mantissa,exponent,precision,conversion_type,alternate,capitals,
+						buffer,sizeof(buffer),&internal_buffer,&internal_buffer_size,
+						&output_buffer,&num_trailing_zeroes,trail_string);
 
-						/* Put one single digit in front of the decimal point. */
-						while(local_v != 0.0 && local_v < 1.0)
-						{
-							local_v *= radix;
-							local_exponent--;
-						}
-
-						while(local_v >= radix)
-						{
-							local_v /= radix;
-							local_exponent++;
-						}
-
-						if(conversion_type == 'g')
-						{
-							/* If the precision is < 1, then it defaults to 1. */
-							if(precision < 1)
-								precision = 1;
-
-							SHOWVALUE(exponent);
-							SHOWVALUE(precision);
-
-							/* If the exponent is < -4 or greater than or equal to
-							 * the precision, we switch to 'e' or 'f' format,
-							 * respectively.
-							 */
-							if((local_exponent < -4) || local_exponent >= precision)
-								conversion_type = 'e';
-							else
-								conversion_type = 'f';
-
-							max_digits = precision;
-
-							strip_trailing_zeroes = TRUE;
-						}
-
-						if(conversion_type == 'e' || conversion_type == 'a')
-						{
-							v			= local_v;
-							exponent	= local_exponent;
-						}
-					}
-
-					D(("conversion_type is now %lc",conversion_type));
-
-					/* If necessary, perform rounding after the
-					   last digit to be displayed. */
-					if(max_digits > 0)
-					{
-						int roundoff_position;
-
-						if(v >= 1.0)
-							roundoff_position = max_digits - get_num_leading_digits(v,radix);
-						else
-							roundoff_position = max_digits;
-
-						if(roundoff_position >= 0)
-							roundoff_fudge = pow((double)radix,(double)(roundoff_position + 1));
-					}
-					else
-					{
-						roundoff_fudge = pow((double)radix,(double)(precision + 1));
-					}
-
-					if(roundoff_fudge > 0.0)
-						v += 5.0 / roundoff_fudge;
-
-					/* The rounding may have caused an overflow, putting
-					   two digits in front of the decimal point. This
-					   needs to be corrected. */
-					if(conversion_type == 'e' || conversion_type == 'a')
-					{
-						while(v >= radix)
-						{
-							v /= radix;
-							exponent++;
-						}
-					}
-
-					SHOWMSG("integral part");
-
-					num_leading_digits = get_num_leading_digits(v,radix);
-
-					SHOWVALUE(num_leading_digits);
-
-					/* Figure out how much room the number will need in order
-					   to be stored. */
-					num_output_characters =
-						1 +									/* sign */
-						num_leading_digits +				/* integral part */
-						1 +									/* decimal point */
-						max(0,max(precision,max_digits)) +	/* fractional part */
-						1 +									/* 'e' or 'p' */
-						1 +									/* sign of the exponent */
-						32 +								/* exponent */
-						1;									/* NUL termination */
-
-					/* Can we store that much? */
-					if((size_t)num_output_characters > sizeof(buffer))
-					{
-						if((size_t)num_output_characters > internal_buffer_size)
-						{
-							char * new_internal_buffer;
-
-							/* Try to (re-)allocate a larger output buffer. */
-							new_internal_buffer = realloc(internal_buffer,(size_t)num_output_characters);
-							if(new_internal_buffer == NULL)
-							{
-								__set_errno(ENOMEM);
-								goto out;
-							}
-
-							internal_buffer			= new_internal_buffer;
-							internal_buffer_size	= (size_t)num_output_characters;
-						}
-
-						buffer_start	= internal_buffer;
-						buffer_stop		= &internal_buffer[internal_buffer_size - 1];
-						output_buffer   = buffer_start;
-					}
-
-					if(v >= 1.0)
-					{
-						/* 'Normalize' the number so that we have a zero in
-						   front of the mantissa. We can't lose here: we
-						   simply scale the value without any loss of
-						   precision (we just change the floating point
-						   exponent). */
-						v /= pow((double)radix,(double)num_leading_digits);
-
-						for(i = 0 ; (max_digits != 0) && (i < num_leading_digits) && (output_buffer < buffer_stop) ; i++)
-						{
-							v *= radix;
-
-							digit = floor(v);
-
-							D(("next digit = %lc (digit = %ld)",digit_encoding[digit],digit));
-
-							assert( 0 <= digit && digit < radix );
-
-							(*output_buffer++) = digit_encoding[digit];
-
-							v -= digit;
-
-							if(max_digits > 0)
-								max_digits--;
-						}
-					}
-					else
-					{
-						/* NOTE: any 'significant' digits (for %g conversion)
-						         will follow the decimal point. */
-						(*output_buffer++) = '0';
-					}
-
-					/* Now for the fractional part. */
-					if(precision > 0)
-					{
-						SHOWMSG("mantissa");
-
-						if((max_digits != 0) && (output_buffer < buffer_stop))
-						{
-							(*output_buffer++) = '.';
-
-							for(i = 0 ; (max_digits != 0) && (i < precision) && (output_buffer < buffer_stop) ; i++)
-							{
-								v *= radix;
-
-								digit = floor(v);
-
-								D(("next digit = %lc",digit_encoding[digit]));
-
-								assert( 0 <= digit && digit < radix );
-
-								(*output_buffer++) = digit_encoding[digit];
-
-								v -= digit;
-
-								if(max_digits > 0)
-									max_digits--;
-							}
-
-							if(i < precision && max_digits != 0 && NOT strip_trailing_zeroes)
-							{
-								num_trailing_zeroes = precision - i;
-
-								if(max_digits > 0 && max_digits < num_trailing_zeroes)
-									num_trailing_zeroes = max_digits;
-							}
-
-							/* Strip trailing digits and decimal point
-							 * unless we shouldn't.
-							 */
-							if(strip_trailing_zeroes && FLAG_IS_CLEAR(format_flags,FORMATF_AlternateConversion))
-							{
-								SHOWMSG("strip trailing zeroes and comma");
-
-								while(output_buffer > buffer_start+1 && output_buffer[-1] == '0')
-									output_buffer--;
-
-								if(output_buffer > buffer_start && output_buffer[-1] == '.')
-									output_buffer--;
-							}
-						}
-					}
-					else
-					{
-						/* Precision is zero; if the alternative conversion flag
-						 * is specified, add the lonely decimal point.
-						 */
-						if(FLAG_IS_SET(format_flags,FORMATF_AlternateConversion))
-						{
-							if(output_buffer < buffer_stop)
-								(*output_buffer++) = '.';
-						}
-					}
-
-					#if DEBUG
-					{
-						(*output_buffer) = '\0';
-
-						output_len = output_buffer - buffer_start;
-
-						D(("length = %ld, output_buffer = '%s'",output_len,buffer_start));
-					}
-					#endif /* DEBUG */
-
-					if(conversion_type == 'e' || conversion_type == 'a')
-					{
-						char exponent_string[40];
-						size_t exponent_string_len,j;
-						int exponent_sign;
-
-						/* For the '%a' conversion the exponent is given in
-						   binary notation rather than decimal. */
-						if(conversion_type == 'a')
-							radix = 2;
-
-						/* Build the exponent string in reverse order. */
-						exponent_string_len = 0;
-
-						if(exponent < 0)
-						{
-							exponent_sign = -1;
-
-							exponent = (-exponent);
-						}
-						else
-						{
-							exponent_sign = 1;
-						}
-
-						while(exponent > 0 && exponent_string_len < sizeof(exponent_string))
-						{
-							exponent_string[exponent_string_len++] = '0' + (exponent % radix);
-
-							exponent /= radix;
-						}
-
-						/* Minimum length of the exponent is two digits. */
-						while(exponent_string_len < 2)
-							exponent_string[exponent_string_len++] = '0';
-
-						if(exponent_string_len < sizeof(exponent_string)-1)
-						{
-							if(exponent_sign < 0)
-								exponent_string[exponent_string_len++] = '-';
-							else
-								exponent_string[exponent_string_len++] = '+';
-
-							if(conversion_type == 'a')
-							{
-								if(FLAG_IS_SET(format_flags,FORMATF_CapitalLetters))
-									exponent_string[exponent_string_len++] = 'P';
-								else
-									exponent_string[exponent_string_len++] = 'p';
-							}
-							else
-							{
-								if(FLAG_IS_SET(format_flags,FORMATF_CapitalLetters))
-									exponent_string[exponent_string_len++] = 'E';
-								else
-									exponent_string[exponent_string_len++] = 'e';
-							}
-						}
-
-						/* Add the exponent string in reverse order. */
-						for(j = 0 ; exponent_string_len > 0 ; j++)
-							trail_string[j] = exponent_string[--exponent_string_len];
-
-						trail_string[j] = '\0';
-					}
-
-					(*output_buffer) = '\0';
-
-					output_len = output_buffer - buffer_start;
-					output_buffer = buffer_start;
-
-					D(("length = %ld, output_buffer = '%s'",output_len,output_buffer));
+					if(output_len < 0)
+						goto out;
 				}
+
+				D(("length = %ld",output_len));
 			}
 			#else
 			{
@@ -1291,6 +1573,10 @@ vfprintf(FILE * __restrict stream, const char * __restrict format, va_list arg)
 				CLEAR_FLAG(format_flags,FORMATF_ProduceSpace);
 			}
 
+			/* With a precision, the '0' flag doesn't count. */
+			if(precision >= 0)
+				fill_character = ' ';
+
 			/* Don't print anything if the precision is 0 and the number
 			   itself is 0. */
 			if(v != 0 || precision != 0)
@@ -1298,13 +1584,11 @@ vfprintf(FILE * __restrict stream, const char * __restrict format, va_list arg)
 				const char * digit_encoding;
 				int radix;
 
-				/* Only add the zero (%o) or hex (%x) prefix if the value to
-				   be converted is non-zero. */
+				/* Only add the hex (%x) prefix if the value to be converted
+				   is non-zero. */
 				if(FLAG_IS_SET(format_flags,FORMATF_AlternateConversion) && v != 0)
 				{
-					if(conversion_type == 'o')
-						SET_FLAG(format_flags,FORMATF_ZeroPrefix);
-					else if (conversion_type == 'x')
+					if(conversion_type == 'x')
 						SET_FLAG(format_flags,FORMATF_HexPrefix);
 				}
 
@@ -1320,23 +1604,68 @@ vfprintf(FILE * __restrict stream, const char * __restrict format, va_list arg)
 				else
 					digit_encoding = "0123456789abcdef";
 
-				do
+				#if defined(USE_64_BIT_INTS) && defined(__GNUC__)
 				{
-					output_buffer--;
-					output_len++;
+					/* Long division in 16 bit steps, which the radix leaves
+					   room for, so that a plain printf() needs no 64 bit
+					   division from the compiler's library. */
+					unsigned long high = (unsigned long)(v >> 32);
+					unsigned long low = (unsigned long)v;
 
-					(*output_buffer) = digit_encoding[v % radix];
-					v /= radix;
+					while(high != 0)
+					{
+						unsigned long middle;
+						unsigned long remainder;
+
+						remainder = high % radix;
+						high /= radix;
+
+						middle = (remainder << 16) | (low >> 16);
+						remainder = middle % radix;
+						middle /= radix;
+
+						low = (remainder << 16) | (low & 0xFFFF);
+						remainder = low % radix;
+						low = (low / radix) | (middle << 16);
+
+						output_buffer--;
+						output_len++;
+
+						(*output_buffer) = digit_encoding[remainder];
+					}
+
+					v = low;
 				}
-				while(v > 0 && buffer < output_buffer);
+				#endif /* __GNUC__ */
 
-				while(output_len < precision && output_buffer > buffer)
 				{
-					output_buffer--;
-					output_len++;
+					/* Most numbers are done without 64 bit divisions. */
+					unsigned long w = (unsigned long)v;
 
-					(*output_buffer) = '0';
+					do
+					{
+						output_buffer--;
+						output_len++;
+
+						(*output_buffer) = digit_encoding[w % radix];
+						w /= radix;
+					}
+					while(w > 0);
 				}
+
+				if(output_len < precision)
+					num_leading_zeroes = precision - output_len;
+			}
+
+			/* The '#' flag for %o: the first digit has to be a zero, which
+			   a precision may already have supplied. */
+			if(conversion_type == 'o' && FLAG_IS_SET(format_flags,FORMATF_AlternateConversion) &&
+			   num_leading_zeroes == 0 && (output_len == 0 || (*output_buffer) != '0'))
+			{
+				output_buffer--;
+				output_len++;
+
+				(*output_buffer) = '0';
 			}
 		}
 		else if (conversion_type == 's')
@@ -1355,7 +1684,84 @@ vfprintf(FILE * __restrict stream, const char * __restrict format, va_list arg)
 			}
 			#endif /* CHECK_FOR_NULL_POINTERS */
 
-			output_buffer = va_arg(arg, char *);
+			if(wide_mode != NULL)
+			{
+				const void * string;
+
+				if(parameter_size == parameter_size_long)
+					string = va_arg(arg, wchar_t *);
+				else
+					string = va_arg(arg, char *);
+
+				if(string == NULL)
+				{
+					output_buffer = NULL;
+				}
+				else
+				{
+					output_buffer = (*wide_mode->wm_String)(string,(BOOL)(parameter_size == parameter_size_long),precision,
+						buffer,sizeof(buffer),&internal_buffer,&internal_buffer_size,&output_len,&i);
+					if(output_buffer == NULL)
+						goto out;
+
+					num_extra_bytes = output_len - i;
+				}
+			}
+			else if(parameter_size == parameter_size_long)
+			{
+				/* A wide string, as a multibyte string.  The precision is
+				   how many bytes may be written, and only complete
+				   characters are. */
+				const wchar_t * wide_string = va_arg(arg, wchar_t *);
+				char multibyte[MB_LEN_MAX];
+				mbstate_t state = 0;
+				size_t total = 0;
+				size_t n;
+
+				if(wide_string == NULL)
+				{
+					output_buffer = NULL;
+				}
+				else
+				{
+					for(i = 0 ; wide_string[i] != L'\0' ; i++)
+					{
+						n = wcrtomb(multibyte,wide_string[i],&state);
+						if(n == (size_t)-1)
+							goto out;
+
+						if(precision >= 0 && total + n > (size_t)precision)
+							break;
+
+						total += n;
+					}
+
+					output_buffer = text_buffer(buffer,sizeof(buffer),&internal_buffer,&internal_buffer_size,total + 1);
+					if(output_buffer == NULL)
+						goto out;
+
+					total = 0;
+
+					for(i = 0 ; wide_string[i] != L'\0' ; i++)
+					{
+						n = wcrtomb(multibyte,wide_string[i],&state);
+						if(n == (size_t)-1)
+							goto out;
+
+						if(precision >= 0 && total + n > (size_t)precision)
+							break;
+
+						memcpy(&output_buffer[total],multibyte,n);
+						total += n;
+					}
+
+					output_buffer[total] = '\0';
+				}
+			}
+			else
+			{
+				output_buffer = va_arg(arg, char *);
+			}
 
 			#if defined(NDEBUG)
 			{
@@ -1375,21 +1781,19 @@ vfprintf(FILE * __restrict stream, const char * __restrict format, va_list arg)
 			}
 			#endif /* NDEBUG */
 
-			if(precision < 0)
+			/* In a wide conversion, this is settled already. */
+			if(output_len == 0)
 			{
-				output_len = strlen(output_buffer);
-			}
-			else
-			{
-				output_len = precision;
-
-				for(i = 0 ; i < precision ; i++)
+				if(precision < 0)
 				{
-					if(output_buffer[i] == '\0')
-					{
-						output_len = i;
-						break;
-					}
+					output_len = strlen(output_buffer);
+				}
+				else
+				{
+					for(i = 0 ; i < precision && output_buffer[i] != '\0' ; i++)
+						;
+
+					output_len = i;
 				}
 			}
 
@@ -1573,6 +1977,14 @@ vfprintf(FILE * __restrict stream, const char * __restrict format, va_list arg)
 				}
 			}
 
+			for(i = 0 ; i < num_leading_zeroes ; i++)
+			{
+				if(__putc('0',stream,buffer_mode) == EOF)
+					goto out;
+
+				len++;
+			}
+
 			for(i = 0 ; i < output_len ; i++)
 			{
 				if(__putc(output_buffer[i],stream,buffer_mode) == EOF)
@@ -1580,6 +1992,11 @@ vfprintf(FILE * __restrict stream, const char * __restrict format, va_list arg)
 
 				len++;
 			}
+
+			output_len -= num_extra_bytes;
+			len -= num_extra_bytes;
+
+			output_len += num_leading_zeroes;
 
 			#if defined(FLOATING_POINT_SUPPORT)
 			{
@@ -1646,8 +2063,10 @@ vfprintf(FILE * __restrict stream, const char * __restrict format, va_list arg)
 				minimum_field_width -= num_trailing_zeroes + trail_string_len;
 			}
 			#endif /* FLOATING_POINT_SUPPORT */
-			
-			for(i = output_len ; i < minimum_field_width ; i++)
+
+			minimum_field_width -= num_leading_zeroes;
+
+			for(i = output_len - num_extra_bytes ; i < minimum_field_width ; i++)
 			{
 				if(__putc(fill_character,stream,buffer_mode) == EOF)
 					goto out;
@@ -1667,6 +2086,14 @@ vfprintf(FILE * __restrict stream, const char * __restrict format, va_list arg)
 				}
 			}
 
+			for(i = 0 ; i < num_leading_zeroes ; i++)
+			{
+				if(__putc('0',stream,buffer_mode) == EOF)
+					goto out;
+
+				len++;
+			}
+
 			for(i = 0 ; i < output_len ; i++)
 			{
 				if(__putc(output_buffer[i],stream,buffer_mode) == EOF)
@@ -1674,6 +2101,8 @@ vfprintf(FILE * __restrict stream, const char * __restrict format, va_list arg)
 
 				len++;
 			}
+
+			len -= num_extra_bytes;
 
 			#if defined(FLOATING_POINT_SUPPORT)
 			{
@@ -1707,12 +2136,8 @@ vfprintf(FILE * __restrict stream, const char * __restrict format, va_list arg)
 
  out:
 
-	#if defined(FLOATING_POINT_SUPPORT)
-	{
-		if(internal_buffer != NULL && internal_buffer_size > 0)
-			free(internal_buffer);
-	}
-	#endif /* FLOATING_POINT_SUPPORT */
+	if(internal_buffer != NULL && internal_buffer_size > 0)
+		free(internal_buffer);
 
 	/* Note: if buffering is disabled for this stream, then we still
 	   may have buffered data around, queued to be printed right now.

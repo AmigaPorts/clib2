@@ -12,11 +12,13 @@ struct __parsed_number
 {
 	int					pn_kind;		/* PN_NONE, PN_NUMBER, PN_INFINITY or PN_NAN */
 	int					pn_is_negative;
-	unsigned long long	pn_mantissa;	/* the significant digits, at most
-										   PN_MAX_DECIMAL_DIGITS or
-										   PN_MAX_HEX_DIGITS of them */
-	long				pn_exponent;	/* of 10, or of 2 if pn_is_hex */
+	int					pn_is_zero;
 	int					pn_is_hex;
+	unsigned long long	pn_mantissa;	/* if pn_is_hex, the first 64 bits */
+	int					pn_rest;		/* if pn_is_hex, the bits after those */
+	long				pn_exponent;	/* of 10, or of 2 if pn_is_hex */
+	const char *		pn_digits;		/* the decimal digits and point in */
+	const char *		pn_digits_end;	/* the string, if not pn_is_hex */
 };
 
 #define PN_NONE		0	/* not a number; nothing was converted */
@@ -24,20 +26,21 @@ struct __parsed_number
 #define PN_INFINITY	2
 #define PN_NAN		3
 
-/* An unsigned long long holds this many digits exactly. */
-#define PN_MAX_DECIMAL_DIGITS	19
-#define PN_MAX_HEX_DIGITS		16
+/* What's left of a number in relation to half a unit in the last place. */
+#define PN_REST_NONE		0
+#define PN_REST_BELOW_HALF	1
+#define PN_REST_HALF		2
+#define PN_REST_ABOVE_HALF	3
 
 /* Parse the number str begins with, as strtod() does, into *pn.  Returns
    where it ends, or str itself if there is no number. */
 extern const char * __parse_number(const char * str,struct __parsed_number * pn);
 
-/* What strtod() returns for it, with errno set to ERANGE on overflow and
-   underflow. */
+/* What strtod(), strtof() and strtold() return for it, correctly rounded
+   to nearest, ties to even, with errno set to ERANGE on overflow, and when
+   a number that isn't zero comes out as zero. */
 extern double __parsed_to_double(const struct __parsed_number * pn);
-
-/* Where long double is wider than double: the magnitude of a PN_NUMBER as
-   a long double, infinity on overflow and 0 on underflow. */
+extern float __parsed_to_float(const struct __parsed_number * pn);
 extern long double __parsed_to_long_double(const struct __parsed_number * pn);
 
 /****************************************************************************/

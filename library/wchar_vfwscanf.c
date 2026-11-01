@@ -20,12 +20,35 @@
 
 /****************************************************************************/
 
+/* The stream has the encoding of the program, and so does its format. */
+static const struct wide_mode stream_mode =
+{
+	FALSE,
+	NULL,
+	NULL
+};
+
+/****************************************************************************/
+
 int
 vfwscanf(FILE * __restrict f, const wchar_t * __restrict format, va_list arg)
 {
-	(void) f;
-	(void) format;
-	(void) arg;
+	char *narrow = __wide_to_narrow(format);
+	int result = EOF;
 
-	return 0;
+	if (narrow != NULL) {
+		flockfile(f);
+
+		((struct iob *)f)->iob_WideMode = &stream_mode;
+
+		result = vfscanf(f, narrow, arg);
+
+		((struct iob *)f)->iob_WideMode = NULL;
+
+		funlockfile(f);
+
+		free(narrow);
+	}
+
+	return result;
 }

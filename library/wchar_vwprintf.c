@@ -23,8 +23,5 @@
 int
 vwprintf(const wchar_t * __restrict format, va_list arg)
 {
-	(void) format;
-	(void) arg;
-
-	return 0;
+	return vfwprintf(stdout, format, arg);
 }

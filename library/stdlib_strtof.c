@@ -67,101 +67,12 @@
 
 /****************************************************************************/
 
-/* d, a finite double, rounded to the nearest float, ties to even; infinity
-   if it is too large.  This works on the bits, because the conversion is
-   not to be trusted: on a 68040 with its FPU support code loaded,
-   (float)d was one unit in the last place off for almost a third of the
-   numbers, and 1e39 became FLT_MAX instead of overflowing. */
-static float
-round_to_float(double d)
-{
-	unsigned long long bits, mantissa, rest, half;
-	unsigned long sign, f;
-	int exponent, shift;
-	float result;
-
-	memcpy(&bits,&d,sizeof(bits));
-
-	sign = (unsigned long)(bits >> 32) & 0x80000000UL;
-	exponent = (int)((bits >> 52) & 0x7FF);
-	mantissa = bits & ((1ULL << 52) - 1);
-
-	if(exponent == 0 && mantissa == 0)
-	{
-		f = sign;
-		goto done;
-	}
-
-	/* Make the 53 bit mantissa explicit; a double denormal is far below
-	   the smallest float denormal, but still rounds like one. */
-	if(exponent != 0)
-		mantissa |= 1ULL << 52;
-	else
-		exponent = 1;
-
-	/* d = mantissa * 2^(exponent - 1075).  A float keeps 24 bits with a
-	   biased exponent of exponent - 1023 + 127, or fewer as a denormal. */
-	exponent = exponent - 1023 + 127;
-	shift = 52 - 23;
-
-	if(exponent <= 0)
-	{
-		shift += 1 - exponent;
-		exponent = 0;
-	}
-
-	if(shift > 54)
-	{
-		f = sign;
-		goto done;
-	}
-
-	rest = mantissa & ((1ULL << shift) - 1);
-	half = 1ULL << (shift - 1);
-	mantissa >>= shift;
-
-	if(rest > half || (rest == half && (mantissa & 1) != 0))
-		mantissa++;
-
-	if(exponent == 0)
-	{
-		/* Rounding a denormal up can make it the smallest normal number,
-		   which this gives too. */
-		f = sign | (unsigned long)mantissa;
-	}
-	else
-	{
-		if(mantissa == (1ULL << 24))
-		{
-			mantissa >>= 1;
-			exponent++;
-		}
-
-		if(exponent >= 255)
-			f = sign | 0x7F800000UL;
-		else
-			f = sign | ((unsigned long)exponent << 23) | ((unsigned long)mantissa & 0x7FFFFFUL);
-	}
-
- done:
-
-	memcpy(&result,&f,sizeof(result));
-
-	return(result);
-}
-
-/****************************************************************************/
-
-/* The number as strtod() reads it, rounded to float.  Rounding twice, first
-   to double and then to float, can be off by one in the last place of the
-   float in rare halfway cases. */
 float
 strtof(const char * __restrict str, char ** __restrict ptr)
 {
 	struct __parsed_number pn;
 	const char * stop = str;
 	float result = 0.0f;
-	double value;
 
 	ENTER();
 
@@ -183,29 +94,7 @@ strtof(const char * __restrict str, char ** __restrict ptr)
 	#endif /* CHECK_FOR_NULL_POINTERS */
 
 	stop = __parse_number(str,&pn);
-	value = __parsed_to_double(&pn);
-
-	if(pn.pn_kind == PN_NUMBER && NOT __builtin_isinf(value))
-		result = round_to_float(value);
-	else
-		result = (float)value;
-
-	if(pn.pn_kind == PN_NUMBER)
-	{
-		/* On overflow, HUGE_VALF, as with strtod() and HUGE_VAL. */
-		if(__builtin_isinf(result) && NOT __builtin_isinf(value))
-		{
-			SHOWMSG("overflow");
-			__set_errno(ERANGE);
-
-			result = (value < 0) ? -HUGE_VALF : HUGE_VALF;
-		}
-		else if (result == 0.0f && value != 0.0)
-		{
-			SHOWMSG("underflow");
-			__set_errno(ERANGE);
-		}
-	}
+	result = __parsed_to_float(&pn);
 
 #if defined(CHECK_FOR_NULL_POINTERS)
  out:

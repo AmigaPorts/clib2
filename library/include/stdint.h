@@ -199,8 +199,8 @@ typedef	unsigned long		 	uintmax_t;
 #define PTRDIFF_MIN	INT_MIN
 #define PTRDIFF_MAX	INT_MAX
 
-#define WCHAR_MIN	0
-#define WCHAR_MAX	USHRT_MAX
+#define WCHAR_MIN	__WCHAR_MIN__
+#define WCHAR_MAX	__WCHAR_MAX__
 
 #define WINT_MIN	INT_MIN
 #define WINT_MAX	INT_MAX

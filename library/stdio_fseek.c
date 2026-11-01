@@ -119,6 +119,9 @@ fseek(FILE *stream, long int offset, int wherefrom)
 	/* We have to clear the EOF condition */
 	CLEAR_FLAG(file->iob_Flags,IOBF_EOF_REACHED);
 
+	/* And this undoes what ungetwc() did. */
+	file->iob_NumPendingBytes = 0;
+
 	if(wherefrom != SEEK_CUR || offset != 0)
 	{
 		BOOL buffer_position_adjusted = FALSE;

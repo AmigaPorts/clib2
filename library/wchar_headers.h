@@ -50,21 +50,26 @@
 #include "stdlib_headers.h"
 #endif /* _STDLIB_HEADERS_H */
 
+#ifndef _STDIO_HEADERS_H
+#include "stdio_headers.h"
+#endif /* _STDIO_HEADERS_H */
+
 /****************************************************************************/
 
-/* Upper 6 state bits are a negative integer offset to bound-check next byte */
-/*    equivalent to: ( (b-0x80) | (b+offset) ) & ~0x3f      */
-#define OOB(c,b) (((((b)>>3)-0x10)|(((b)>>3)+((int32_t)(c)>>26))) & ~7)
+/* Is the multibyte encoding UTF-8, rather than bytes as characters? */
+extern int __utf8_encoding;
 
-/* Interval [a,b). Either a must be 80 or b must be c0, lower 3 bits clear. */
-#define R(a,b) ((uint32_t)((a==0x80 ? 0x40u-b : 0u-a) << 23))
-#define FAILSTATE R(0x80,0x80)
+/* mbrtowc() and wcrtomb() for UTF-8, whatever the encoding is. */
+extern size_t __utf8_to_wide(wchar_t * __restrict wcp, const char * __restrict sp, size_t n,
+    mbstate_t * __restrict ps);
+extern int __utf8_from_wide(char * p, wchar_t c);
 
-#define SA 0xc2u
-#define SB 0xf4u
+/* Text in UTF-8, as the wide functions pass it around. */
+extern char * __wide_to_utf8(const wchar_t * s);
+extern size_t __utf8_to_wide_string(wchar_t * s, size_t n, const char * text, size_t size);
+extern int __vwide_format(char ** text, size_t * size, const wchar_t * format, va_list arg);
 
-/* Arbitrary encoding for representing code units instead of characters. */
-#define CODEUNIT(c) (0xdfff & (signed char)(c))
-#define IS_CODEUNIT(c) ((unsigned)(c)-0xdf80 < 0x80)
+extern char * __wide_to_narrow(const wchar_t * s);
+extern char * __wcsto_narrow(const wchar_t * str, char * buffer, size_t size, const wchar_t ** start);
 
 #endif /* _WCHAR_HEADERS_H */
