@@ -66,22 +66,6 @@ scalbnl(long double x, int n)
 
 #else
 
-#if defined(M68881_FLOATING_POINT_SUPPORT)
-
-long double
-scalbnl(long double x, int n)
-{
-	long double result;
-
-	__asm ("fscale%.l %2,%0"
-	       : "=f" (result)
-	       : "0" (x), "d" (n));
-
-	return(result);
-}
-
-#else
-
 long double
 scalbnl(long double x, int n)
 {
