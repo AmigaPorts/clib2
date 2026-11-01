@@ -135,7 +135,7 @@ OPTIMIZE = -O  -fomit-frame-pointer -fstrength-reduce -finline-functions
 
 CFLAGS = \
 	$(WARNINGS) $(OPTIMIZE) $(DEBUG) $(OPTIONS) \
-	$(CODE_FLAGS) $(INCLUDES) $(CODE_TYPE) -v
+	$(CODE_FLAGS) $(INCLUDES) $(CODE_TYPE) -v -MMD -MP
 
 ##############################################################################
 
@@ -1578,3 +1578,11 @@ CONSTRUCTOR_FILES = \
 
 touch_constructor_files:
 	touch $(CONSTRUCTOR_FILES)
+
+##############################################################################
+
+# The headers each object was built with, from -MMD: without them a header
+# change leaves every object that includes it stale.
+-include $(wildcard $(LIBC_OBJS)/*.d $(LIBUNIX_OBJS)/*.d $(LIBM_OBJS)/*.d \
+	$(LIBM881_OBJS)/*.d $(LIBNET_OBJS)/*.d $(LIBDEBUG_OBJS)/*.d \
+	$(LIBAMIGA_OBJS)/*.d lib/*.d)
