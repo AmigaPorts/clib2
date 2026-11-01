@@ -130,7 +130,7 @@ __fabs(double x)
 
 /****************************************************************************/
 
-#if defined(PPC_FLOATING_POINT_SUPPORT)
+#if defined(PPC_FLOATING_POINT_SUPPORT) && !defined(_SOFT_FLOAT)
 
 /****************************************************************************/
 
@@ -156,14 +156,7 @@ __fabs(double x)
 INLINE STATIC const double
 __fabs(double x)
 {
-	double res;
-
-	if(x < 0)
-		res = (-x);
-	else
-		res = x;
-
-	return res;
+	return __builtin_fabs(x);
 }
 
 /****************************************************************************/
