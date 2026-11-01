@@ -269,7 +269,7 @@ log(double x)
 
 #if defined(__MATH_SETS_ERRNO)
 #undef log
-__MATH_ERRNO_1(double, double, log)
+__MATH_ERRNO_1_GUARD(double, double, log, if(__math_special_double(x)) return(__math_log_special(x)))
 #endif /* __MATH_SETS_ERRNO */
 
 /****************************************************************************/

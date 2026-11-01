@@ -161,7 +161,7 @@ expf(float x)
 
 #if defined(__MATH_SETS_ERRNO)
 #undef expf
-__MATH_ERRNO_1(float, float, expf)
+__MATH_ERRNO_1_GUARD(float, float, expf, if(x < -104.0f && x > -HUGE_VALF) { __set_errno(ERANGE); return(0.0f); })
 #endif /* __MATH_SETS_ERRNO */
 
 /****************************************************************************/
