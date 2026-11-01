@@ -23,13 +23,20 @@
 wint_t
 fgetwc(FILE *f)
 {
+	struct iob * iob = (struct iob *)f;
 	mbstate_t state = 0;
 
 	for (;;) {
 		wchar_t wc;
 		char b;
 		size_t l;
-		int c = fgetc(f);
+		int c;
+
+		/* What ungetwc() left comes first. */
+		if (iob->iob_NumPendingBytes > 0)
+			c = iob->iob_PendingBytes[--iob->iob_NumPendingBytes];
+		else
+			c = fgetc(f);
 
 		if (c == EOF) {
 			if (state != 0)

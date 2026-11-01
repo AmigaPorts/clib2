@@ -47,7 +47,9 @@
 #include "locale_headers.h"
 #endif /* _LOCALE_HEADERS_H */
 
-#include <wchar.h>
+#ifndef _WCHAR_HEADERS_H
+#include "wchar_headers.h"
+#endif /* _WCHAR_HEADERS_H */
 
 /****************************************************************************/
 
@@ -62,6 +64,41 @@
  * define this is in the Makefile!
  */
 /*#define USE_64_BIT_INTS*/
+
+/****************************************************************************/
+
+/* What was pushed back comes first. */
+STATIC int
+scan_getc(FILE * stream)
+{
+	struct iob * iob = (struct iob *)stream;
+
+	if(iob->iob_NumPendingBytes > 0)
+		return(iob->iob_PendingBytes[--iob->iob_NumPendingBytes]);
+
+	return(__getc(stream));
+}
+
+/* A wide conversion may have to push back a whole multibyte character, and
+   ungetc() only can if it still is in the buffer. */
+STATIC int
+scan_ungetc(int c,FILE * stream)
+{
+	struct iob * iob = (struct iob *)stream;
+
+	if(iob->iob_WideMode == NULL || (iob->iob_NumPendingBytes == 0 && iob->iob_BufferPosition > 0))
+		return(ungetc(c,stream));
+
+	if(iob->iob_NumPendingBytes == sizeof(iob->iob_PendingBytes))
+	{
+		__set_errno(ENOBUFS);
+		return(EOF);
+	}
+
+	iob->iob_PendingBytes[iob->iob_NumPendingBytes++] = c;
+
+	return(c);
+}
 
 /****************************************************************************/
 
@@ -83,6 +120,7 @@ struct number_reader
 	size_t	nr_size;
 	size_t	nr_length;
 	int		nr_next;		/* next character, not stored yet */
+	BOOL	nr_failed;		/* out of memory */
 };
 
 /* Looks at the next character, which stays where it is until it's taken. */
@@ -95,15 +133,15 @@ next_character(struct number_reader * nr)
 	}
 	else
 	{
-		nr->nr_next = __getc(nr->nr_stream);
+		nr->nr_next = scan_getc(nr->nr_stream);
 
 		if(nr->nr_width > 0 && nr->nr_next != EOF)
 			nr->nr_width--;
 	}
 }
 
-/* Stores the next character and moves on.  Returns FALSE if there is no
-   memory. */
+/* Stores the next character and moves on.  Without memory for it, the number
+   ends here, which stops everything that reads it.  Returns FALSE then. */
 STATIC BOOL
 take_character(struct number_reader * nr)
 {
@@ -126,6 +164,10 @@ take_character(struct number_reader * nr)
 		if(new_buffer == NULL)
 		{
 			__set_errno(ENOMEM);
+
+			nr->nr_failed = TRUE;
+			nr->nr_next = EOF;
+
 			return(FALSE);
 		}
 
@@ -200,6 +242,7 @@ read_number(FILE * stream,int width,char ** buffer,size_t size,int * num_chars_r
 	nr.nr_stack_buffer = (*buffer);
 	nr.nr_size = size;
 	nr.nr_length = 0;
+	nr.nr_failed = FALSE;
 
 	next_character(&nr);
 
@@ -317,8 +360,11 @@ read_number(FILE * stream,int width,char ** buffer,size_t size,int * num_chars_r
 
  out:
 
+	if(nr.nr_failed)
+		status = NUMBER_IS_INVALID;
+
 	if(nr.nr_next != EOF)
-		ungetc(nr.nr_next,stream);
+		scan_ungetc(nr.nr_next,stream);
 
 	(*buffer)[nr.nr_length] = '\0';
 	(*num_chars_read) = (int)nr.nr_length;
@@ -333,25 +379,43 @@ read_number(FILE * stream,int width,char ** buffer,size_t size,int * num_chars_r
 /****************************************************************************/
 
 /* Stores a byte of a string, or with is_wide, of a multibyte sequence that
-   turns into a wide character.  Returns FALSE if that doesn't work out. */
+   turns into a wide character.  With is_transport, the byte is part of a
+   UTF-8 sequence for wide scanf(), and a string gets the encoding of the
+   program.  Returns FALSE if that doesn't work out. */
 STATIC BOOL
-store_character(char ** target,int c,BOOL is_wide,mbstate_t * state)
+store_character(char ** target,int c,BOOL is_wide,BOOL is_transport,mbstate_t * state)
 {
-	if(is_wide)
+	if(is_wide || is_transport)
 	{
-		wchar_t * wide_target = (wchar_t *)(*target);
 		char byte = c;
 		wchar_t wc;
 		size_t n;
 
-		n = mbrtowc(&wc,&byte,1,state);
+		if(is_transport)
+			n = __utf8_to_wide(&wc,&byte,1,state);
+		else
+			n = mbrtowc(&wc,&byte,1,state);
+
 		if(n == (size_t)-1)
 			return(FALSE);
 
 		if(n != (size_t)-2)
 		{
-			(*wide_target++) = wc;
-			(*target) = (char *)wide_target;
+			if(is_wide)
+			{
+				wchar_t * wide_target = (wchar_t *)(*target);
+
+				(*wide_target++) = wc;
+				(*target) = (char *)wide_target;
+			}
+			else
+			{
+				n = wcrtomb((*target),wc,NULL);
+				if(n == (size_t)-1)
+					return(FALSE);
+
+				(*target) += n;
+			}
 		}
 	}
 	else
@@ -363,6 +427,99 @@ store_character(char ** target,int c,BOOL is_wide,mbstate_t * state)
 	return(TRUE);
 }
 
+/* The bytes of the character that begins with c, which are one unless the
+   input is UTF-8.  Returns how many, or 0 if the input ends too early. */
+STATIC int
+read_character(FILE * stream,int c,BOOL is_utf8,unsigned char * bytes)
+{
+	int num_bytes = 1;
+	int num_missing = 0;
+
+	bytes[0] = c;
+
+	if(is_utf8 && c >= 0xC0)
+		num_missing = (c < 0xE0) ? 1 : (c < 0xF0) ? 2 : 3;
+
+	while(num_missing-- > 0)
+	{
+		c = scan_getc(stream);
+		if(c == EOF)
+			return(0);
+
+		bytes[num_bytes++] = c;
+	}
+
+	return(num_bytes);
+}
+
+/* Stores the character that begins with c, if target isn't NULL.  Returns FALSE
+   if that doesn't work out. */
+STATIC BOOL
+store_whole_character(FILE * stream,char ** target,int c,BOOL is_wide,BOOL is_transport,BOOL is_utf8,mbstate_t * state)
+{
+	unsigned char bytes[MB_LEN_MAX];
+	int num_bytes;
+	int i;
+
+	num_bytes = read_character(stream,c,is_utf8,bytes);
+	if(num_bytes == 0)
+		return(FALSE);
+
+	if(target != NULL)
+	{
+		for(i = 0 ; i < num_bytes ; i++)
+		{
+			if(NOT store_character(target,bytes[i],is_wide,is_transport,state))
+				return(FALSE);
+		}
+	}
+
+	return(TRUE);
+}
+
+/* Is wc in the first length bytes of the UTF-8 text of a %[ conversion?  As
+   elsewhere in here, 'a-z' is a range unless it comes first or last. */
+STATIC BOOL
+in_utf8_scanset(const unsigned char * scanset,size_t length,wchar_t wc)
+{
+	wchar_t previous = 0;
+	wchar_t current;
+	BOOL in_range = FALSE;
+	size_t i = 0;
+
+	while(i < length)
+	{
+		mbstate_t state = 0;
+		size_t n = __utf8_to_wide(&current,(const char *)&scanset[i],length - i,&state);
+
+		if(n == (size_t)-1 || n == (size_t)-2 || n == 0)
+			break;
+
+		if(in_range)
+		{
+			if(previous <= wc && wc <= current)
+				return(TRUE);
+
+			in_range = FALSE;
+		}
+		else if (current == L'-' && i > 0 && i + n < length)
+		{
+			in_range = TRUE;
+		}
+		else
+		{
+			if(current == wc)
+				return(TRUE);
+
+			previous = current;
+		}
+
+		i += n;
+	}
+
+	return(FALSE);
+}
+
 STATIC VOID
 terminate_string(char * target,BOOL is_wide)
 {
@@ -371,6 +528,11 @@ terminate_string(char * target,BOOL is_wide)
 	else
 		(*target) = '\0';
 }
+
+/****************************************************************************/
+
+/* In UTF-8, a byte above 127 isn't white space of any kind. */
+#define IS_SPACE(c) (isspace(c) && (NOT is_wide_format || (c) < 0x80))
 
 /****************************************************************************/
 
@@ -400,6 +562,9 @@ vfscanf(FILE * __restrict stream, const char * __restrict format, va_list arg)
 	int num_assignments = 0;
 	int conversion_type;
 	int c;
+	BOOL is_wide_format;
+	BOOL is_transport;
+	BOOL is_utf8;
 
 	ENTER();
 
@@ -427,18 +592,23 @@ vfscanf(FILE * __restrict stream, const char * __restrict format, va_list arg)
 	   an 'end of file' condition. */
 	clearerr(stream);
 
+	/* For wide scanf(), a character may be several bytes. */
+	is_wide_format = (BOOL)(((struct iob *)stream)->iob_WideMode != NULL);
+	is_transport = (BOOL)(is_wide_format && ((struct iob *)stream)->iob_WideMode->wm_IsTransport);
+	is_utf8 = (BOOL)(is_transport || (is_wide_format && __utf8_encoding));
+
 	while((c = (*(unsigned char *)format)) != '\0')
 	{
 		D(("next format character is '%lc'",c));
 
-		if(isspace(c))
+		if(IS_SPACE(c))
 		{
 			/* Skip all blank spaces in the stream. */
 			format++;
 
-			while((c = __getc(stream)) != EOF)
+			while((c = scan_getc(stream)) != EOF)
 			{
-				if(isspace(c))
+				if(IS_SPACE(c))
 				{
 					total_num_chars_read++;
 				}
@@ -447,7 +617,7 @@ vfscanf(FILE * __restrict stream, const char * __restrict format, va_list arg)
 					/* End of the white space; we push the last
 					 * character read back into the stream.
 					 */
-					if(ungetc(c,stream) == EOF)
+					if(scan_ungetc(c,stream) == EOF)
 						goto out;
 
 					/* Resume scanning. */
@@ -472,14 +642,14 @@ vfscanf(FILE * __restrict stream, const char * __restrict format, va_list arg)
 		}
 		else if (c != '%')
 		{
+			unsigned char bytes[MB_LEN_MAX];
+			int num_bytes;
 			int d;
 
 			SHOWMSG("next character must match exactly");
 
 			/* Match the next character in the stream. */
-			format++;
-
-			d = __getc(stream);
+			d = scan_getc(stream);
 			if(d == EOF)
 			{
 				SHOWMSG("end of file");
@@ -490,18 +660,27 @@ vfscanf(FILE * __restrict stream, const char * __restrict format, va_list arg)
 
 				break;
 			}
-			else if (c == d)
+
+			num_bytes = read_character(stream,d,is_utf8,bytes);
+			if(num_bytes == 0)
+				goto out;
+
+			if(memcmp(format,bytes,num_bytes) == SAME)
 			{
 				SHOWMSG("it matches");
 
+				format += num_bytes;
 				total_num_chars_read++;
 			}
 			else
 			{
 				SHOWMSG("it does not match");
 
-				if(ungetc(d,stream) == EOF)
-					goto out;
+				while(num_bytes > 0)
+				{
+					if(scan_ungetc(bytes[--num_bytes],stream) == EOF)
+						goto out;
+				}
 
 				break;
 			}
@@ -722,9 +901,9 @@ vfscanf(FILE * __restrict stream, const char * __restrict format, va_list arg)
 		   conversion_type != 'n' &&
 		   conversion_type != '[')
 		{
-			while((c = __getc(stream)) != EOF)
+			while((c = scan_getc(stream)) != EOF)
 			{
-				if(isspace(c))
+				if(IS_SPACE(c))
 				{
 					total_num_chars_read++;
 				}
@@ -733,7 +912,7 @@ vfscanf(FILE * __restrict stream, const char * __restrict format, va_list arg)
 					/* End of the white space; we push the last
 					 * character read back into the stream.
 					 */
-					if(ungetc(c,stream) == EOF)
+					if(scan_ungetc(c,stream) == EOF)
 						goto out;
 
 					/* Proceed with the conversion operation. */
@@ -795,7 +974,7 @@ vfscanf(FILE * __restrict stream, const char * __restrict format, va_list arg)
 
 			for(i = 0 ; i < maximum_field_width ; i++)
 			{
-				c = __getc(stream);
+				c = scan_getc(stream);
 				if(c == EOF)
 				{
 					/* Bail out if we hit the end of the stream. */
@@ -807,7 +986,7 @@ vfscanf(FILE * __restrict stream, const char * __restrict format, va_list arg)
 
 				total_num_chars_read++;
 
-				if(NOT assignment_suppressed && NOT store_character(&c_ptr,c,is_wide,&state))
+				if(NOT store_whole_character(stream,assignment_suppressed ? NULL : &c_ptr,c,is_wide,is_transport,is_utf8,&state))
 					goto out;
 
 				num_chars_processed++;
@@ -1045,7 +1224,7 @@ vfscanf(FILE * __restrict stream, const char * __restrict format, va_list arg)
 
 			if(maximum_field_width != 0)
 			{
-				c = __getc(stream);
+				c = scan_getc(stream);
 				if(c != EOF)
 				{
 					/* Skip the sign. */
@@ -1079,7 +1258,7 @@ vfscanf(FILE * __restrict stream, const char * __restrict format, va_list arg)
 							/* This could be an octal number, the
 							 * '0x' prefix or just a zero.
 							 */
-							c = __getc(stream);
+							c = scan_getc(stream);
 
 							/* This takes care of the '0x' prefix for hexadecimal
 							   numbers ('%x') and also picks the right type of
@@ -1110,20 +1289,20 @@ vfscanf(FILE * __restrict stream, const char * __restrict format, va_list arg)
 								radix = 8;
 
 								/* Process the rest later. */
-								if(ungetc(c,stream) == EOF)
+								if(scan_ungetc(c,stream) == EOF)
 									goto out;
 							}
 							else if (c != EOF)
 							{
 								/* It's something else; put it back. */
-								if(ungetc(c,stream) == EOF)
+								if(scan_ungetc(c,stream) == EOF)
 									goto out;
 							}
 						}
 					}
 					else
 					{
-						if(ungetc(c,stream) == EOF)
+						if(scan_ungetc(c,stream) == EOF)
 							goto out;
 					}
 				}
@@ -1142,7 +1321,7 @@ vfscanf(FILE * __restrict stream, const char * __restrict format, va_list arg)
 			{
 				int digit;
 
-				while(maximum_field_width != 0 && (c = __getc(stream)) != EOF)
+				while(maximum_field_width != 0 && (c = scan_getc(stream)) != EOF)
 				{
 					/* Is this a digit or hexadecimal value? */
 					if('0' <= c && c <= '9')
@@ -1159,7 +1338,7 @@ vfscanf(FILE * __restrict stream, const char * __restrict format, va_list arg)
 					{
 						SHOWMSG("digit is larger than radix");
 
-						if(ungetc(c,stream) == EOF)
+						if(scan_ungetc(c,stream) == EOF)
 							goto out;
 
 						break;
@@ -1176,7 +1355,7 @@ vfscanf(FILE * __restrict stream, const char * __restrict format, va_list arg)
 								SHOWMSG("overflow!");
 
 								/* Put this back. */
-								if(ungetc(c,stream) == EOF)
+								if(scan_ungetc(c,stream) == EOF)
 									goto out;
 
 								break;
@@ -1187,7 +1366,7 @@ vfscanf(FILE * __restrict stream, const char * __restrict format, va_list arg)
 							SHOWMSG("overflow!");
 
 							/* Put this back. */
-							if(ungetc(c,stream) == EOF)
+							if(scan_ungetc(c,stream) == EOF)
 								goto out;
 
 							break;
@@ -1200,7 +1379,7 @@ vfscanf(FILE * __restrict stream, const char * __restrict format, va_list arg)
 							SHOWMSG("overflow!");
 
 							/* Put this back. */
-							if(ungetc(c,stream) == EOF)
+							if(scan_ungetc(c,stream) == EOF)
 								goto out;
 
 							break;
@@ -1308,12 +1487,12 @@ vfscanf(FILE * __restrict stream, const char * __restrict format, va_list arg)
 
 			if(maximum_field_width != 0)
 			{
-				while(maximum_field_width != 0 && (c = __getc(stream)) != EOF)
+				while(maximum_field_width != 0 && (c = scan_getc(stream)) != EOF)
 				{
 					/* Blank spaces stop the conversion process. */
-					if(isspace(c))
+					if(IS_SPACE(c))
 					{
-						if(ungetc(c,stream) == EOF)
+						if(scan_ungetc(c,stream) == EOF)
 							goto out;
 
 						break;
@@ -1322,13 +1501,11 @@ vfscanf(FILE * __restrict stream, const char * __restrict format, va_list arg)
 					total_num_chars_read++;
 					num_chars_processed++;
 
-					if(NOT assignment_suppressed)
-					{
-						if(NOT store_character(&s_ptr,c,is_wide,&state))
-							goto out;
+					if(NOT store_whole_character(stream,assignment_suppressed ? NULL : &s_ptr,c,is_wide,is_transport,is_utf8,&state))
+						goto out;
 
+					if(NOT assignment_suppressed)
 						terminate_string(s_ptr,is_wide); /* Try to NUL terminate this even in case of failure. */
-					}
 
 					if(maximum_field_width > 0)
 						maximum_field_width--;
@@ -1475,7 +1652,7 @@ vfscanf(FILE * __restrict stream, const char * __restrict format, va_list arg)
 		{
 			int d;
 
-			d = __getc(stream);
+			d = scan_getc(stream);
 			if(d == EOF)
 			{
 				SHOWMSG("end of file");
@@ -1493,7 +1670,7 @@ vfscanf(FILE * __restrict stream, const char * __restrict format, va_list arg)
 			else
 			{
 				/* This is not what we expected. We're finished. */
-				if(ungetc(d,stream) == EOF)
+				if(scan_ungetc(d,stream) == EOF)
 					goto out;
 
 				break;
@@ -1508,6 +1685,7 @@ vfscanf(FILE * __restrict stream, const char * __restrict format, va_list arg)
 			const unsigned char * scanset;
 			size_t scanset_length,i;
 			int pick;
+			BOOL has_bracket = FALSE;
 
 			if(NOT assignment_suppressed)
 			{
@@ -1565,6 +1743,7 @@ vfscanf(FILE * __restrict stream, const char * __restrict format, va_list arg)
 			if(c == ']')
 			{
 				set[c] = pick;
+				has_bracket = TRUE;
 
 				format++;
 			}
@@ -1623,25 +1802,55 @@ vfscanf(FILE * __restrict stream, const char * __restrict format, va_list arg)
 
 			if(maximum_field_width != 0)
 			{
-				while(maximum_field_width != 0 && (c = __getc(stream)) != EOF)
+				while(maximum_field_width != 0 && (c = scan_getc(stream)) != EOF)
 				{
+					unsigned char bytes[MB_LEN_MAX];
+					int num_bytes;
+					int matches;
+
 					assert( 0 <= c && c <= 255 );
+
+					num_bytes = read_character(stream,c,is_utf8,bytes);
+					if(num_bytes == 0)
+						goto out;
+
+					if(is_utf8)
+					{
+						mbstate_t character_state = 0;
+						wchar_t wc = 0;
+
+						__utf8_to_wide(&wc,(const char *)bytes,num_bytes,&character_state);
+
+						matches = (in_utf8_scanset(scanset,scanset_length,wc) || (has_bracket && wc == L']'));
+						if(pick == 0)
+							matches = !matches;
+					}
+					else
+					{
+						matches = set[c];
+					}
 
 					/* If the character is not part of the
 					 * range we stop further processing.
 					 */
-					if(set[c] == 0)
+					if(NOT matches)
 					{
-						if(ungetc(c,stream) == EOF)
-							goto out;
+						while(num_bytes > 0)
+						{
+							if(scan_ungetc(bytes[--num_bytes],stream) == EOF)
+								goto out;
+						}
 
 						break;
 					}
 
 					if(NOT assignment_suppressed)
 					{
-						if(NOT store_character(&s_ptr,c,is_wide,&state))
-							goto out;
+						for(i = 0 ; i < (size_t)num_bytes ; i++)
+						{
+							if(NOT store_character(&s_ptr,bytes[i],is_wide,is_transport,&state))
+								goto out;
+						}
 
 						terminate_string(s_ptr,is_wide); /* Try to NUL terminate this even in case of failure. */
 					}

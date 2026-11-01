@@ -20,15 +20,40 @@
 
 /****************************************************************************/
 
+/* String and format are in UTF-8, as anything in a wide string may be there. */
+static const struct wide_mode string_mode =
+{
+	TRUE,
+	NULL,
+	NULL
+};
+
+/****************************************************************************/
+
 int
 vswscanf(const wchar_t * __restrict s, const wchar_t * __restrict format, va_list arg)
 {
-	char *narrow_string = __wide_to_narrow(s);
-	char *narrow_format = __wide_to_narrow(format);
+	char *narrow_string = __wide_to_utf8(s);
+	char *narrow_format = __wide_to_utf8(format);
+	struct iob string_iob;
+	char local_buffer[32];
 	int result = EOF;
 
-	if (narrow_string != NULL && narrow_format != NULL)
-		result = vsscanf(narrow_string, narrow_format, arg);
+	if (narrow_string != NULL && narrow_format != NULL) {
+		__initialize_iob(&string_iob,__sscanf_hook_entry,
+			NULL,
+			local_buffer,sizeof(local_buffer),
+			-1,
+			-1,
+			IOBF_IN_USE | IOBF_READ | IOBF_BUFFER_MODE_FULL | IOBF_INTERNAL,
+			NULL);
+
+		string_iob.iob_String = (STRPTR)narrow_string;
+		string_iob.iob_StringLength = strlen(narrow_string);
+		string_iob.iob_WideMode = &string_mode;
+
+		result = vfscanf((FILE *)&string_iob, narrow_format, arg);
+	}
 
 	free(narrow_string);
 	free(narrow_format);
