@@ -43,6 +43,12 @@
 
 /****************************************************************************/
 
+#if defined(__amigaos4__) && !defined(_SOFT_FLOAT)
+#include "fenv_ppc.h"
+#endif /* __amigaos4__ && !_SOFT_FLOAT */
+
+/****************************************************************************/
+
 #if defined(FLOATING_POINT_SUPPORT)
 
 /****************************************************************************/
@@ -55,6 +61,26 @@ int
 feclearexcept(int excepts)
 {
 	__fpu_set_fpsr(__fpu_get_fpsr() & ~(unsigned long)(excepts & FE_ALL_EXCEPT));
+
+	return(0);
+}
+
+/****************************************************************************/
+
+#elif defined(__amigaos4__) && !defined(_SOFT_FLOAT)
+
+/****************************************************************************/
+
+int
+feclearexcept(int excepts)
+{
+	unsigned long mask = excepts & FE_ALL_EXCEPT;
+
+	/* FE_INVALID is a summary of the individual bits, and can't be cleared. */
+	if(excepts & FE_INVALID)
+		mask |= FPSCR_INVALID_BITS;
+
+	__fpu_set_fpscr(__fpu_get_fpscr() & ~mask);
 
 	return(0);
 }

@@ -43,11 +43,33 @@
 
 /****************************************************************************/
 
+#if defined(__amigaos4__) && !defined(_SOFT_FLOAT)
+#include "fenv_ppc.h"
+#endif /* __amigaos4__ && !_SOFT_FLOAT */
+
+/****************************************************************************/
+
 #if defined(FLOATING_POINT_SUPPORT)
 
 /****************************************************************************/
 
 #if defined(M68881_FLOATING_POINT_SUPPORT)
+
+/****************************************************************************/
+
+int
+feupdateenv(const fenv_t * envp)
+{
+	int excepts = fetestexcept(FE_ALL_EXCEPT);
+
+	fesetenv(envp);
+
+	return(feraiseexcept(excepts));
+}
+
+/****************************************************************************/
+
+#elif defined(__amigaos4__) && !defined(_SOFT_FLOAT)
 
 /****************************************************************************/
 

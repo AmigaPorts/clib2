@@ -43,6 +43,12 @@
 
 /****************************************************************************/
 
+#if defined(__amigaos4__) && !defined(_SOFT_FLOAT)
+#include "fenv_ppc.h"
+#endif /* __amigaos4__ && !_SOFT_FLOAT */
+
+/****************************************************************************/
+
 #if defined(FLOATING_POINT_SUPPORT)
 
 /****************************************************************************/
@@ -58,6 +64,22 @@ feholdexcept(fenv_t * envp)
 
 	__fpu_set_fpsr(envp->__fpsr & ~(unsigned long)FE_ALL_EXCEPT);
 	__fpu_set_fpcr(envp->__fpcr & ~FPCR_ENABLE_BITS);
+
+	return(0);
+}
+
+/****************************************************************************/
+
+#elif defined(__amigaos4__) && !defined(_SOFT_FLOAT)
+
+/****************************************************************************/
+
+int
+feholdexcept(fenv_t * envp)
+{
+	fegetenv(envp);
+
+	__fpu_set_fpscr((unsigned long)(*envp) & ~(FPSCR_EXCEPT_BITS | FPSCR_ENABLE_BITS));
 
 	return(0);
 }
