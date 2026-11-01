@@ -52,11 +52,27 @@ matches_class(const char * name,size_t length,int c)
 
 /****************************************************************************/
 
+/* The character at *p in a bracket expression, which a backslash can make an
+   ordinary one.  Returns -1 if the expression ends there. */
+static int
+bracket_character(const char ** p,int flags)
+{
+	if((**p) == '\\' && NOT_ESCAPED(flags))
+		(*p)++;
+
+	if((**p) == '\0')
+		return(-1);
+
+	return((unsigned char)*(*p)++);
+}
+
+/****************************************************************************/
+
 /* Tests the character c against the bracket expression after the '[' at
    pattern.  Returns where the expression ends, or NULL if it doesn't, and
    the '[' is an ordinary character then. */
 static const char *
-match_bracket(const char * pattern,int c,int flags,int * matched)
+scan_bracket(const char * pattern,int c,int flags,int * matched)
 {
 	const char * p = pattern;
 	int is_negated = 0;
@@ -100,7 +116,9 @@ match_bracket(const char * pattern,int c,int flags,int * matched)
 			continue;
 		}
 
-		low = (*p++);
+		low = bracket_character(&p,flags);
+		if(low < 0)
+			return(NULL);
 
 		if(p[0] == '-' && p[1] != ']' && p[1] != '\0')
 		{
@@ -108,7 +126,9 @@ match_bracket(const char * pattern,int c,int flags,int * matched)
 
 			p++;
 
-			high = (*p++);
+			high = bracket_character(&p,flags);
+			if(high < 0)
+				return(NULL);
 
 			if(fold(low,flags) <= fold(c,flags) && fold(c,flags) <= fold(high,flags))
 				found = 1;
@@ -126,6 +146,21 @@ match_bracket(const char * pattern,int c,int flags,int * matched)
 
 /****************************************************************************/
 
+/* A backslash that would hide the only ']' that ends the expression is an
+   ordinary character after all, as in "[?*\\]". */
+static const char *
+match_bracket(const char * pattern,int c,int flags,int * matched)
+{
+	const char * end = scan_bracket(pattern,c,flags,matched);
+
+	if(end == NULL && NOT_ESCAPED(flags))
+		end = scan_bracket(pattern,c,flags | FNM_NOESCAPE,matched);
+
+	return(end);
+}
+
+/****************************************************************************/
+
 /* A leading period is one at the start of the string or, with FNM_PATHNAME,
    after a '/'. */
 static int
@@ -139,9 +174,15 @@ is_leading_period(const char * start,const char * s,int flags)
 
 /****************************************************************************/
 
+/* The last '*' is the only one that ever has to take more characters: what
+   an earlier one could still take, this one can take as well, and that keeps
+   the time this takes proportional to the lengths of pattern and string. */
 static int
 match(const char * p,const char * start,const char * s,int flags)
 {
+	const char * star_p = NULL;
+	const char * star_s = NULL;
+
 	while(1)
 	{
 		int c = (*p);
@@ -155,16 +196,15 @@ match(const char * p,const char * start,const char * s,int flags)
 				if((*s) == '\0' || ((flags & FNM_LEADING_DIR) && (*s) == '/'))
 					return(0);
 
-				return(FNM_NOMATCH);
+				goto mismatch;
 
 			case '?':
 
 				if((*s) == '\0' || ((flags & FNM_PATHNAME) && (*s) == '/') || is_leading_period(start,s,flags))
-					return(FNM_NOMATCH);
+					goto mismatch;
 
 				p++;
 				s++;
-
 				continue;
 
 			case '*':
@@ -173,34 +213,25 @@ match(const char * p,const char * start,const char * s,int flags)
 					p++;
 
 				if(is_leading_period(start,s,flags))
-					return(FNM_NOMATCH);
+					goto mismatch;
 
-				while(1)
-				{
-					if(match(p,start,s,flags) == 0)
-						return(0);
-
-					if((*s) == '\0' || ((flags & FNM_PATHNAME) && (*s) == '/'))
-						return(FNM_NOMATCH);
-
-					s++;
-				}
+				star_p = p;
+				star_s = s;
+				continue;
 
 			case '[':
 
 				if((*s) == '\0')
-					return(FNM_NOMATCH);
+					goto mismatch;
 
 				end = match_bracket(p + 1,(*s),flags,&matched);
-
 				if(end != NULL)
 				{
 					if(NOT_FOUND(matched) || ((flags & FNM_PATHNAME) && (*s) == '/') || is_leading_period(start,s,flags))
-						return(FNM_NOMATCH);
+						goto mismatch;
 
 					p = end;
 					s++;
-
 					continue;
 				}
 
@@ -221,11 +252,22 @@ match(const char * p,const char * start,const char * s,int flags)
 				break;
 		}
 
-		if(fold(*p,flags) != fold(*s,flags) || (*s) == '\0')
+		if(fold(*p,flags) == fold(*s,flags) && (*s) != '\0')
+		{
+			p++;
+			s++;
+			continue;
+		}
+
+	 mismatch:
+
+		if(star_p == NULL || (*star_s) == '\0' || ((flags & FNM_PATHNAME) && (*star_s) == '/'))
 			return(FNM_NOMATCH);
 
-		p++;
-		s++;
+		star_s++;
+
+		p = star_p;
+		s = star_s;
 	}
 }
 
