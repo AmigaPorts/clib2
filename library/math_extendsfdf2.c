@@ -57,9 +57,9 @@ asm(
 "	.even\n"
 
 "	.globl	_MathIeeeDoubTransBase\n"
-"	.globl	___extendsfdf2\n"
+"	.globl	___math_extendsfdf2\n"
 
-"___extendsfdf2:\n"
+"___math_extendsfdf2:\n"
 
 "	movel	a6,sp@-\n"
 "	movel	"A4(_MathIeeeDoubTransBase)",a6\n"
@@ -69,6 +69,33 @@ asm(
 "	rts\n"
 
 );
+
+/****************************************************************************/
+
+/****************************************************************************/
+
+/* mathieeedoubtrans.library takes an infinity for a large number. */
+extern double __math_extendsfdf2(float x);
+
+double
+__extendsfdf2(float x)
+{
+	union { float f; unsigned long w; } in;
+	union { double d; unsigned long w[2]; } out;
+
+	in.f = x;
+
+	if((in.w & 0x7f800000) != 0x7f800000)
+		return(__math_extendsfdf2(x));
+
+	out.w[0] = (in.w & 0x80000000) | 0x7ff00000;
+	out.w[1] = 0;
+
+	if((in.w & 0x007fffff) != 0)
+		out.w[0] |= 0x00080000;
+
+	return(out.d);
+}
 
 /****************************************************************************/
 
