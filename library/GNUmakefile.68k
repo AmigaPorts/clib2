@@ -683,6 +683,7 @@ MATH_LIB = \
 	math_cosh.o \
 	math_coshf.o \
 	math_erf.o \
+	math_errno.o \
 	math_erfc.o \
 	math_erfcf.o \
 	math_erff.o \

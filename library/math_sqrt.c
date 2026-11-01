@@ -259,9 +259,19 @@ sqrt(double x)
 		return __sqrt(x);
 	}
 
-	__set_errno(EDOM);
+	/* A NaN that comes in is no domain error. */
+	if(!isnan(x))
+		__set_errno(EDOM);
+
 	return __domain_error(x);
 }
+
+/****************************************************************************/
+
+#if defined(__MATH_SETS_ERRNO)
+#undef sqrt
+__MATH_ERRNO_1(double, double, sqrt)
+#endif /* __MATH_SETS_ERRNO */
 
 /****************************************************************************/
 

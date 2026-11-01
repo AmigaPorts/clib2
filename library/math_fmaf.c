@@ -100,4 +100,11 @@ fmaf(float x,float y,float z)
 
 /****************************************************************************/
 
+#if defined(__MATH_SETS_ERRNO)
+#undef fmaf
+__MATH_ERRNO_3(float, float, fmaf)
+#endif /* __MATH_SETS_ERRNO */
+
+/****************************************************************************/
+
 #endif /* FLOATING_POINT_SUPPORT */

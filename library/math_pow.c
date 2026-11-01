@@ -500,4 +500,11 @@ pow(double x,double y)
 
 /****************************************************************************/
 
+#if defined(__MATH_SETS_ERRNO)
+#undef pow
+__MATH_ERRNO_2(double, double, pow)
+#endif /* __MATH_SETS_ERRNO */
+
+/****************************************************************************/
+
 #endif /* FLOATING_POINT_SUPPORT */

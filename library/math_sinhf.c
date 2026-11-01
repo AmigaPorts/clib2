@@ -114,4 +114,11 @@ sinhf(float x)
 
 /****************************************************************************/
 
+#if defined(__MATH_SETS_ERRNO)
+#undef sinhf
+__MATH_ERRNO_1(float, float, sinhf)
+#endif /* __MATH_SETS_ERRNO */
+
+/****************************************************************************/
+
 #endif /* FLOATING_POINT_SUPPORT */

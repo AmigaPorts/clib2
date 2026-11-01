@@ -565,4 +565,11 @@ static long double powil(long double x, int nn)
 
 /****************************************************************************/
 
+#if defined(__MATH_SETS_ERRNO)
+#undef powl
+__MATH_ERRNO_2(long double, long_double, powl)
+#endif /* __MATH_SETS_ERRNO */
+
+/****************************************************************************/
+
 #endif /* FLOATING_POINT_SUPPORT */

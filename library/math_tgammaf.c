@@ -58,4 +58,11 @@ tgammaf(float x)
 
 /****************************************************************************/
 
+#if defined(__MATH_SETS_ERRNO)
+#undef tgammaf
+__MATH_ERRNO_1(float, float, tgammaf)
+#endif /* __MATH_SETS_ERRNO */
+
+/****************************************************************************/
+
 #endif /* FLOATING_POINT_SUPPORT */

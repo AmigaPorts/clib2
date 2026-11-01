@@ -132,4 +132,11 @@ asinf(float x)
 
 /****************************************************************************/
 
+#if defined(__MATH_SETS_ERRNO)
+#undef asinf
+__MATH_ERRNO_1(float, float, asinf)
+#endif /* __MATH_SETS_ERRNO */
+
+/****************************************************************************/
+
 #endif /* FLOATING_POINT_SUPPORT */

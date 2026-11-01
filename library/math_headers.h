@@ -36,6 +36,13 @@
 
 /****************************************************************************/
 
+/* This has to come first, for the prototypes in <math.h>. */
+#ifndef _MATH_UNCHECKED_H
+#include "math_unchecked.h"
+#endif /* _MATH_UNCHECKED_H */
+
+/****************************************************************************/
+
 #include <limits.h>
 #include <errno.h>
 #include <float.h>
@@ -234,6 +241,12 @@ extern double __get_huge_val(void);
 
 /* math_huge_valf.c */
 extern float __get_huge_valf(void);
+
+/****************************************************************************/
+
+#ifndef _MATH_ERRNO_H
+#include "math_errno.h"
+#endif /* _MATH_ERRNO_H */
 
 /****************************************************************************/
 

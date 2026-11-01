@@ -183,7 +183,12 @@ __exp(double x)
 	    if(x > o_threshold)
 			return huge*huge; /* overflow */
 	    if(x < u_threshold)
-			return twom1000*twom1000; /* underflow */
+		{
+			/* Not computed before it runs, or nothing is raised. */
+			volatile double small = twom1000;
+
+			return small*small; /* underflow */
+		}
 	}
 
     /* argument reduction */
@@ -247,6 +252,13 @@ exp(double x)
 
 	return(result);
 }
+
+/****************************************************************************/
+
+#if defined(__MATH_SETS_ERRNO)
+#undef exp
+__MATH_ERRNO_1(double, double, exp)
+#endif /* __MATH_SETS_ERRNO */
 
 /****************************************************************************/
 

@@ -130,4 +130,11 @@ tan(double x)
 
 /****************************************************************************/
 
+#if defined(__MATH_SETS_ERRNO)
+#undef tan
+__MATH_ERRNO_1(double, double, tan)
+#endif /* __MATH_SETS_ERRNO */
+
+/****************************************************************************/
+
 #endif /* FLOATING_POINT_SUPPORT */

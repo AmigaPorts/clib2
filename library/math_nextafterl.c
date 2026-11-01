@@ -86,4 +86,11 @@ long double nextafterl(long double x, long double y)
 
 /****************************************************************************/
 
+#if defined(__MATH_SETS_ERRNO)
+#undef nextafterl
+__MATH_ERRNO_NEXT(long double, long_double, nextafterl, long double)
+#endif /* __MATH_SETS_ERRNO */
+
+/****************************************************************************/
+
 #endif /* FLOATING_POINT_SUPPORT */

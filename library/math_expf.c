@@ -97,7 +97,13 @@ expf(float x)
             if(hx==0x7f800000)
 		return (xsb==0)? x:0.0;		/* exp(+-inf)={inf,0} */
 	    if(x > o_threshold) return huge*huge; /* overflow */
-	    if(x < u_threshold) return twom100*twom100; /* underflow */
+	    if(x < u_threshold)
+	    {
+		/* Not computed before it runs, or nothing is raised. */
+		volatile float small = twom100;
+
+		return small*small; /* underflow */
+	    }
 	}
 
     /* argument reduction */
@@ -150,6 +156,13 @@ expf(float x)
 }
 
 #endif /* M68881_FLOATING_POINT_SUPPORT */
+
+/****************************************************************************/
+
+#if defined(__MATH_SETS_ERRNO)
+#undef expf
+__MATH_ERRNO_1(float, float, expf)
+#endif /* __MATH_SETS_ERRNO */
 
 /****************************************************************************/
 

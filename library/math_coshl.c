@@ -98,4 +98,11 @@ long double coshl(long double x)
 
 /****************************************************************************/
 
+#if defined(__MATH_SETS_ERRNO)
+#undef coshl
+__MATH_ERRNO_1(long double, long_double, coshl)
+#endif /* __MATH_SETS_ERRNO */
+
+/****************************************************************************/
+
 #endif /* FLOATING_POINT_SUPPORT */

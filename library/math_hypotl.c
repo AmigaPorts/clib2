@@ -103,4 +103,11 @@ long double hypotl(long double x, long double y)
 
 /****************************************************************************/
 
+#if defined(__MATH_SETS_ERRNO)
+#undef hypotl
+__MATH_ERRNO_2(long double, long_double, hypotl)
+#endif /* __MATH_SETS_ERRNO */
+
+/****************************************************************************/
+
 #endif /* FLOATING_POINT_SUPPORT */

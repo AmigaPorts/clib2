@@ -140,4 +140,11 @@ fmodf(float x, float y)
 
 /****************************************************************************/
 
+#if defined(__MATH_SETS_ERRNO)
+#undef fmodf
+__MATH_ERRNO_2(float, float, fmodf)
+#endif /* __MATH_SETS_ERRNO */
+
+/****************************************************************************/
+
 #endif /* FLOATING_POINT_SUPPORT */

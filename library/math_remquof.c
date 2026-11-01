@@ -86,4 +86,11 @@ remquof(float x,float y,int * quo)
 
 /****************************************************************************/
 
+#if defined(__MATH_SETS_ERRNO)
+#undef remquof
+__MATH_ERRNO_REMQUO(float, float, remquof)
+#endif /* __MATH_SETS_ERRNO */
+
+/****************************************************************************/
+
 #endif /* FLOATING_POINT_SUPPORT */

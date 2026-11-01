@@ -392,4 +392,11 @@ long double lgammal(long double x)
 
 /****************************************************************************/
 
+#if defined(__MATH_SETS_ERRNO)
+#undef lgammal
+__MATH_ERRNO_1(long double, long_double, lgammal)
+#endif /* __MATH_SETS_ERRNO */
+
+/****************************************************************************/
+
 #endif /* FLOATING_POINT_SUPPORT */

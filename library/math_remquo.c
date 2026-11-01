@@ -86,4 +86,11 @@ remquo(double x,double y,int * quo)
 
 /****************************************************************************/
 
+#if defined(__MATH_SETS_ERRNO)
+#undef remquo
+__MATH_ERRNO_REMQUO(double, double, remquo)
+#endif /* __MATH_SETS_ERRNO */
+
+/****************************************************************************/
+
 #endif /* FLOATING_POINT_SUPPORT */

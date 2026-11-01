@@ -166,4 +166,11 @@ scalbnl(long double x, int n)
 
 /****************************************************************************/
 
+#if defined(__MATH_SETS_ERRNO)
+#undef scalbnl
+__MATH_ERRNO_SCALE(long double, long_double, scalbnl, int)
+#endif /* __MATH_SETS_ERRNO */
+
+/****************************************************************************/
+
 #endif /* FLOATING_POINT_SUPPORT */

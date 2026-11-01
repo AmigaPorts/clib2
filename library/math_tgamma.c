@@ -209,4 +209,11 @@ tgamma(double x)
 
 /****************************************************************************/
 
+#if defined(__MATH_SETS_ERRNO)
+#undef tgamma
+__MATH_ERRNO_1(double, double, tgamma)
+#endif /* __MATH_SETS_ERRNO */
+
+/****************************************************************************/
+
 #endif /* FLOATING_POINT_SUPPORT */

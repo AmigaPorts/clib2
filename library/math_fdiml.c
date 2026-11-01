@@ -58,4 +58,11 @@ long double fdiml(long double x, long double y)
 
 /****************************************************************************/
 
+#if defined(__MATH_SETS_ERRNO)
+#undef fdiml
+__MATH_ERRNO_2(long double, long_double, fdiml)
+#endif /* __MATH_SETS_ERRNO */
+
+/****************************************************************************/
+
 #endif /* FLOATING_POINT_SUPPORT */

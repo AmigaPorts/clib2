@@ -508,6 +508,19 @@ extern __stdargs long double pow10l(long double x);
 
 /****************************************************************************/
 
+/* How the math functions report an error. An FPU raises the exception flags
+   by itself. Without one there are none, so it has to be errno. */
+#define MATH_ERRNO		1
+#define MATH_ERREXCEPT	2
+
+#if defined(__HAVE_68881__) || (defined(__amigaos4__) && !defined(_SOFT_FLOAT))
+#define math_errhandling MATH_ERREXCEPT
+#else
+#define math_errhandling MATH_ERRNO
+#endif /* __HAVE_68881__ || FPU on the PowerPC */
+
+/****************************************************************************/
+
 #ifndef FLT_EVAL_METHOD
 #define FLT_EVAL_METHOD __FLT_EVAL_METHOD__
 #endif /* FLT_EVAL_METHOD */

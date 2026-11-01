@@ -234,4 +234,11 @@ done:
 
 /****************************************************************************/
 
+#if defined(__MATH_SETS_ERRNO)
+#undef log2l
+__MATH_ERRNO_1(long double, long_double, log2l)
+#endif /* __MATH_SETS_ERRNO */
+
+/****************************************************************************/
+
 #endif /* FLOATING_POINT_SUPPORT */

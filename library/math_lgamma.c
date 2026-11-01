@@ -273,4 +273,11 @@ lgamma(double x)
 
 /****************************************************************************/
 
+#if defined(__MATH_SETS_ERRNO)
+#undef lgamma
+__MATH_ERRNO_1(double, double, lgamma)
+#endif /* __MATH_SETS_ERRNO */
+
+/****************************************************************************/
+
 #endif /* FLOATING_POINT_SUPPORT */

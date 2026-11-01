@@ -127,4 +127,11 @@ long double remquol(long double x, long double y, int *quo)
 
 /****************************************************************************/
 
+#if defined(__MATH_SETS_ERRNO)
+#undef remquol
+__MATH_ERRNO_REMQUO(long double, long_double, remquol)
+#endif /* __MATH_SETS_ERRNO */
+
+/****************************************************************************/
+
 #endif /* FLOATING_POINT_SUPPORT */

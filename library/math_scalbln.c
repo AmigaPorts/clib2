@@ -32,4 +32,11 @@ scalbln(double x, long n)
 
 /****************************************************************************/
 
+#if defined(__MATH_SETS_ERRNO)
+#undef scalbln
+__MATH_ERRNO_SCALE(double, double, scalbln, long)
+#endif /* __MATH_SETS_ERRNO */
+
+/****************************************************************************/
+
 #endif /* FLOATING_POINT_SUPPORT */

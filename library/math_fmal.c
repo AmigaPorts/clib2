@@ -329,4 +329,11 @@ long double fmal(long double x, long double y, long double z)
 
 /****************************************************************************/
 
+#if defined(__MATH_SETS_ERRNO)
+#undef fmal
+__MATH_ERRNO_3(long double, long_double, fmal)
+#endif /* __MATH_SETS_ERRNO */
+
+/****************************************************************************/
+
 #endif /* FLOATING_POINT_SUPPORT */
