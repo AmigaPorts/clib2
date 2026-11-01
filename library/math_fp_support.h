@@ -122,6 +122,75 @@ __power_of_two(int n)
 	return(u.value);
 }
 
+/* ceil() and floor() work on the bits, and round away from zero when x has the
+   sign in away: fint is not in the hardware of a 68040, and it raises INEXACT,
+   which C23's Annex F says these functions don't. */
+static __inline__ double
+__round_to_integer(double x, unsigned long away)
+{
+	union ieee_double u;
+	unsigned long hi, lo, sign, mask, next;
+	int exponent;
+
+	u.value = x;
+	hi = u.raw[0];
+	lo = u.raw[1];
+	sign = hi & 0x80000000UL;
+	exponent = (int)((hi >> 20) & 0x7ff) - 1023;
+
+	if(exponent == 1024)
+		return(x + x);
+
+	if(exponent >= 52)
+		return(x);
+
+	if(exponent < 0)
+	{
+		if((hi & 0x7fffffffUL) == 0 && lo == 0)
+			return(x);
+
+		hi = (sign == away) ? (sign | 0x3ff00000UL) : sign;
+		lo = 0;
+	}
+	else if(exponent < 20)
+	{
+		mask = 0xfffffUL >> exponent;
+
+		if((hi & mask) == 0 && lo == 0)
+			return(x);
+
+		if(sign == away)
+			hi += mask + 1;
+
+		hi &= ~mask;
+		lo = 0;
+	}
+	else
+	{
+		mask = 0xffffffffUL >> (exponent - 20);
+
+		if((lo & mask) == 0)
+			return(x);
+
+		if(sign == away)
+		{
+			next = lo + mask;
+
+			if(next < lo)
+				hi++;
+
+			lo = next;
+		}
+
+		lo &= ~mask;
+	}
+
+	u.raw[0] = hi;
+	u.raw[1] = lo;
+
+	return(u.value);
+}
+
 /* An inexact result that is tiny in its own format has underflowed, but the
    FPU can't know that: to its 80 bits the number is an ordinary one, and may
    well fit a double exactly when it is stored, which raises nothing.

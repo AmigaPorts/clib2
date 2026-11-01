@@ -122,28 +122,7 @@ __floor(double x)
 INLINE STATIC const double
 __floor(double x)
 {
-	int rounding_mode, round_down;
-	double result;
-
-	__asm __volatile ("fmove%.l fpcr,%0"
-	                  : "=dm" (rounding_mode)
-	                  : /* no inputs */ );
-
-	round_down = (rounding_mode & ~0x10) | 0x20;
-
-	__asm __volatile ("fmove%.l %0,fpcr"
-	                  : /* no outputs */
-	                  : "dmi" (round_down));
-
-	__asm __volatile ("fint%.x %1,%0"
-	                  : "=f" (result)
-	                  : "f" (x));
-
-	__asm __volatile ("fmove%.l %0,fpcr"
-	                  : /* no outputs */
-	                  : "dmi" (rounding_mode));
-
-	return(result);
+	return(__round_to_integer(x, 0x80000000UL));
 }
 
 #endif /* M68881_FLOATING_POINT_SUPPORT */
