@@ -408,6 +408,7 @@ C_LIB = \
 	string_memchr.o \
 	string_memmem.o \
 	unistd_fnmatch.o \
+	unistd_pipe.o \
 	wchar_narrow.o \
 	string_memcmp.o \
 	string_memcpy.o \

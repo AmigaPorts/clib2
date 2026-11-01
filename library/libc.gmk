@@ -327,6 +327,7 @@ C_LIB := \
 	string_strspn.o \
 	string_strstr.o \
 	unistd_fnmatch.o \
+	unistd_pipe.o \
 	string_strtok.o \
 	string_strtok_r.o \
 	string_strxfrm.o \

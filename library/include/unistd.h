@@ -110,6 +110,7 @@ extern char * optarg;
 extern __stdargs int isatty(int file_descriptor);
 extern __stdargs int dup(int file_descriptor);
 extern __stdargs int dup2(int file_descriptor1, int file_descriptor2);
+extern __stdargs int pipe(int fildes[2]);
 extern __stdargs int access(const char * path_name, int mode);
 extern __stdargs int chown(const char * path_name, uid_t owner, gid_t group);
 extern __stdargs int fchown(int file_descriptor, uid_t owner, gid_t group);
