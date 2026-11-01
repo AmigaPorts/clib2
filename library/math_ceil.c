@@ -221,6 +221,12 @@ ceil(double x)
 {
 	double result;
 
+#if defined(IEEE_FLOATING_POINT_SUPPORT)
+	/* IEEEDPCeil() gets it wrong, by a whole 1. */
+	if(x == 0.0)
+		return(x);
+#endif /* IEEE_FLOATING_POINT_SUPPORT */
+
 	result = __ceil(x);
 
 	/* ceil(-0.5) is -0. */

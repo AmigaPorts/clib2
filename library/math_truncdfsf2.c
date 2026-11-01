@@ -75,7 +75,7 @@ asm(
 /****************************************************************************/
 
 /* mathieeedoubtrans.library never comes back from an infinity, so what doesn't
-   fit doesn't go there. */
+   fit doesn't go there. It also loses the sign of zero. */
 extern float __math_truncdfsf2(double x);
 
 float
@@ -89,7 +89,14 @@ __truncdfsf2(double x)
 
 	exponent = in.w[0] & 0x7ff00000;
 	if(exponent < 0x47f00000)
-		return(__math_truncdfsf2(x));
+	{
+		if(((in.w[0] << 1) | in.w[1]) != 0)
+			return(__math_truncdfsf2(x));
+
+		out.w = in.w[0];
+
+		return(out.f);
+	}
 
 	out.w = (in.w[0] & 0x80000000) | 0x7f800000;
 
