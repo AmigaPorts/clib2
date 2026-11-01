@@ -57,16 +57,17 @@ long double nextafterl(long double x, long double y)
 		ux.i.m = 1;
 		ux.i.se = uy.i.se & 0x8000;
 	} else if ((x < y) == !(ux.i.se & 0x8000)) {
+		/* Exponents 0 and 1 have the same weight on the x87.  Here each
+		   one is half of the next, with the top bit set in both. */
 		ux.i.m++;
-		if (ux.i.m << 1 == 0) {
+		if (ux.i.m == 0) {
 			ux.i.m = 1ULL << 63;
 			ux.i.se++;
 		}
 	} else {
-		if (ux.i.m << 1 == 0) {
+		if (ux.i.m << 1 == 0 && (ux.i.se & 0x7fff) != 0) {
 			ux.i.se--;
-			if (ux.i.se)
-				ux.i.m = 0;
+			ux.i.m = 0;
 		}
 		ux.i.m--;
 	}

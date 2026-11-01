@@ -27,15 +27,7 @@ long double exp10l(long double x)
 	/* fabsl(n) < 16 without raising invalid on nan */
 	if ((u.i.se & 0x7fff) < 0x3fff+4) {
 		if (!y) return p10[(int)n+15];
-		/* log2(10) * y, and what rounding leaves out of that, which at
-		   64 bits would be most of a unit in the last place. */
-		static const long double log2_10 = 3.32192809488736234787031942948939L;
-		static const long double log2_10_rest = 0x1.24afdbfd36bf7p-64L;
-		long double t = log2_10 * y;
-		long double rest = fmal(log2_10, y, -t) + log2_10_rest * y;
-		long double r = exp2l(t);
-		r += r * rest * 0.693147180559945309417232121458176568L;
-		return r * p10[(int)n+15];
+		return powl(10.0L, x);
 	}
 	return powl(10.0, x);
 }

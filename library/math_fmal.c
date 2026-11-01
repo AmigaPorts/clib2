@@ -308,7 +308,7 @@ long double fmal(long double x, long double y, long double z)
 		adj = r.lo + xy.lo;
 		ret = scalbnl(r.hi + adj, spread);
 #if defined(FE_INEXACT) && defined(FE_UNDERFLOW)
-		if (ilogbl(ret) < -16382 && fetestexcept(FE_INEXACT))
+		if (ilogbl(ret) < -16383 && fetestexcept(FE_INEXACT))
 			feraiseexcept(FE_UNDERFLOW);
 		else if (e)
 			feraiseexcept(FE_INEXACT);
