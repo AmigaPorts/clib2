@@ -24,29 +24,23 @@ int
 vswprintf(wchar_t * __restrict s, size_t maxlen, const wchar_t * __restrict format,
     va_list arg)
 {
-	const char *from;
 	char *text;
+	size_t size;
 	size_t count;
-	mbstate_t state = 0;
 	int length;
 	int result = -1;
 
 	if (maxlen == 0)
 		return -1;
 
-	length = __vwide_format(&text, format, arg);
-
+	length = __vwide_format(&text, &size, format, arg);
 	if (length >= 0) {
-		from = text;
-		count = mbsrtowcs(s, &from, maxlen, &state);
+		count = __utf8_to_wide_string(s, maxlen - 1, text, size);
+		s[count] = L'\0';
 
-		/* from is NULL if all of it fitted, with the terminating NUL. */
-		if (count != (size_t)-1) {
-			if (from == NULL)
-				result = (int)count;
-			else
-				s[maxlen - 1] = L'\0';
-		}
+		/* It has to fit with its terminating NUL. */
+		if ((size_t)length < maxlen)
+			result = length;
 
 		free(text);
 	}

@@ -50,6 +50,10 @@
 #include "stdlib_headers.h"
 #endif /* _STDLIB_HEADERS_H */
 
+#ifndef _STDIO_HEADERS_H
+#include "stdio_headers.h"
+#endif /* _STDIO_HEADERS_H */
+
 /****************************************************************************/
 
 /* Is the multibyte encoding UTF-8, rather than bytes as characters? */
@@ -60,8 +64,12 @@ extern size_t __utf8_to_wide(wchar_t * __restrict wcp, const char * __restrict s
     mbstate_t * __restrict ps);
 extern int __utf8_from_wide(char * p, wchar_t c);
 
+/* Text in UTF-8, as the wide functions pass it around. */
+extern char * __wide_to_utf8(const wchar_t * s);
+extern size_t __utf8_to_wide_string(wchar_t * s, size_t n, const char * text, size_t size);
+extern int __vwide_format(char ** text, size_t * size, const wchar_t * format, va_list arg);
+
 extern char * __wide_to_narrow(const wchar_t * s);
-extern int __vwide_format(char ** text, const wchar_t * format, va_list arg);
 extern char * __wcsto_narrow(const wchar_t * str, char * buffer, size_t size, const wchar_t ** start);
 
 #endif /* _WCHAR_HEADERS_H */

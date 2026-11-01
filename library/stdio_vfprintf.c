@@ -686,7 +686,8 @@ vfprintf(FILE * __restrict stream, const char * __restrict format, va_list arg)
 	char * internal_buffer = NULL;
 	size_t internal_buffer_size = 0;
 	int num_leading_zeroes;
-	BOOL count_characters;
+	const struct wide_mode * wide_mode;
+	int num_extra_bytes;
 
  #if defined(FLOATING_POINT_SUPPORT)
 	char trail_string[12];
@@ -729,6 +730,8 @@ vfprintf(FILE * __restrict stream, const char * __restrict format, va_list arg)
 	if(__fputc_check(stream) < 0)
 		goto out;
 
+	wide_mode = iob->iob_WideMode;
+
 	while((c = (*format++)) != '\0')
 	{
 		/* I this isn't a % charater, copy the input to the output. */
@@ -737,7 +740,9 @@ vfprintf(FILE * __restrict stream, const char * __restrict format, va_list arg)
 			if(__putc(c,stream,buffer_mode) == EOF)
 				goto out;
 
-			len++;
+			/* A UTF-8 continuation byte doesn't start a character. */
+			if(wide_mode == NULL || (c & 0xC0) != 0x80)
+				len++;
 
 			continue;
 		}
@@ -1086,22 +1091,6 @@ vfprintf(FILE * __restrict stream, const char * __restrict format, va_list arg)
 		}
 		#endif /* __GNUC__ */
 
-		/* From the wide functions: the precision of %s counts characters
-		   rather than bytes. */
-		count_characters = FALSE;
-
-		if(c == 'W')
-		{
-			count_characters = TRUE;
-
-			format++;
-
-			c = (*format);
-
-			if(c == '\0')
-				break;
-		}
-
 		#if defined(FLOATING_POINT_SUPPORT)
 		{
 			trail_string[0] = '\0';
@@ -1110,6 +1099,7 @@ vfprintf(FILE * __restrict stream, const char * __restrict format, va_list arg)
 		#endif /* FLOATING_POINT_SUPPORT */
 
 		num_leading_zeroes = 0;
+		num_extra_bytes = 0;
 
 		D(("conversion_type (preliminary) = %lc",c));
 
@@ -1257,12 +1247,23 @@ vfprintf(FILE * __restrict stream, const char * __restrict format, va_list arg)
 			else if (parameter_size == parameter_size_long)
 			{
 				/* A wide character, as a multibyte sequence. */
+				wint_t wide_character = va_arg(arg, wint_t);
 				mbstate_t state = 0;
 				size_t n;
 
 				output_buffer = buffer;
 
-				n = wcrtomb(output_buffer,(wchar_t)va_arg(arg, wint_t),&state);
+				if(wide_mode != NULL)
+				{
+					n = (size_t)(*wide_mode->wm_Character)((long)wide_character,TRUE,output_buffer);
+
+					num_extra_bytes = (int)n - 1;
+				}
+				else
+				{
+					n = wcrtomb(output_buffer,(wchar_t)wide_character,&state);
+				}
+
 				if(n == (size_t)-1)
 					goto out;
 
@@ -1289,10 +1290,23 @@ vfprintf(FILE * __restrict stream, const char * __restrict format, va_list arg)
 
 			if(output_len == 0)
 			{
-				output_buffer--;
-				output_len++;
+				if(wide_mode != NULL)
+				{
+					output_buffer = buffer;
 
-				(*output_buffer) = ch;
+					output_len = (*wide_mode->wm_Character)((long)(unsigned char)ch,FALSE,output_buffer);
+					if(output_len < 0)
+						goto out;
+
+					num_extra_bytes = output_len - 1;
+				}
+				else
+				{
+					output_buffer--;
+					output_len++;
+
+					(*output_buffer) = ch;
+				}
 			}
 
 			CLEAR_FLAG(format_flags,FORMATF_ProduceSign);
@@ -1623,7 +1637,30 @@ vfprintf(FILE * __restrict stream, const char * __restrict format, va_list arg)
 			}
 			#endif /* CHECK_FOR_NULL_POINTERS */
 
-			if(parameter_size == parameter_size_long)
+			if(wide_mode != NULL)
+			{
+				const void * string;
+
+				if(parameter_size == parameter_size_long)
+					string = va_arg(arg, wchar_t *);
+				else
+					string = va_arg(arg, char *);
+
+				if(string == NULL)
+				{
+					output_buffer = NULL;
+				}
+				else
+				{
+					output_buffer = (*wide_mode->wm_String)(string,(BOOL)(parameter_size == parameter_size_long),precision,
+						buffer,sizeof(buffer),&internal_buffer,&internal_buffer_size,&output_len,&i);
+					if(output_buffer == NULL)
+						goto out;
+
+					num_extra_bytes = output_len - i;
+				}
+			}
+			else if(parameter_size == parameter_size_long)
 			{
 				/* A wide string, as a multibyte string.  The precision is
 				   how many bytes may be written, and only complete
@@ -1697,27 +1734,20 @@ vfprintf(FILE * __restrict stream, const char * __restrict format, va_list arg)
 			}
 			#endif /* NDEBUG */
 
-			if(precision < 0)
+			/* In a wide conversion, this is settled already. */
+			if(output_len == 0)
 			{
-				output_len = strlen(output_buffer);
-			}
-			else
-			{
-				int num_characters = 0;
-
-				for(i = 0 ; output_buffer[i] != '\0' ; i++)
+				if(precision < 0)
 				{
-					/* A UTF-8 continuation byte doesn't start a character. */
-					if(count_characters && (output_buffer[i] & 0xC0) == 0x80)
-						continue;
-
-					if(num_characters == precision)
-						break;
-
-					num_characters++;
+					output_len = strlen(output_buffer);
 				}
+				else
+				{
+					for(i = 0 ; i < precision && output_buffer[i] != '\0' ; i++)
+						;
 
-				output_len = i;
+					output_len = i;
+				}
 			}
 
 			D(("string = '%s', length = %ld",output_buffer,output_len));
@@ -1916,6 +1946,9 @@ vfprintf(FILE * __restrict stream, const char * __restrict format, va_list arg)
 				len++;
 			}
 
+			output_len -= num_extra_bytes;
+			len -= num_extra_bytes;
+
 			output_len += num_leading_zeroes;
 
 			#if defined(FLOATING_POINT_SUPPORT)
@@ -1986,7 +2019,7 @@ vfprintf(FILE * __restrict stream, const char * __restrict format, va_list arg)
 
 			minimum_field_width -= num_leading_zeroes;
 
-			for(i = output_len ; i < minimum_field_width ; i++)
+			for(i = output_len - num_extra_bytes ; i < minimum_field_width ; i++)
 			{
 				if(__putc(fill_character,stream,buffer_mode) == EOF)
 					goto out;
@@ -2021,6 +2054,8 @@ vfprintf(FILE * __restrict stream, const char * __restrict format, va_list arg)
 
 				len++;
 			}
+
+			len -= num_extra_bytes;
 
 			#if defined(FLOATING_POINT_SUPPORT)
 			{
