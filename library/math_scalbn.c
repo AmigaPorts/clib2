@@ -66,9 +66,13 @@ scalbn (double x, int n)
 	volatile double result;
 	long double scaled;
 
-	__asm ("fscale%.l %2,%0"
-	       : "=f" (scaled)
-	       : "0" ((long double)x), "d" (n));
+	/* Any further than this leaves the range of a double from anywhere in it. */
+	if(n > MAX_POWER_OF_TWO)
+		n = MAX_POWER_OF_TWO;
+	else if(n < -MAX_POWER_OF_TWO)
+		n = -MAX_POWER_OF_TWO;
+
+	scaled = (long double)x * __power_of_two(n);
 
 	result = scaled;
 

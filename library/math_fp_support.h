@@ -105,6 +105,23 @@ __fpu_raise(unsigned long flags)
 	__asm__ __volatile__ ("fmove%.l %0,%/fpsr" : : "d" (fpsr | flags));
 }
 
+/* 2^n, to scale a number with fmul: fscale is not in the hardware of a 68040
+   or a 68060. Its exponent stays above 0, which is where the 68881's denormal
+   numbers begin. */
+#define MAX_POWER_OF_TWO 16382
+
+static __inline__ long double
+__power_of_two(int n)
+{
+	union ieee_long_double u;
+
+	u.raw[0] = (unsigned long)(n + 16383) << 16;
+	u.raw[1] = 0x80000000UL;
+	u.raw[2] = 0;
+
+	return(u.value);
+}
+
 /* An inexact result that is tiny in its own format has underflowed, but the
    FPU can't know that: to its 80 bits the number is an ordinary one, and may
    well fit a double exactly when it is stored, which raises nothing.

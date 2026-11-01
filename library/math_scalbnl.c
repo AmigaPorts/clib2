@@ -55,13 +55,28 @@ scalbnl(long double x, int n)
 long double
 scalbnl(long double x, int n)
 {
-	long double result;
+	int step = (n < 0) ? -MAX_POWER_OF_TWO : MAX_POWER_OF_TWO;
+	int steps = 0;
 
-	__asm ("fscale%.l %2,%0"
-	       : "=f" (result)
-	       : "0" (x), "d" (n));
+	if(n > MAX_SCALE)
+		n = MAX_SCALE;
+	else if(n < -MAX_SCALE)
+		n = -MAX_SCALE;
 
-	return(result);
+	while(n > MAX_POWER_OF_TWO || n < -MAX_POWER_OF_TWO)
+	{
+		n -= step;
+		steps++;
+	}
+
+	/* The smallest factor comes first, so that a denormal result is only
+	   rounded by the last multiplication. */
+	x *= __power_of_two(n);
+
+	while(steps-- > 0)
+		x *= __power_of_two(step);
+
+	return(x);
 }
 
 #else
