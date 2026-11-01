@@ -61,13 +61,19 @@
 float
 rintf(float x)
 {
-	float result;
+	union ieee_single u;
+	int exponent;
 
-	__asm ("fint%.x %1,%0"
-	       : "=f" (result)
-	       : "f" (x));
+	u.value = x;
+	exponent = (int)((u.raw[0] >> 23) & 0xff) - 127;
 
-	return(result);
+	if(exponent == 128)
+		return(x + x);
+
+	if(exponent >= 23)
+		return(x);
+
+	return(__round_with_fpu(x, (u.raw[0] & 0x80000000UL) != 0));
 }
 
 /****************************************************************************/

@@ -61,13 +61,19 @@
 double
 rint(double x)
 {
-	double result;
+	union ieee_double u;
+	int exponent;
 
-	__asm ("fint%.x %1,%0"
-	       : "=f" (result)
-	       : "f" (x));
+	u.value = x;
+	exponent = (int)((u.raw[0] >> 20) & 0x7ff) - 1023;
 
-	return(result);
+	if(exponent == 1024)
+		return(x + x);
+
+	if(exponent >= 52)
+		return(x);
+
+	return(__round_with_fpu(x, (u.raw[0] & 0x80000000UL) != 0));
 }
 
 /****************************************************************************/
