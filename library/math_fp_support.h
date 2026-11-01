@@ -101,8 +101,8 @@ __fpu_raise(unsigned long flags)
 {
 	unsigned long fpsr;
 
-	__asm__ __volatile__ ("fmove%.l %!,%0" : "=d" (fpsr));
-	__asm__ __volatile__ ("fmove%.l %0,%!" : : "d" (fpsr | flags));
+	__asm__ __volatile__ ("fmove%.l %/fpsr,%0" : "=d" (fpsr));
+	__asm__ __volatile__ ("fmove%.l %0,%/fpsr" : : "d" (fpsr | flags));
 }
 
 /* An inexact result that is tiny in its own format has underflowed, but the
