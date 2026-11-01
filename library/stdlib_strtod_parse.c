@@ -337,7 +337,6 @@ struct number_limits
 
 static const struct number_limits float_limits = { 130, 50, 16 };
 static const struct number_limits double_limits = { 800, 330, 92 };
-static const struct number_limits long_double_limits = { 11600, 5000, 1300 };
 
 /* Usually this many words are plenty to tell where a number goes: the first
    holds at least one digit, and the fraction of the mantissa then has more
@@ -968,6 +967,8 @@ __parsed_to_float(const struct __parsed_number * pn)
 /****************************************************************************/
 
 #if LDBL_MANT_DIG == 64 && defined(__mc68000__)
+
+static const struct number_limits long_double_limits = { 11600, 5000, 1300 };
 
 /* The 96 bit format of the 68881: a sign, a 15 bit exponent, 16 unused bits
    and a 64 bit mantissa with an explicit top bit.  An exponent of 0 has the
