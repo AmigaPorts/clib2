@@ -260,7 +260,8 @@ __lgamma(double x,int * gamma_sign_ptr)
 
 /****************************************************************************/
 
-int signgam;
+/* Weak, as a program may well have a variable of this name of its own. */
+int signgam __attribute__((weak));
 
 /****************************************************************************/
 

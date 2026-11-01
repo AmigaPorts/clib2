@@ -457,9 +457,10 @@ extern __stdargs int ilogbl(long double x);
 
 /****************************************************************************/
 
-/* Not part of ISO C, so a strictly conforming program may have used
-   these names for itself. */
-#if !defined(__STRICT_ANSI__) || defined(_XOPEN_SOURCE) || defined(_DEFAULT_SOURCE) || \
+/* Not part of ISO C, so a program may have used these names for itself, and
+   old Amiga sources do. <sys/features.h> always defines _DEFAULT_SOURCE, which
+   says nothing about what the program wants, so that one doesn't count. */
+#if defined(_XOPEN_SOURCE) || \
     defined(_BSD_SOURCE) || defined(_GNU_SOURCE)
 
 extern int signgam;
@@ -472,9 +473,9 @@ extern __stdargs double y1(double x);
 extern __stdargs double yn(int n, double x);
 extern __stdargs double scalb(double x, double y);
 
-#endif /* !__STRICT_ANSI__ || _XOPEN_SOURCE || _DEFAULT_SOURCE || _BSD_SOURCE || _GNU_SOURCE */
+#endif /* _XOPEN_SOURCE || _BSD_SOURCE || _GNU_SOURCE */
 
-#if !defined(__STRICT_ANSI__) || defined(_DEFAULT_SOURCE) || defined(_BSD_SOURCE) || defined(_GNU_SOURCE)
+#if defined(_BSD_SOURCE) || defined(_GNU_SOURCE)
 
 extern __stdargs float j0f(float x);
 extern __stdargs float j1f(float x);
@@ -489,9 +490,9 @@ extern __stdargs double lgamma_r(double x, int *sign);
 extern __stdargs float lgammaf_r(float x, int *sign);
 extern __stdargs long double lgammal_r(long double x, int *sign);
 
-#endif /* !__STRICT_ANSI__ || _DEFAULT_SOURCE || _BSD_SOURCE || _GNU_SOURCE */
+#endif /* _BSD_SOURCE || _GNU_SOURCE */
 
-#if !defined(__STRICT_ANSI__) || defined(_GNU_SOURCE)
+#if defined(_GNU_SOURCE)
 
 extern __stdargs void sincos(double x, double *s, double *c);
 extern __stdargs void sincosf(float x, float *s, float *c);
@@ -503,16 +504,23 @@ extern __stdargs void sincosl(long double x, long double *s, long double *c);
 extern __stdargs long double exp10l(long double x);
 extern __stdargs long double pow10l(long double x);
 
-#endif /* !__STRICT_ANSI__ || _GNU_SOURCE */
+#endif /* _GNU_SOURCE */
 
 /****************************************************************************/
 
-#define FLT_EVAL_METHOD 0
+#ifndef FLT_EVAL_METHOD
+#define FLT_EVAL_METHOD __FLT_EVAL_METHOD__
+#endif /* FLT_EVAL_METHOD */
 
 /****************************************************************************/
 
+#if __FLT_EVAL_METHOD__ == 2
+typedef long double	float_t;
+typedef long double	double_t;
+#else
 typedef float	float_t;
 typedef double	double_t;
+#endif /* __FLT_EVAL_METHOD__ */
 
 /****************************************************************************/
 

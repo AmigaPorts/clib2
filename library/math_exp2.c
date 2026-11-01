@@ -62,7 +62,8 @@ extern double __exp2_unchecked(double x);
 double
 exp2(double x)
 {
-	return(__finish_double(__exp2_unchecked(x)));
+	/* 2 to an integer power is exact, however tiny. */
+	return(floor(x) == x ? __exp2_unchecked(x) : __finish_double(__exp2_unchecked(x)));
 }
 
 #endif /* M68881_FLOATING_POINT_SUPPORT */

@@ -62,7 +62,8 @@ extern float __exp2f_unchecked(float x);
 float
 exp2f(float x)
 {
-	return(__finish_float(__exp2f_unchecked(x)));
+	/* 2 to an integer power is exact, however tiny. */
+	return(floorf(x) == x ? __exp2f_unchecked(x) : __finish_float(__exp2f_unchecked(x)));
 }
 
 #endif /* M68881_FLOATING_POINT_SUPPORT */

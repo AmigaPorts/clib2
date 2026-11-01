@@ -34,6 +34,12 @@ lgammal(long double x)
 	return lgamma(x);
 }
 
+long double
+lgammal_r(long double x, int *sign)
+{
+	return lgamma_r(x, sign);
+}
+
 /****************************************************************************/
 
 #else

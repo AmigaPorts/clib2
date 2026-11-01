@@ -120,6 +120,10 @@ static double S(double x)
 	return num/den;
 }
 
+#if defined(M68881_FLOATING_POINT_SUPPORT)
+#define tgamma __tgamma_unchecked
+#endif /* M68881_FLOATING_POINT_SUPPORT */
+
 double tgamma(double x)
 {
 	union {double f; uint64_t i;} u = {x};
@@ -184,6 +188,24 @@ double tgamma(double x)
 	y = r * z * z;
 	return y;
 }
+
+#if defined(M68881_FLOATING_POINT_SUPPORT)
+
+#undef tgamma
+
+extern double __tgamma_unchecked(double x);
+
+/* Stored in a double, the result overflows as one. In fp0 it would stay a
+   finite extended number. */
+double
+tgamma(double x)
+{
+	volatile double result = __tgamma_unchecked(x);
+
+	return(result);
+}
+
+#endif /* M68881_FLOATING_POINT_SUPPORT */
 
 /****************************************************************************/
 

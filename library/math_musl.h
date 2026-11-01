@@ -61,6 +61,13 @@ extern __stdargs float y1f(float x);
 /* What the long double functions share. */
 extern long double __polevll(long double x, const long double *P, int n);
 extern long double __p1evll(long double x, const long double *P, int n);
+extern void sincosl(long double x, long double *sin, long double *cos);
+extern long double exp10l(long double x);
+extern long double pow10l(long double x);
+extern long double lgammal_r(long double x, int *sign);
+extern double lgamma_r(double x, int *sign);
+extern double jn(int n, double x);
+extern double yn(int n, double x);
 extern int __rem_pio2l(long double x, long double *y);
 extern int __rem_pio2_large(double *x, double *y, int e0, int nx, int prec);
 extern long double __sinl(long double x, long double y, int iy);

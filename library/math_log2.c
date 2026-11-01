@@ -48,6 +48,11 @@ log2(double x)
 {
 	volatile double result;
 
+	if(x < 0)
+		__set_errno(EDOM);
+	else if(x == 0)
+		__set_errno(ERANGE);
+
 	__asm ("flog2%.x %1,%0"
 	       : "=f" (result)
 	       : "f" (x));

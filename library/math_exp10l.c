@@ -39,4 +39,22 @@ long double pow10l(long double x)
 
 /****************************************************************************/
 
+#elif defined(FLOATING_POINT_SUPPORT)
+
+/****************************************************************************/
+
+long double
+exp10l(long double x)
+{
+	return powl(10.0L, x);
+}
+
+long double
+pow10l(long double x)
+{
+	return exp10l(x);
+}
+
+/****************************************************************************/
+
 #endif /* FLOATING_POINT_SUPPORT && __mc68000__ */

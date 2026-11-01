@@ -43,20 +43,6 @@ rintl(long double x)
 /* From musl 1.2.5, src/math/rintl.c, under its MIT license: Copyright (c) 2005-2020
    Rich Felker, et al.  Further notices are in the text. */
 
-#if defined(__mc68000__) && defined(M68881_FLOATING_POINT_SUPPORT)
-
-long double
-rintl(long double x)
-{
-	long double result;
-
-	__asm ("fint%.x %1,%0" : "=f" (result) : "f" (x));
-
-	return(result);
-}
-
-#else
-
 static const long double toint = 1/LDBL_EPSILON;
 
 long double rintl(long double x)
@@ -77,7 +63,6 @@ long double rintl(long double x)
 	return y;
 }
 
-#endif /* __mc68000__ && M68881_FLOATING_POINT_SUPPORT */
 
 /****************************************************************************/
 

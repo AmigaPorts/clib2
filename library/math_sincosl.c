@@ -64,4 +64,17 @@ void sincosl(long double x, long double *sin, long double *cos)
 
 /****************************************************************************/
 
+#elif defined(FLOATING_POINT_SUPPORT)
+
+/****************************************************************************/
+
+void
+sincosl(long double x, long double *sin, long double *cos)
+{
+	*sin = sinl(x);
+	*cos = cosl(x);
+}
+
+/****************************************************************************/
+
 #endif /* FLOATING_POINT_SUPPORT && __mc68000__ */

@@ -489,7 +489,7 @@ pow(double x,double y)
 		{
 			int exponent;
 
-			if(frexp(fabs(x),&exponent) != 0.5)
+			if(y != 1.0 && y != 2.0 && frexp(fabs(x),&exponent) != 0.5)
 				return(__finish_double(result));
 		}
 	}
