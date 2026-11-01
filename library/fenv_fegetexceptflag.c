@@ -43,6 +43,12 @@
 
 /****************************************************************************/
 
+#if defined(__amigaos4__) && !defined(_SOFT_FLOAT)
+#include "fenv_ppc.h"
+#endif /* __amigaos4__ && !_SOFT_FLOAT */
+
+/****************************************************************************/
+
 #if defined(FLOATING_POINT_SUPPORT)
 
 /****************************************************************************/
@@ -55,6 +61,20 @@ int
 fegetexceptflag(fexcept_t *flagp,int excepts)
 {
 	(*flagp) = (int)__fpu_get_fpsr() & excepts & FE_ALL_EXCEPT;
+
+	return(0);
+}
+
+/****************************************************************************/
+
+#elif defined(__amigaos4__) && !defined(_SOFT_FLOAT)
+
+/****************************************************************************/
+
+int
+fegetexceptflag(fexcept_t *flagp,int excepts)
+{
+	(*flagp) = fetestexcept(excepts);
 
 	return(0);
 }

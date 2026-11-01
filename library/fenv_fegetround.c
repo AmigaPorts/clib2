@@ -43,6 +43,12 @@
 
 /****************************************************************************/
 
+#if defined(__amigaos4__) && !defined(_SOFT_FLOAT)
+#include "fenv_ppc.h"
+#endif /* __amigaos4__ && !_SOFT_FLOAT */
+
+/****************************************************************************/
+
 #if defined(FLOATING_POINT_SUPPORT)
 
 /****************************************************************************/
@@ -59,14 +65,14 @@ fegetround(void)
 
 /****************************************************************************/
 
-#elif defined(__mc68000__)
+#elif defined(__amigaos4__) && !defined(_SOFT_FLOAT)
 
 /****************************************************************************/
 
 int
 fegetround(void)
 {
-	return(FE_TONEAREST);
+	return((int)__fpu_get_fpscr() & FPSCR_RN_BITS);
 }
 
 /****************************************************************************/
@@ -78,21 +84,7 @@ fegetround(void)
 int
 fegetround(void)
 {
-    /* FLT_ROUNDS numbers the rounding modes differently from the FE_*
-       constants: 0 is toward zero, 1 to nearest, 2 upward, 3 downward. */
-    switch(FLT_ROUNDS)
-    {
-        case 0:
-            return FE_TOWARDZERO;
-        case 1:
-            return FE_TONEAREST;
-        case 2:
-            return FE_UPWARD;
-        case 3:
-            return FE_DOWNWARD;
-        default:
-            return -1;
-    }
+	return(FE_TONEAREST);
 }
 
 /****************************************************************************/

@@ -86,19 +86,21 @@ typedef unsigned int fexcept_t;
 #define FE_DOWNWARD		(2<<4)
 #define FE_UPWARD		(3<<4)
 
-#elif defined(__amigaos4__)
+#elif defined(__amigaos4__) && !defined(_SOFT_FLOAT)
 
-#define FE_DIVBYZERO	(1<<0)
-#define FE_INEXACT		(1<<1)
-#define FE_INVALID		(1<<2)
-#define FE_OVERFLOW		(1<<3)
-#define FE_UNDERFLOW	(1<<4)
+/* The exception bits of the FPSCR. */
+#define FE_INEXACT		(1<<25)
+#define FE_DIVBYZERO	(1<<26)
+#define FE_UNDERFLOW	(1<<27)
+#define FE_OVERFLOW		(1<<28)
+#define FE_INVALID		(1<<29)
 #define FE_ALL_EXCEPT	(FE_DIVBYZERO|FE_INEXACT|FE_INVALID|FE_OVERFLOW|FE_UNDERFLOW)
 
-#define FE_DOWNWARD		0
-#define FE_UPWARD		1
-#define FE_TONEAREST	2
-#define FE_TOWARDZERO	3
+/* The RN field of the FPSCR. */
+#define FE_TONEAREST	0
+#define FE_TOWARDZERO	1
+#define FE_UPWARD		2
+#define FE_DOWNWARD		3
 
 #else
 

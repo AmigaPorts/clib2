@@ -14,6 +14,12 @@
 
 /****************************************************************************/
 
+#if defined(__amigaos4__) && !defined(_SOFT_FLOAT)
+#include "fenv_ppc.h"
+#endif /* __amigaos4__ && !_SOFT_FLOAT */
+
+/****************************************************************************/
+
 #if defined(FLOATING_POINT_SUPPORT)
 
 /****************************************************************************/
@@ -34,6 +40,21 @@ fesetround(int mode)
 }
 
 /****************************************************************************/
+
+#elif defined(__amigaos4__) && !defined(_SOFT_FLOAT)
+
+/****************************************************************************/
+
+int
+fesetround(int mode)
+{
+	if((mode & ~FPSCR_RN_BITS) != 0)
+		return(-1);
+
+	__fpu_set_fpscr((__fpu_get_fpscr() & ~FPSCR_RN_BITS) | (unsigned long)mode);
+
+	return(0);
+}
 
 #else
 
