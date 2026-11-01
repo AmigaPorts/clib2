@@ -14,9 +14,9 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-#ifndef _MATH_HEADERS_H
-#include "math_headers.h"
-#endif /* _MATH_HEADERS_H */
+#ifndef _MATH_MUSL_H
+#include "math_musl.h"
+#endif /* _MATH_MUSL_H */
 
 /****************************************************************************/
 
@@ -32,6 +32,24 @@ long double
 fdiml(long double x, long double y)
 {
 	return fdim(x, y);
+}
+
+/****************************************************************************/
+
+#else
+
+/****************************************************************************/
+
+/* From musl 1.2.5, src/math/fdiml.c, under its MIT license: Copyright (c) 2005-2020
+   Rich Felker, et al.  Further notices are in the text. */
+
+long double fdiml(long double x, long double y)
+{
+	if (isnan(x))
+		return x;
+	if (isnan(y))
+		return y;
+	return x > y ? x - y : 0;
 }
 
 /****************************************************************************/

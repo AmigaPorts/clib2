@@ -55,6 +55,20 @@ remquof(float x,float y,int * quo)
 	int wy;
 	float x_over_y;
 
+	/* A NaN raises nothing, and the rest are INVALID alone. */
+	if(isnan(x) || isnan(y))
+	{
+		*quo = 0;
+		return x + y;
+	}
+
+	if(isinf(x) || y == 0)
+	{
+		*quo = 0;
+		__raise_invalid();
+		return __builtin_nanf("");
+	}
+
 	GET_FLOAT_WORD(wx, x);
 	GET_FLOAT_WORD(wy, y);
 

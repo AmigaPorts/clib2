@@ -55,6 +55,10 @@
 
 static const float one=1.0, two=2.0, tiny = 1.0e-30;
 
+#if defined(M68881_FLOATING_POINT_SUPPORT)
+#define tanhf __tanhf_unchecked
+#endif /* M68881_FLOATING_POINT_SUPPORT */
+
 float
 tanhf(float x)
 {
@@ -87,6 +91,22 @@ tanhf(float x)
 	}
 	return (jx>=0)? z: -z;
 }
+
+/****************************************************************************/
+
+#if defined(M68881_FLOATING_POINT_SUPPORT)
+
+#undef tanhf
+
+extern float __tanhf_unchecked(float x);
+
+float
+tanhf(float x)
+{
+	return(__finish_float(__tanhf_unchecked(x)));
+}
+
+#endif /* M68881_FLOATING_POINT_SUPPORT */
 
 /****************************************************************************/
 

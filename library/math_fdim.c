@@ -44,7 +44,7 @@
 double
 fdim(double x,double y)
 {
-	double result;
+	volatile double result;
 
 	if(isnan(x) || isnan(y))
 		result = x + y;

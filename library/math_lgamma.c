@@ -168,7 +168,13 @@ __lgamma(double x,int * gamma_sign_ptr)
     (*gamma_sign_ptr) = 1;
 	ix = hx&0x7fffffff;
 	if(ix>=0x7ff00000) return x*x;
-	if((ix|lx)==0) return one/zero;
+	if((ix|lx)==0)
+	{
+		if(hx<0)
+			(*gamma_sign_ptr) = -1;
+
+		return one/zero;
+	}
 	if(ix<0x3b900000) {	/* |x|<2**-70, return -log(|x|) */
 	    if(hx<0) {
 	        (*gamma_sign_ptr) = -1;
@@ -254,15 +260,15 @@ __lgamma(double x,int * gamma_sign_ptr)
 
 /****************************************************************************/
 
+/* Weak, as a program may well have a variable of this name of its own. */
+int signgam __attribute__((weak));
+
+/****************************************************************************/
+
 double
 lgamma(double x)
 {
-	double result;
-	int gamma_sign;
-
-	result = __lgamma(x,&gamma_sign);
-
-	return(result);
+	return(__lgamma(x,&signgam));
 }
 
 /****************************************************************************/

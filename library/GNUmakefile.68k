@@ -719,8 +719,12 @@ MATH_LIB = \
 	math_inff.o \
 	math_init_exit.o \
 	math_isfinite.o \
+	math_kernel_cos.o \
 	math_kernel_cosf.o \
+	math_kernel_sin.o \
 	math_kernel_sinf.o \
+	math_kernel_rem_pio2.o \
+	math_kernel_tan.o \
 	math_kernel_tanf.o \
 	math_ldexp.o \
 	math_ldexpf.o \
@@ -775,6 +779,22 @@ MATH_LIB = \
 	math_tanhf.o \
 	math_tgamma.o \
 	math_tgammaf.o \
+	math_drem.o \
+	math_dremf.o \
+	math_exp10.o \
+	math_exp10f.o \
+	math_j0.o \
+	math_j0f.o \
+	math_j1.o \
+	math_j1f.o \
+	math_jn.o \
+	math_jnf.o \
+	math_lgamma_r.o \
+	math_lgammaf_r.o \
+	math_scalb.o \
+	math_scalbf.o \
+	math_sincos.o \
+	math_sincosf.o \
 	math_trunc.o \
 	math_truncf.o \
 	stdio_asprintf.o \
@@ -917,6 +937,15 @@ MATH_LIB = \
 	math_tanhl.o \
 	math_tanl.o \
 	math_tgammal.o \
+	math_exp10l.o \
+	math_invtrigl.o \
+	math_kernel_cosl.o \
+	math_kernel_sinl.o \
+	math_kernel_tanl.o \
+	math_polevll.o \
+	math_rem_pio2_large.o \
+	math_rem_pio2l.o \
+	math_sincosl.o \
 	math_truncl.o \
 	stdlib_strtold.o \
 	wchar_fwprintf.o \

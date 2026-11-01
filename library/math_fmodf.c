@@ -69,7 +69,14 @@ fmodf(float x, float y)
     /* purge off exception values */
 	if(hy==0||(hx>=0x7f800000)||		/* y=0,or x not finite */
 	   (hy>0x7f800000))			/* or y is NaN */
-	    return (x*y)/(x*y);
+	{
+	    /* A NaN raises nothing, and the rest are INVALID alone. */
+	    if(isnan(x) || isnan(y))
+		return x+y;
+
+	    __raise_invalid();
+	    return __builtin_nan("");
+	}
 	if(hx<hy) return x;			/* |x|<|y| return x */
 	if(hx==hy)
 	    return Zero[(ULONG)sx>>31];	/* |x|=|y| return x*0*/

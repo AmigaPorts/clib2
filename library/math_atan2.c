@@ -163,6 +163,10 @@ __atan2(double y,double x)
 	}
 }
 
+#if defined(M68881_FLOATING_POINT_SUPPORT)
+#define atan2 __atan2_unchecked
+#endif /* M68881_FLOATING_POINT_SUPPORT */
+
 double
 atan2(double y,double x)
 {
@@ -172,6 +176,22 @@ atan2(double y,double x)
 
 	return(result);
 }
+
+/****************************************************************************/
+
+#if defined(M68881_FLOATING_POINT_SUPPORT)
+
+#undef atan2
+
+extern double __atan2_unchecked(double y,double x);
+
+double
+atan2(double y,double x)
+{
+	return(__finish_double(__atan2_unchecked(y,x)));
+}
+
+#endif /* M68881_FLOATING_POINT_SUPPORT */
 
 /****************************************************************************/
 

@@ -14,9 +14,9 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-#ifndef _MATH_HEADERS_H
-#include "math_headers.h"
-#endif /* _MATH_HEADERS_H */
+#ifndef _MATH_MUSL_H
+#include "math_musl.h"
+#endif /* _MATH_MUSL_H */
 
 /****************************************************************************/
 
@@ -32,6 +32,36 @@ long double
 frexpl(long double x, int *nptr)
 {
 	return frexp(x, nptr);
+}
+
+/****************************************************************************/
+
+#else
+
+/****************************************************************************/
+
+/* From musl 1.2.5, src/math/frexpl.c, under its MIT license: Copyright (c) 2005-2020
+   Rich Felker, et al.  Further notices are in the text. */
+
+long double frexpl(long double x, int *e)
+{
+	union ldshape u = {x};
+	int ee = u.i.se & 0x7fff;
+
+	if (!ee) {
+		if (x) {
+			x = frexpl(x*0x1p120, e);
+			*e -= 120;
+		} else *e = 0;
+		return x;
+	} else if (ee == 0x7fff) {
+		return x;
+	}
+
+	*e = ee - 0x3ffe;
+	u.i.se &= 0x8000;
+	u.i.se |= 0x3ffe;
+	return u.f;
 }
 
 /****************************************************************************/

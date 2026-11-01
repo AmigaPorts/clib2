@@ -14,9 +14,9 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-#ifndef _MATH_HEADERS_H
-#include "math_headers.h"
-#endif /* _MATH_HEADERS_H */
+#ifndef _MATH_MUSL_H
+#include "math_musl.h"
+#endif /* _MATH_MUSL_H */
 
 /****************************************************************************/
 
@@ -33,6 +33,39 @@ fabsl(long double x)
 {
 	return fabs(x);
 }
+
+/****************************************************************************/
+
+#else
+
+/****************************************************************************/
+
+/* From musl 1.2.5, src/math/fabsl.c, under its MIT license: Copyright (c) 2005-2020
+   Rich Felker, et al.  Further notices are in the text. */
+
+#if defined(__mc68000__) && defined(M68881_FLOATING_POINT_SUPPORT)
+
+long double
+fabsl(long double x)
+{
+	long double result;
+
+	__asm ("fabs%.x %1,%0" : "=f" (result) : "f" (x));
+
+	return(result);
+}
+
+#else
+
+long double fabsl(long double x)
+{
+	union ldshape u = {x};
+
+	u.i.se &= 0x7fff;
+	return u.f;
+}
+
+#endif /* __mc68000__ && M68881_FLOATING_POINT_SUPPORT */
 
 /****************************************************************************/
 

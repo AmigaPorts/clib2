@@ -14,9 +14,9 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-#ifndef _MATH_HEADERS_H
-#include "math_headers.h"
-#endif /* _MATH_HEADERS_H */
+#ifndef _MATH_MUSL_H
+#include "math_musl.h"
+#endif /* _MATH_MUSL_H */
 
 /****************************************************************************/
 
@@ -32,6 +32,20 @@ long double
 ldexpl(long double x, int n)
 {
 	return scalbn(x, n);
+}
+
+/****************************************************************************/
+
+#else
+
+/****************************************************************************/
+
+/* From musl 1.2.5, src/math/ldexpl.c, under its MIT license: Copyright (c) 2005-2020
+   Rich Felker, et al.  Further notices are in the text. */
+
+long double ldexpl(long double x, int n)
+{
+	return scalbnl(x, n);
 }
 
 /****************************************************************************/

@@ -58,9 +58,10 @@ ilogb(double x)
 	EXTRACT_WORDS(hx,lx,x);
 	hx &= 0x7fffffff;
 	if(hx<0x00100000) {
-	    if((hx|lx)==0)
-		return - INT_MAX;	/* ilogb(0) = 0x80000001 */
-	    else			/* subnormal x */
+	    if((hx|lx)==0) {
+		__raise_invalid();
+		return FP_ILOGB0;
+	    } else			/* subnormal x */
 		if(hx==0) {
 		    for (ix = -1043; lx>0; lx<<=1) ix -=1;
 		} else {
@@ -69,7 +70,10 @@ ilogb(double x)
 	    return ix;
 	}
 	else if (hx<0x7ff00000) return (hx>>20)-1023;
-	else return INT_MAX;
+	else {
+	    __raise_invalid();
+	    return INT_MAX;
+	}
 }
 
 /****************************************************************************/

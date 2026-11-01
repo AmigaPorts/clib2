@@ -41,11 +41,32 @@
 
 /****************************************************************************/
 
+#if defined(M68881_FLOATING_POINT_SUPPORT)
+#define exp2 __exp2_unchecked
+#endif /* M68881_FLOATING_POINT_SUPPORT */
+
 double
 exp2(double x)
 {
 	return(pow(2.0, x));
 }
+
+/****************************************************************************/
+
+#if defined(M68881_FLOATING_POINT_SUPPORT)
+
+#undef exp2
+
+extern double __exp2_unchecked(double x);
+
+double
+exp2(double x)
+{
+	/* 2 to an integer power is exact, however tiny. */
+	return(floor(x) == x ? __exp2_unchecked(x) : __finish_double(__exp2_unchecked(x)));
+}
+
+#endif /* M68881_FLOATING_POINT_SUPPORT */
 
 /****************************************************************************/
 

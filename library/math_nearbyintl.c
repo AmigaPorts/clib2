@@ -14,9 +14,9 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-#ifndef _MATH_HEADERS_H
-#include "math_headers.h"
-#endif /* _MATH_HEADERS_H */
+#ifndef _MATH_MUSL_H
+#include "math_musl.h"
+#endif /* _MATH_MUSL_H */
 
 /****************************************************************************/
 
@@ -32,6 +32,31 @@ long double
 nearbyintl(long double x)
 {
 	return nearbyint(x);
+}
+
+/****************************************************************************/
+
+#else
+
+/****************************************************************************/
+
+/* From musl 1.2.5, src/math/nearbyintl.c, under its MIT license: Copyright (c) 2005-2020
+   Rich Felker, et al.  Further notices are in the text. */
+
+long double nearbyintl(long double x)
+{
+#ifdef FE_INEXACT
+	#pragma STDC FENV_ACCESS ON
+	int e;
+
+	e = fetestexcept(FE_INEXACT);
+#endif
+	x = rintl(x);
+#ifdef FE_INEXACT
+	if (!e)
+		feclearexcept(FE_INEXACT);
+#endif
+	return x;
 }
 
 /****************************************************************************/

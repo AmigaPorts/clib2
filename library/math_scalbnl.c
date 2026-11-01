@@ -50,6 +50,37 @@ scalbnl(long double x, int n)
    0, where the integer bit may be set: unlike on the x87, that is a normal
    number.  Working on the bits needs no FPU, and is exact on the 68000, where
    long double arithmetic goes through double. */
+#if defined(M68881_FLOATING_POINT_SUPPORT)
+
+long double
+scalbnl(long double x, int n)
+{
+	int step = (n < 0) ? -MAX_POWER_OF_TWO : MAX_POWER_OF_TWO;
+	int steps = 0;
+
+	if(n > MAX_SCALE)
+		n = MAX_SCALE;
+	else if(n < -MAX_SCALE)
+		n = -MAX_SCALE;
+
+	while(n > MAX_POWER_OF_TWO || n < -MAX_POWER_OF_TWO)
+	{
+		n -= step;
+		steps++;
+	}
+
+	/* The smallest factor comes first, so that a denormal result is only
+	   rounded by the last multiplication. */
+	x *= __power_of_two(n);
+
+	while(steps-- > 0)
+		x *= __power_of_two(step);
+
+	return(x);
+}
+
+#else
+
 long double
 scalbnl(long double x, int n)
 {
@@ -126,6 +157,8 @@ scalbnl(long double x, int n)
 
 	return(u.value);
 }
+
+#endif /* M68881_FLOATING_POINT_SUPPORT */
 
 /****************************************************************************/
 

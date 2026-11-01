@@ -55,6 +55,20 @@ remquo(double x,double y,int * quo)
   int mswy;
   double x_over_y;
 
+  /* A NaN raises nothing, and the rest are INVALID alone. */
+  if (isnan(x) || isnan(y))
+    {
+      *quo = 0;
+      return x + y;
+    }
+
+  if (isinf(x) || y == 0)
+    {
+      *quo = 0;
+      __raise_invalid();
+      return __builtin_nan("");
+    }
+
   GET_HIGH_WORD(mswx, x);
   GET_HIGH_WORD(mswy, y);
 

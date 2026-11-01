@@ -46,9 +46,11 @@
 
 /****************************************************************************/
 
-#if defined(FLOATING_POINT_SUPPORT) && defined(PPC_FLOATING_POINT_SUPPORT)
+#if defined(FLOATING_POINT_SUPPORT)
 
 /****************************************************************************/
+
+#if !defined(__mc68000__)
 
 static const int init_jk[] = {2,3,4,6}; /* initial value for jk */
 static const double PIo2[] = {
@@ -62,12 +64,16 @@ static const double PIo2[] = {
   2.16741683877804819444e-51, /* 0x3569F31D, 0x00000000 */
 };
 
+#endif /* __mc68000__ */
+
 static const double
 zero    =  0.00000000000000000000e+00, /* 0x00000000, 0x00000000 */
 half    =  5.00000000000000000000e-01, /* 0x3FE00000, 0x00000000 */
 one     =  1.00000000000000000000e+00, /* 0x3FF00000, 0x00000000 */
 two24   =  1.67772160000000000000e+07, /* 0x41700000, 0x00000000 */
 twon24  =  5.96046447753906250000e-08; /* 0x3E700000, 0x00000000 */
+
+#if !defined(__mc68000__)
 
 INLINE STATIC int kernel_rem_pio2(double *x, double *y, int e0, int nx, int prec, const int *ipio2) 
 {
@@ -233,6 +239,8 @@ static const int two_over_pi[] = {
 0x4D7327, 0x310606, 0x1556CA, 0x73A8C9, 0x60E27B, 0xC08C6B,
 };
 
+#endif /* __mc68000__ */
+
 static const int npio2_hw[] = {
 0x3FF921FB, 0x400921FB, 0x4012D97C, 0x401921FB, 0x401F6A7A, 0x4022D97C,
 0x4025FDBB, 0x402921FB, 0x402C463A, 0x402F6A7A, 0x4031475C, 0x4032D97C,
@@ -250,6 +258,11 @@ pio2_2  =  6.07710050630396597660e-11, /* 0x3DD0B461, 0x1A600000 */
 pio2_2t =  2.02226624879595063154e-21, /* 0x3BA3198A, 0x2E037073 */
 pio2_3  =  2.02226624871116645580e-21, /* 0x3BA3198A, 0x2E000000 */
 pio2_3t =  8.47842766036889956997e-32; /* 0x397B839A, 0x252049C1 */
+
+#if defined(__mc68000__)
+/* The long double functions need this one anyway. */
+extern int __rem_pio2_large(double *x, double *y, int e0, int nx, int prec);
+#endif /* __mc68000__ */
 
 int __rem_pio2(double x, double *y)
 {
@@ -343,11 +356,15 @@ int __rem_pio2(double x, double *y)
 	tx[2] = z;
 	nx = 3;
 	while(tx[nx-1]==zero) nx--;	/* skip zero term */
+	#if defined(__mc68000__)
+	n  =  __rem_pio2_large(tx,y,e0,nx,2);
+	#else
 	n  =  kernel_rem_pio2(tx,y,e0,nx,2,two_over_pi);
+	#endif /* __mc68000__ */
 	if(hx<0) {y[0] = -y[0]; y[1] = -y[1]; return -n;}
 	return n;
 }
 
 /****************************************************************************/
 
-#endif /* FLOATING_POINT_SUPPORT && PPC_FLOATING_POINT_SUPPORT */
+#endif /* FLOATING_POINT_SUPPORT */

@@ -65,6 +65,29 @@ twom25  =  2.9802322388e-08,	/* 0x33000000 */
 huge   = 1.0e+30,
 tiny   = 1.0e-30;
 
+#if defined(M68881_FLOATING_POINT_SUPPORT)
+
+float
+scalbnf (float x, int n)
+{
+	volatile float result;
+	long double scaled;
+
+	/* Any further than this leaves the range of a float from anywhere in it. */
+	if(n > MAX_POWER_OF_TWO)
+		n = MAX_POWER_OF_TWO;
+	else if(n < -MAX_POWER_OF_TWO)
+		n = -MAX_POWER_OF_TWO;
+
+	scaled = (long double)x * __power_of_two(n);
+
+	result = scaled;
+
+	return(result);
+}
+
+#else
+
 float
 scalbnf (float x, int n)
 {
@@ -93,6 +116,8 @@ scalbnf (float x, int n)
 	SET_FLOAT_WORD(x,(ix&0x807fffffU)|(k<<23));
         return x*twom25;
 }
+
+#endif /* M68881_FLOATING_POINT_SUPPORT */
 
 /****************************************************************************/
 

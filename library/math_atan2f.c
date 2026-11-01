@@ -61,6 +61,18 @@ pi_o_2  = 1.5707963705e+00, /* 0x3fc90fdb */
 pi      = 3.1415925026e+00, /* 0x40490fda */
 pi_lo   = 1.5099578832e-07; /* 0x34222168 */
 
+#if defined(__mc68000__)
+
+/* Rounding every step to single precision adds up to two units in the
+   last place here; this is less than one. */
+float
+atan2f(float y, float x)
+{
+	return(__finish_float(atan2(y,x)));
+}
+
+#else
+
 float
 atan2f(float y, float x)
 {
@@ -135,6 +147,8 @@ atan2f(float y, float x)
 	    	    return  (z-pi_lo)-pi;/* atan(-,-) */
 	}
 }
+
+#endif /* __mc68000__ */
 
 /****************************************************************************/
 

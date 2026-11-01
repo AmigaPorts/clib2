@@ -85,6 +85,10 @@ static const float
 one   = 1.0,
 huge  = 1.0e30;
 
+#if defined(M68881_FLOATING_POINT_SUPPORT)
+#define atanf __atanf_unchecked
+#endif /* M68881_FLOATING_POINT_SUPPORT */
+
 float
 atanf(float x)
 {
@@ -130,6 +134,22 @@ atanf(float x)
 	    return (hx<0)? -z:z;
 	}
 }
+
+/****************************************************************************/
+
+#if defined(M68881_FLOATING_POINT_SUPPORT)
+
+#undef atanf
+
+extern float __atanf_unchecked(float x);
+
+float
+atanf(float x)
+{
+	return(__finish_float(__atanf_unchecked(x)));
+}
+
+#endif /* M68881_FLOATING_POINT_SUPPORT */
 
 /****************************************************************************/
 

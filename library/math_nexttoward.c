@@ -14,9 +14,9 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-#ifndef _MATH_HEADERS_H
-#include "math_headers.h"
-#endif /* _MATH_HEADERS_H */
+#ifndef _MATH_MUSL_H
+#include "math_musl.h"
+#endif /* _MATH_MUSL_H */
 
 /****************************************************************************/
 
@@ -32,6 +32,49 @@ double
 nexttoward(double x, long double y)
 {
 	return nextafter(x, y);
+}
+
+/****************************************************************************/
+
+#else
+
+/****************************************************************************/
+
+/* From musl 1.2.5, src/math/nexttoward.c, under its MIT license: Copyright (c) 2005-2020
+   Rich Felker, et al. */
+
+double nexttoward(double x, long double y)
+{
+	union {double f; uint64_t i;} ux = {x};
+	int e;
+
+	if (isnan(x) || isnan(y))
+		return x + y;
+	if (x == y)
+		return y;
+	if (x == 0) {
+		ux.i = 1;
+		if (signbit(y))
+			ux.i |= 1ULL<<63;
+	} else if (x < y) {
+		if (signbit(x))
+			ux.i--;
+		else
+			ux.i++;
+	} else {
+		if (signbit(x))
+			ux.i++;
+		else
+			ux.i--;
+	}
+	e = ux.i>>52 & 0x7ff;
+	/* raise overflow if ux.f is infinite and x is finite */
+	if (e == 0x7ff)
+		FORCE_EVAL(x+x);
+	/* raise underflow if ux.f is subnormal or zero */
+	if (e == 0)
+		FORCE_EVAL(x*x + ux.f*ux.f);
+	return ux.f;
 }
 
 /****************************************************************************/

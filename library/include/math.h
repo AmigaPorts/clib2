@@ -175,8 +175,8 @@ extern float __nan;
 
 /****************************************************************************/
 
-#define FP_INFINITE		0	/* -/+ infinity */
-#define FP_NAN			1	/* not a number */
+#define FP_NAN			0	/* not a number */
+#define FP_INFINITE		1	/* -/+ infinity */
 #define FP_NORMAL		2	/* normalized floating point number */
 #define FP_SUBNORMAL	3	/* very small floating point number; special
 							   case of IEEE 754 */
@@ -457,12 +457,70 @@ extern __stdargs int ilogbl(long double x);
 
 /****************************************************************************/
 
-#define FLT_EVAL_METHOD 0
+/* Not part of ISO C, so a program may have used these names for itself, and
+   old Amiga sources do. <sys/features.h> always defines _DEFAULT_SOURCE, which
+   says nothing about what the program wants, so that one doesn't count. */
+#if defined(_XOPEN_SOURCE) || \
+    defined(_BSD_SOURCE) || defined(_GNU_SOURCE)
+
+extern int signgam;
+
+extern __stdargs double j0(double x);
+extern __stdargs double j1(double x);
+extern __stdargs double jn(int n, double x);
+extern __stdargs double y0(double x);
+extern __stdargs double y1(double x);
+extern __stdargs double yn(int n, double x);
+extern __stdargs double scalb(double x, double y);
+
+#endif /* _XOPEN_SOURCE || _BSD_SOURCE || _GNU_SOURCE */
+
+#if defined(_BSD_SOURCE) || defined(_GNU_SOURCE)
+
+extern __stdargs float j0f(float x);
+extern __stdargs float j1f(float x);
+extern __stdargs float jnf(int n, float x);
+extern __stdargs float y0f(float x);
+extern __stdargs float y1f(float x);
+extern __stdargs float ynf(int n, float x);
+extern __stdargs float scalbf(float x, float y);
+extern __stdargs double drem(double x, double y);
+extern __stdargs float dremf(float x, float y);
+extern __stdargs double lgamma_r(double x, int *sign);
+extern __stdargs float lgammaf_r(float x, int *sign);
+extern __stdargs long double lgammal_r(long double x, int *sign);
+
+#endif /* _BSD_SOURCE || _GNU_SOURCE */
+
+#if defined(_GNU_SOURCE)
+
+extern __stdargs void sincos(double x, double *s, double *c);
+extern __stdargs void sincosf(float x, float *s, float *c);
+extern __stdargs double exp10(double x);
+extern __stdargs float exp10f(float x);
+extern __stdargs double pow10(double x);
+extern __stdargs float pow10f(float x);
+extern __stdargs void sincosl(long double x, long double *s, long double *c);
+extern __stdargs long double exp10l(long double x);
+extern __stdargs long double pow10l(long double x);
+
+#endif /* _GNU_SOURCE */
 
 /****************************************************************************/
 
+#ifndef FLT_EVAL_METHOD
+#define FLT_EVAL_METHOD __FLT_EVAL_METHOD__
+#endif /* FLT_EVAL_METHOD */
+
+/****************************************************************************/
+
+#if __FLT_EVAL_METHOD__ == 2
+typedef long double	float_t;
+typedef long double	double_t;
+#else
 typedef float	float_t;
 typedef double	double_t;
+#endif /* __FLT_EVAL_METHOD__ */
 
 /****************************************************************************/
 

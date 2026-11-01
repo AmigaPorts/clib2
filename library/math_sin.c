@@ -172,6 +172,10 @@ __sin(double x)
 
 /****************************************************************************/
 
+#if defined(M68881_FLOATING_POINT_SUPPORT)
+#define sin __sin_unchecked
+#endif /* M68881_FLOATING_POINT_SUPPORT */
+
 double
 sin(double x)
 {
@@ -181,6 +185,22 @@ sin(double x)
 
 	return(result);
 }
+
+/****************************************************************************/
+
+#if defined(M68881_FLOATING_POINT_SUPPORT)
+
+#undef sin
+
+extern double __sin_unchecked(double x);
+
+double
+sin(double x)
+{
+	return(__finish_double(__sin_unchecked(x)));
+}
+
+#endif /* M68881_FLOATING_POINT_SUPPORT */
 
 /****************************************************************************/
 

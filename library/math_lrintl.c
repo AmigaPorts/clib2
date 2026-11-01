@@ -14,9 +14,9 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-#ifndef _MATH_HEADERS_H
-#include "math_headers.h"
-#endif /* _MATH_HEADERS_H */
+#ifndef _MATH_MUSL_H
+#include "math_musl.h"
+#endif /* _MATH_MUSL_H */
 
 /****************************************************************************/
 
@@ -33,6 +33,50 @@ lrintl(long double x)
 {
 	return lrint(x);
 }
+
+/****************************************************************************/
+
+#else
+
+/****************************************************************************/
+
+/* From musl 1.2.5, src/math/lrintl.c, under its MIT license: Copyright (c) 2005-2020
+   Rich Felker, et al.  Further notices are in the text. */
+
+#if   defined(FE_INEXACT)
+/*
+see comments in lrint.c
+
+Note that if LONG_MAX == 0x7fffffffffffffff && LDBL_MANT_DIG == 64
+then x == 2**63 - 0.5 is the only input that overflows and
+raises inexact (with tonearest or upward rounding mode)
+*/
+long lrintl(long double x)
+{
+	/* The conversion won't tell. */
+	if(!(__builtin_fabsl(x) < 0x1p31L))
+		__raise_invalid();
+
+	#pragma STDC FENV_ACCESS ON
+	int e;
+
+	e = fetestexcept(FE_INEXACT);
+	x = rintl(x);
+	if (!e && (x > LONG_MAX || x < LONG_MIN))
+		feclearexcept(FE_INEXACT);
+	/* conversion */
+	return x;
+}
+#else
+long lrintl(long double x)
+{
+	/* The conversion won't tell. */
+	if(!(__builtin_fabsl(x) < 0x1p31L))
+		__raise_invalid();
+
+	return rintl(x);
+}
+#endif
 
 /****************************************************************************/
 

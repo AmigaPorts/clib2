@@ -64,6 +64,18 @@ E =  1.4142856598e+00, /* 99/70     = 0x3fb50750 */
 F =  1.6071428061e+00, /* 45/28     = 0x3fcdb6db */
 G =  3.5714286566e-01; /* 5/14      = 0x3eb6db6e */
 
+#if defined(__mc68000__)
+
+/* Rounding every step to single precision adds up to two units in the
+   last place here; this is less than one. */
+float
+cbrtf(float x)
+{
+	return((float)cbrt(x));
+}
+
+#else
+
 float
 cbrtf(float x)
 {
@@ -98,6 +110,8 @@ cbrtf(float x)
 	SET_FLOAT_WORD(t,high|sign);
 	return(t);
 }
+
+#endif /* __mc68000__ */
 
 /****************************************************************************/
 
