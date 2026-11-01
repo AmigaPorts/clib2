@@ -371,7 +371,7 @@ obj/libm/%.o : CFLAGS += $(LARGEDATA) -DPPC_FLOATING_POINT_SUPPORT
 obj/libm/%.o : %.c
 	@$(COMPILE)
 
-obj/soft-float/libm/%.o : CFLAGS += $(SOFTFLOAT)
+obj/soft-float/libm/%.o : CFLAGS += $(SOFTFLOAT) -DPPC_FLOATING_POINT_SUPPORT
 obj/soft-float/libm/%.o : %.c
 	@$(COMPILE)
 
@@ -387,7 +387,7 @@ obj.threadsafe/libm/%.o : CFLAGS += $(THREADSAFE) $(LARGEDATA) -DPPC_FLOATING_PO
 obj.threadsafe/libm/%.o : %.c
 	@$(COMPILE)
 
-obj.threadsafe/soft-float/libm/%.o : CFLAGS += $(THREADSAFE) $(SOFTFLOAT)
+obj.threadsafe/soft-float/libm/%.o : CFLAGS += $(THREADSAFE) $(SOFTFLOAT) -DPPC_FLOATING_POINT_SUPPORT
 obj.threadsafe/soft-float/libm/%.o : %.c
 	@$(COMPILE)
 
