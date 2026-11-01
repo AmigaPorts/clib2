@@ -322,13 +322,27 @@ struct binary_number
 #define BASE 1000000000UL
 #define BASE_DIGITS 9
 
-/* All decimal digits past these can be replaced by a single one that isn't
-   zero: no number halfway between two long doubles has more digits. */
-#define MAX_DIGITS 11600
+/* What each type asks of the conversion. */
+struct number_limits
+{
+	long	nl_max_digits;		/* All decimal digits past these can be replaced
+								   by a single one that isn't zero: no number
+								   halfway between two values has more digits. */
+	long	nl_max_exponent;	/* Numbers with more digits before the decimal
+								   point, or more zeroes after it, can't be told
+								   from infinity or zero. */
+	long	nl_max_words;		/* Likewise, in the words that are kept while
+								   shifting to the left. */
+};
 
-/* Numbers with fewer digits before the decimal point, or more zeroes after
-   it, can't be told from infinity or zero. */
-#define MAX_DECIMAL_EXPONENT 5000
+static const struct number_limits float_limits = { 130, 50, 16 };
+static const struct number_limits double_limits = { 800, 330, 92 };
+static const struct number_limits long_double_limits = { 11600, 5000, 1300 };
+
+/* Usually this many words are plenty to tell where a number goes: the first
+   holds at least one digit, and the fraction of the mantissa then has more
+   digits than the error of shifting can get at. */
+#define NUM_FAST_WORDS 6
 
 /* How many fractional words to keep while shifting to the right.  Together
    they are far more than the few bits that can still move into the
@@ -338,6 +352,9 @@ struct binary_number
 /* Enough for all numbers that are likely to come up; the others go to
    malloc(). */
 #define NUM_STACK_WORDS 72
+
+/* The largest shift to the left that a word survives without 64 bit division. */
+#define MAX_LEFT_SHIFT 11
 
 static int
 count_leading_zeroes(unsigned long long x)
@@ -353,15 +370,53 @@ count_leading_zeroes(unsigned long long x)
 	return(n);
 }
 
+/* word * 2^shift + *carry = result + *carry * 10^9, for a shift of up to
+   MAX_LEFT_SHIFT.  As 10^9 = 2^9 * 5^9, that is a division by 5^9 of the part
+   above the lowest nine bits, which fits a long. */
+static unsigned long
+shift_word_left(unsigned long word,int shift,unsigned long * carry)
+{
+	unsigned long upper;
+	unsigned long lower;
+	unsigned long quotient;
+
+	if(shift >= 9)
+	{
+		upper = (word << (shift - 9)) + ((*carry) >> 9);
+		lower = (*carry) & ((1UL << 9) - 1);
+	}
+	else
+	{
+		int down = 9 - shift;
+		unsigned long part = ((word & ((1UL << down) - 1)) << shift) + (*carry);
+
+		upper = (word >> down) + (part >> 9);
+		lower = part & ((1UL << 9) - 1);
+	}
+
+	quotient = upper / (BASE >> 9);
+
+	(*carry) = quotient;
+
+	return(((upper - quotient * (BASE >> 9)) << 9) | lower);
+}
+
 /* Converts the decimal digits of pn to binary, with the digits in base 10^9
    in an array that holds the integer part in the words before index r and
    the fraction in those from r on.  Shifting right by nine bits divides
    each word by 2^9 exactly and leaves 5^9 times its remainder for the next
    word; this goes on until the integer part fits a mantissa.  Shifting left
-   then moves the top bit of the mantissa to where it belongs.  Returns 0 if
-   there is no memory. */
+   then moves the top bit of the mantissa to where it belongs.
+
+   That keeps max_words words, and the last one is rounded down.  This can't
+   change the result as long as those include all digits that a number
+   halfway between two values can have, as they are multiples of the same
+   last word.  With fewer, the result is good unless the fraction of the
+   mantissa comes out next to where a value or a halfway point would be,
+   which sets (*is_uncertain).  Returns 0 if there is no memory. */
 static int
-decimal_to_binary(const struct __parsed_number * pn,struct binary_number * bn)
+convert_digits(const struct __parsed_number * pn,const struct number_limits * limits,
+	long max_words,struct binary_number * bn,int * is_uncertain)
 {
 	unsigned long stack_words[NUM_STACK_WORDS];
 	unsigned long * words = stack_words;
@@ -383,8 +438,11 @@ decimal_to_binary(const struct __parsed_number * pn,struct binary_number * bn)
 	long fraction_words;
 	long num_all_words;
 	int sticky = 0;
+	int truncated = 0;
 	int padding;
 	int result = 0;
+
+	(*is_uncertain) = 0;
 
 	/* The significant digits are those from the first to the last that
 	   isn't zero.  exponent belongs to the digit where the digits end. */
@@ -409,7 +467,7 @@ decimal_to_binary(const struct __parsed_number * pn,struct binary_number * bn)
 	{
 		if('0' <= (*s) && (*s) <= '9')
 		{
-			if(num_digits == MAX_DIGITS)
+			if(num_digits == limits->nl_max_digits)
 			{
 				sticky = 1;
 				exponent++;
@@ -423,7 +481,7 @@ decimal_to_binary(const struct __parsed_number * pn,struct binary_number * bn)
 	/* 10^(position - 1) <= number < 10^position */
 	position = num_digits + exponent;
 
-	if(position > MAX_DECIMAL_EXPONENT)
+	if(position > limits->nl_max_exponent)
 	{
 		bn->bn_mantissa = 1ULL << 63;
 		bn->bn_exponent = 100000;
@@ -432,7 +490,7 @@ decimal_to_binary(const struct __parsed_number * pn,struct binary_number * bn)
 		return(1);
 	}
 
-	if(position < -MAX_DECIMAL_EXPONENT)
+	if(position < -limits->nl_max_exponent)
 	{
 		bn->bn_mantissa = 1ULL << 63;
 		bn->bn_exponent = -100000;
@@ -550,35 +608,48 @@ decimal_to_binary(const struct __parsed_number * pn,struct binary_number * bn)
 
 		integer = 0;
 
-		for(d = r - 3 ; d < r ; d++)
-			integer = integer * BASE + (*d);
+		if(a < r)
+		{
+			for(d = r - 3 ; d < r ; d++)
+				integer = integer * BASE + (*d);
+		}
 
 		if(integer == 0)
-			shift = 29;
+			shift = MAX_LEFT_SHIFT;
 		else
 			shift = count_leading_zeroes(integer);
 
 		if(shift == 0)
 			break;
 
-		if(shift > 29)
-			shift = 29;
+		if(shift > MAX_LEFT_SHIFT)
+			shift = MAX_LEFT_SHIFT;
 
 		while(z > a && z[-1] == 0)
 			z--;
 
-		for(d = z - 1 ; d >= r - 3 ; d--)
+		if(z - a > max_words)
 		{
-			unsigned long long x = (((unsigned long long)(*d)) << shift) + carry;
-
-			carry = (unsigned long)(x / BASE);
-			(*d) = (unsigned long)(x - (unsigned long long)carry * BASE);
+			z = a + max_words;
+			sticky = 1;
+			truncated = 1;
 		}
 
-		if(a > r - 3)
-			a = r - 3;
+		for(d = z - 1 ; d >= a ; d--)
+			(*d) = shift_word_left((*d),shift,&carry);
+
+		if(carry != 0)
+			(*--a) = carry;
 
 		binary_exponent -= shift;
+	}
+
+	if(truncated)
+	{
+		unsigned long first_word = (z > r) ? (*r) : 0;
+
+		if(first_word == 0 || first_word == BASE - 1 || first_word == BASE / 2 || first_word == BASE / 2 - 1)
+			(*is_uncertain) = 1;
 	}
 
 	bn->bn_mantissa = integer;
@@ -608,12 +679,28 @@ decimal_to_binary(const struct __parsed_number * pn,struct binary_number * bn)
 
 /****************************************************************************/
 
+static int
+decimal_to_binary(const struct __parsed_number * pn,const struct number_limits * limits,struct binary_number * bn)
+{
+	int is_uncertain;
+
+	if(NOT convert_digits(pn,limits,NUM_FAST_WORDS,bn,&is_uncertain))
+		return(0);
+
+	if(is_uncertain)
+		return(convert_digits(pn,limits,limits->nl_max_words,bn,&is_uncertain));
+
+	return(1);
+}
+
+/****************************************************************************/
+
 /* Rounds the number to num_bits of mantissa, ties to even, or to fewer where
    its exponent is below min_exponent, the smallest one that has them all.
    The result is *mantissa * 2^(*exponent - num_bits + 1) if it isn't
    denormal.  Returns zero if there is no memory. */
 static int
-round_number(const struct __parsed_number * pn,int num_bits,long min_exponent,
+round_number(const struct __parsed_number * pn,const struct number_limits * limits,int num_bits,long min_exponent,
 	unsigned long long * mantissa,long * exponent,int * is_denormal)
 {
 	struct binary_number bn;
@@ -631,7 +718,7 @@ round_number(const struct __parsed_number * pn,int num_bits,long min_exponent,
 		bn.bn_exponent = pn->pn_exponent - shift;
 		bn.bn_rest = pn->pn_rest;
 	}
-	else if (NOT decimal_to_binary(pn,&bn))
+	else if (NOT decimal_to_binary(pn,limits,&bn))
 	{
 		return(0);
 	}
@@ -718,7 +805,7 @@ double_bits(const struct __parsed_number * pn)
 	if(pn->pn_is_zero)
 		return(0);
 
-	if(NOT round_number(pn,53,-1022,&mantissa,&exponent,&is_denormal))
+	if(NOT round_number(pn,&double_limits,53,-1022,&mantissa,&exponent,&is_denormal))
 		return(0);
 
 	if(exponent > 1023)
@@ -812,7 +899,7 @@ __parsed_to_float(const struct __parsed_number * pn)
 
 		case PN_NUMBER:
 
-			if(pn->pn_is_zero || NOT round_number(pn,24,-126,&mantissa,&exponent,&is_denormal))
+			if(pn->pn_is_zero || NOT round_number(pn,&float_limits,24,-126,&mantissa,&exponent,&is_denormal))
 			{
 				result.bits = 0;
 			}
@@ -895,7 +982,7 @@ __parsed_to_long_double(const struct __parsed_number * pn)
 
 		case PN_NUMBER:
 
-			if(pn->pn_is_zero || NOT round_number(pn,64,-16383,&mantissa,&exponent,&is_denormal))
+			if(pn->pn_is_zero || NOT round_number(pn,&long_double_limits,64,-16383,&mantissa,&exponent,&is_denormal))
 				break;
 
 			if(exponent > 16383)
