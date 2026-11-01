@@ -92,6 +92,54 @@ extern double __inf(void);
 #define __domain_error(x) (((x) - (x)) / ((x) - (x)))
 #define __pole_error(x) (-1.0 / fabs(x))
 #define __raise_invalid() do { volatile double __zero = 0.0; __zero = __zero / __zero; } while(0)
+#define FPSR_RAISE_OVERFLOW 0x48UL	/* OVFL and INEX in the accrued byte */
+#define FPSR_RAISE_UNDERFLOW 0x28UL	/* UNFL and INEX */
+
+/* Sets flags that the FPU has no reason to set by itself. */
+static __inline__ void
+__fpu_raise(unsigned long flags)
+{
+	unsigned long fpsr;
+
+	__asm__ __volatile__ ("fmove%.l %!,%0" : "=d" (fpsr));
+	__asm__ __volatile__ ("fmove%.l %0,%!" : : "d" (fpsr | flags));
+}
+
+/* An inexact result that is tiny in its own format has underflowed, but the
+   FPU can't know that: to its 80 bits the number is an ordinary one, and may
+   well fit a double exactly when it is stored, which raises nothing.
+   So the results of these functions are stored, for the flags of the format,
+   and checked. */
+static __inline__ double
+__finish_double(double x)
+{
+	volatile double result = x;
+
+	if(result != 0.0 && __builtin_fabs(result) < 0x1p-1022)
+		__fpu_raise(FPSR_RAISE_UNDERFLOW);
+
+	return(result);
+}
+
+static __inline__ float
+__finish_float(float x)
+{
+	volatile float result = x;
+
+	if(result != 0.0f && __builtin_fabsf(result) < 0x1p-126f)
+		__fpu_raise(FPSR_RAISE_UNDERFLOW);
+
+	return(result);
+}
+
+static __inline__ long double
+__finish_long_double(long double x)
+{
+	if(x != 0.0L && __builtin_fabsl(x) < 0x1p-16383L)
+		__fpu_raise(FPSR_RAISE_UNDERFLOW);
+
+	return(x);
+}
 #else
 #define __raise_invalid() ((void)0)
 #define __domain_error(x) __builtin_nan("")

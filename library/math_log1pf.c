@@ -67,6 +67,10 @@ Lp7 = 1.4798198640e-01; /* 3E178897 */
 
 static const float zero = 0.0;
 
+#if defined(M68881_FLOATING_POINT_SUPPORT)
+#define log1pf __log1pf_unchecked
+#endif /* M68881_FLOATING_POINT_SUPPORT */
+
 float
 log1pf(float x)
 {
@@ -131,6 +135,22 @@ log1pf(float x)
 	if(k==0) return f-(hfsq-s*(hfsq+R)); else
 		 return k*ln2_hi-((hfsq-(s*(hfsq+R)+(k*ln2_lo+c)))-f);
 }
+
+/****************************************************************************/
+
+#if defined(M68881_FLOATING_POINT_SUPPORT)
+
+#undef log1pf
+
+extern float __log1pf_unchecked(float x);
+
+float
+log1pf(float x)
+{
+	return(__finish_float(__log1pf_unchecked(x)));
+}
+
+#endif /* M68881_FLOATING_POINT_SUPPORT */
 
 /****************************************************************************/
 

@@ -56,6 +56,27 @@ twom54  =  5.55111512312578270212e-17, /* 0x3C900000, 0x00000000 */
 huge   = 1.0e+300,
 tiny   = 1.0e-300;
 
+#if defined(M68881_FLOATING_POINT_SUPPORT)
+
+/* Exact in extended precision, and rounded to double once, by the FPCR, when
+   it is stored, which raises what there is to raise. */
+double
+scalbn (double x, int n)
+{
+	volatile double result;
+	long double scaled;
+
+	__asm ("fscale%.l %2,%0"
+	       : "=f" (scaled)
+	       : "0" ((long double)x), "d" (n));
+
+	result = scaled;
+
+	return(result);
+}
+
+#else
+
 double
 scalbn (double x, int n)
 {
@@ -84,6 +105,8 @@ scalbn (double x, int n)
 	SET_HIGH_WORD(x,(hx&0x800fffffU)|(k<<20));
         return x*twom54;
 }
+
+#endif /* M68881_FLOATING_POINT_SUPPORT */
 
 /****************************************************************************/
 

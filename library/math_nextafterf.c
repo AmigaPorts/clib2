@@ -52,6 +52,10 @@
 
 /****************************************************************************/
 
+#if defined(M68881_FLOATING_POINT_SUPPORT)
+#define nextafterf __nextafterf_unchecked
+#endif /* M68881_FLOATING_POINT_SUPPORT */
+
 float
 nextafterf(float x, float y)
 {
@@ -96,6 +100,34 @@ nextafterf(float x, float y)
 	SET_FLOAT_WORD(x,hx);
 	return x;
 }
+
+/****************************************************************************/
+
+#if defined(M68881_FLOATING_POINT_SUPPORT)
+
+#undef nextafterf
+
+extern float __nextafterf_unchecked(float x,float y);
+
+/* The result is exact, but one that is denormal, or infinity, is an underflow
+   or overflow all the same. */
+float
+nextafterf(float x,float y)
+{
+	volatile float result = __nextafterf_unchecked(x,y);
+
+	if(x != y && NOT isnan(x) && NOT isnan(y))
+	{
+		if(isinf(result) && NOT isinf(x))
+			__fpu_raise(FPSR_RAISE_OVERFLOW);
+		else if (__builtin_fabsf(result) < 0x1p-126f)
+			__fpu_raise(FPSR_RAISE_UNDERFLOW);
+	}
+
+	return(result);
+}
+
+#endif /* M68881_FLOATING_POINT_SUPPORT */
 
 /****************************************************************************/
 

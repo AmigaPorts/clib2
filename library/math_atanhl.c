@@ -52,7 +52,7 @@ atanhl(long double x)
 
 	__asm ("fatanh%.x %1,%0" : "=f" (result) : "f" (x));
 
-	return(result);
+	return(__finish_long_double(result));
 }
 
 #else

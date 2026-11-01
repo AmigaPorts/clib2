@@ -50,73 +50,6 @@
 
 /****************************************************************************/
 
-#if defined(IEEE_FLOATING_POINT_SUPPORT)
-
-/****************************************************************************/
-
-#if defined(__GNUC__)
-
-/****************************************************************************/
-
-#if defined(SMALL_DATA)
-#define A4(x) "a4@(" #x ":W)"
-#elif defined(SMALL_DATA32)
-#define A4(x) "a4@(" #x ":L)"
-#else
-#define A4(x) #x
-#endif /* SMALL_DATA */
-
-/****************************************************************************/
-
-extern double __tan(double x);
-
-/****************************************************************************/
-
-asm(
-
-"	.text\n"
-"	.even\n"
-
-"	.globl	_MathIeeeDoubTransBase\n"
-"	.globl	___tan\n"
-
-"___tan:\n"
-
-"	movel	a6,sp@-\n"
-"	movel	"A4(_MathIeeeDoubTransBase)",a6\n"
-"	moveml	sp@(8),d0/d1\n"
-"	jsr		a6@(-48:W)\n"
-"	movel	sp@+,a6\n"
-"	rts\n"
-
-);
-
-/****************************************************************************/
-
-#else
-
-/****************************************************************************/
-
-INLINE STATIC const double
-__tan(double x)
-{
-	double result;
-
-	result = IEEEDPTan(x);
-
-	return(result);
-}
-
-/****************************************************************************/
-
-#endif /* __GNUC__ */
-
-/****************************************************************************/
-
-#endif /* IEEE_FLOATING_POINT_SUPPORT */
-
-/****************************************************************************/
-
 #if defined(M68881_FLOATING_POINT_SUPPORT)
 
 INLINE STATIC const double
@@ -136,7 +69,7 @@ __tan(double x)
 
 /****************************************************************************/
 
-#if defined(PPC_FLOATING_POINT_SUPPORT)
+#if defined(IEEE_FLOATING_POINT_SUPPORT) || defined(PPC_FLOATING_POINT_SUPPORT)
 
 INLINE STATIC double
 __tan(double x)
@@ -161,9 +94,13 @@ __tan(double x)
 							-1 -- n odd */
 	}
 }
-#endif /* PPC_FLOATING_POINT_SUPPORT */
+#endif /* IEEE_FLOATING_POINT_SUPPORT || PPC_FLOATING_POINT_SUPPORT */
 
 /****************************************************************************/
+
+#if defined(M68881_FLOATING_POINT_SUPPORT)
+#define tan __tan_unchecked
+#endif /* M68881_FLOATING_POINT_SUPPORT */
 
 double
 tan(double x)
@@ -174,6 +111,22 @@ tan(double x)
 
 	return(result);
 }
+
+/****************************************************************************/
+
+#if defined(M68881_FLOATING_POINT_SUPPORT)
+
+#undef tan
+
+extern double __tan_unchecked(double x);
+
+double
+tan(double x)
+{
+	return(__finish_double(__tan_unchecked(x)));
+}
+
+#endif /* M68881_FLOATING_POINT_SUPPORT */
 
 /****************************************************************************/
 

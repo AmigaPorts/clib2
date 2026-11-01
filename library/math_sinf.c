@@ -53,6 +53,10 @@
 
 /****************************************************************************/
 
+#if defined(M68881_FLOATING_POINT_SUPPORT)
+#define sinf __sinf_unchecked
+#endif /* M68881_FLOATING_POINT_SUPPORT */
+
 float
 sinf(float x)
 {
@@ -80,6 +84,22 @@ sinf(float x)
 	    }
 	}
 }
+
+/****************************************************************************/
+
+#if defined(M68881_FLOATING_POINT_SUPPORT)
+
+#undef sinf
+
+extern float __sinf_unchecked(float x);
+
+float
+sinf(float x)
+{
+	return(__finish_float(__sinf_unchecked(x)));
+}
+
+#endif /* M68881_FLOATING_POINT_SUPPORT */
 
 /****************************************************************************/
 

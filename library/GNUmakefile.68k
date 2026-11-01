@@ -716,6 +716,8 @@ MATH_LIB = \
 	math_kernel_cosf.o \
 	math_kernel_sin.o \
 	math_kernel_sinf.o \
+	math_kernel_rem_pio2.o \
+	math_kernel_tan.o \
 	math_kernel_tanf.o \
 	math_ldexp.o \
 	math_ldexpf.o \

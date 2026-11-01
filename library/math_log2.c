@@ -41,11 +41,29 @@
 
 /****************************************************************************/
 
+#if defined(M68881_FLOATING_POINT_SUPPORT)
+
+double
+log2(double x)
+{
+	volatile double result;
+
+	__asm ("flog2%.x %1,%0"
+	       : "=f" (result)
+	       : "f" (x));
+
+	return(result);
+}
+
+#else
+
 double
 log2(double x)
 {
 	return(log(x) / log(2.0));
 }
+
+#endif /* M68881_FLOATING_POINT_SUPPORT */
 
 /****************************************************************************/
 

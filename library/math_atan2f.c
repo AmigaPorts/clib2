@@ -68,7 +68,7 @@ pi_lo   = 1.5099578832e-07; /* 0x34222168 */
 float
 atan2f(float y, float x)
 {
-	return((float)atan2(y,x));
+	return(__finish_float(atan2(y,x)));
 }
 
 #else

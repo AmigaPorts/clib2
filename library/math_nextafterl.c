@@ -74,7 +74,7 @@ long double nextafterl(long double x, long double y)
 	if ((ux.i.se & 0x7fff) == 0x7fff)
 		return x + x;
 	/* raise underflow if ux is subnormal or zero */
-	if ((ux.i.se & 0x7fff) == 0)
+	if ((ux.i.se & 0x7fff) == 0 && ux.i.m>>63 == 0)
 		FORCE_EVAL(x*x + ux.f*ux.f);
 	return ux.f;
 }

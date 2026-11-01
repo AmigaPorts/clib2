@@ -45,6 +45,10 @@ lroundl(long double x)
 
 long lroundl(long double x)
 {
+	/* The conversion won't tell. */
+	if(!(__builtin_fabsl(x) < 0x1p31L))
+		__raise_invalid();
+
 	return roundl(x);
 }
 

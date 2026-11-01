@@ -52,7 +52,7 @@ exp2l(long double x)
 
 	__asm ("ftwotox%.x %1,%0" : "=f" (result) : "f" (x));
 
-	return(result);
+	return(__finish_long_double(result));
 }
 
 #else

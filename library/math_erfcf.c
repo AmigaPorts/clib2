@@ -128,6 +128,10 @@ sb5  =  2.5530502930e+03, /* 0x451f90ce */
 sb6  =  4.7452853394e+02, /* 0x43ed43a7 */
 sb7  = -2.2440952301e+01; /* 0xc1b38712 */
 
+#if defined(M68881_FLOATING_POINT_SUPPORT)
+#define erfcf __erfcf_unchecked
+#endif /* M68881_FLOATING_POINT_SUPPORT */
+
 float
 erfcf(float x)
 {
@@ -189,6 +193,22 @@ erfcf(float x)
 	    if(hx>0) return tiny*tiny; else return two-tiny;
 	}
 }
+
+/****************************************************************************/
+
+#if defined(M68881_FLOATING_POINT_SUPPORT)
+
+#undef erfcf
+
+extern float __erfcf_unchecked(float x);
+
+float
+erfcf(float x)
+{
+	return(__finish_float(__erfcf_unchecked(x)));
+}
+
+#endif /* M68881_FLOATING_POINT_SUPPORT */
 
 /****************************************************************************/
 

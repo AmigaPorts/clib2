@@ -32,6 +32,11 @@
 
 float jnf(int n, float x)
 {
+#if defined(M68881_FLOATING_POINT_SUPPORT)
+	/* The recurrence loses too much with extended precision in the middle
+	   of single precision steps. */
+	return (float)jn(n, x);
+#else
 	uint32_t ix;
 	int nm1, sign, i;
 	float a, b, temp;
@@ -171,6 +176,7 @@ float jnf(int n, float x)
 		}
 	}
 	return sign ? -b : b;
+#endif /* M68881_FLOATING_POINT_SUPPORT */
 }
 
 float ynf(int n, float x)

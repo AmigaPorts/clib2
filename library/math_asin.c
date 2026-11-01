@@ -227,6 +227,10 @@ __asin(double x)
 
 /****************************************************************************/
 
+#if defined(M68881_FLOATING_POINT_SUPPORT)
+#define asin __asin_unchecked
+#endif /* M68881_FLOATING_POINT_SUPPORT */
+
 double
 asin(double x)
 {
@@ -238,6 +242,22 @@ asin(double x)
 	__set_errno(EDOM);
 	return __domain_error(x);
 }
+
+/****************************************************************************/
+
+#if defined(M68881_FLOATING_POINT_SUPPORT)
+
+#undef asin
+
+extern double __asin_unchecked(double x);
+
+double
+asin(double x)
+{
+	return(__finish_double(__asin_unchecked(x)));
+}
+
+#endif /* M68881_FLOATING_POINT_SUPPORT */
 
 /****************************************************************************/
 

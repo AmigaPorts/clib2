@@ -78,7 +78,7 @@ qS4 =  7.7038154006e-02; /* 0x3d9dc62e */
 float
 asinf(float x)
 {
-	return((float)asin(x));
+	return(__finish_float(asin(x)));
 }
 
 #else

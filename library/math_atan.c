@@ -259,6 +259,10 @@ __atan(double x)
 
 /****************************************************************************/
 
+#if defined(M68881_FLOATING_POINT_SUPPORT)
+#define atan __atan_unchecked
+#endif /* M68881_FLOATING_POINT_SUPPORT */
+
 double
 atan(double x)
 {
@@ -268,6 +272,22 @@ atan(double x)
 
 	return(result);
 }
+
+/****************************************************************************/
+
+#if defined(M68881_FLOATING_POINT_SUPPORT)
+
+#undef atan
+
+extern double __atan_unchecked(double x);
+
+double
+atan(double x)
+{
+	return(__finish_double(__atan_unchecked(x)));
+}
+
+#endif /* M68881_FLOATING_POINT_SUPPORT */
 
 /****************************************************************************/
 

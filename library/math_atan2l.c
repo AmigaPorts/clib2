@@ -62,6 +62,10 @@ atan2l(long double y, long double x)
 
 
 
+#if defined(M68881_FLOATING_POINT_SUPPORT)
+#define atan2l __atan2l_unchecked
+#endif /* M68881_FLOATING_POINT_SUPPORT */
+
 long double atan2l(long double y, long double x)
 {
 	union ldshape ux, uy;
@@ -119,6 +123,20 @@ long double atan2l(long double y, long double x)
 		return (z-2*pio2_lo)-2*pio2_hi; /* atan(-,-) */
 	}
 }
+
+#if defined(M68881_FLOATING_POINT_SUPPORT)
+
+#undef atan2l
+
+extern long double __atan2l_unchecked(long double y,long double x);
+
+long double
+atan2l(long double y,long double x)
+{
+	return(__finish_long_double(__atan2l_unchecked(y,x)));
+}
+
+#endif /* M68881_FLOATING_POINT_SUPPORT */
 
 /****************************************************************************/
 

@@ -71,6 +71,10 @@ P3   =  6.6137559770e-05, /* 0x388ab355 */
 P4   = -1.6533901999e-06, /* 0xb5ddea0e */
 P5   =  4.1381369442e-08; /* 0x3331bb4c */
 
+#if defined(M68881_FLOATING_POINT_SUPPORT)
+#define expf __expf_unchecked
+#endif /* M68881_FLOATING_POINT_SUPPORT */
+
 float
 expf(float x)
 {
@@ -130,6 +134,22 @@ expf(float x)
 	    return y*twom100;
 	}
 }
+
+/****************************************************************************/
+
+#if defined(M68881_FLOATING_POINT_SUPPORT)
+
+#undef expf
+
+extern float __expf_unchecked(float x);
+
+float
+expf(float x)
+{
+	return(__finish_float(__expf_unchecked(x)));
+}
+
+#endif /* M68881_FLOATING_POINT_SUPPORT */
 
 /****************************************************************************/
 

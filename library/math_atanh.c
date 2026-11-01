@@ -55,6 +55,10 @@ static const double one = 1.0, huge = 1e300;
 
 /****************************************************************************/
 
+#if defined(M68881_FLOATING_POINT_SUPPORT)
+#define atanh __atanh_unchecked
+#endif /* M68881_FLOATING_POINT_SUPPORT */
+
 double
 atanh(double x)
 {
@@ -76,6 +80,22 @@ atanh(double x)
 	    t = 0.5*log1p((x+x)/(one-x));
 	if(hx>=0) return t; else return -t;
 }
+
+/****************************************************************************/
+
+#if defined(M68881_FLOATING_POINT_SUPPORT)
+
+#undef atanh
+
+extern double __atanh_unchecked(double x);
+
+double
+atanh(double x)
+{
+	return(__finish_double(__atanh_unchecked(x)));
+}
+
+#endif /* M68881_FLOATING_POINT_SUPPORT */
 
 /****************************************************************************/
 

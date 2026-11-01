@@ -53,6 +53,10 @@
 
 /****************************************************************************/
 
+#if defined(M68881_FLOATING_POINT_SUPPORT)
+#define tanf __tanf_unchecked
+#endif /* M68881_FLOATING_POINT_SUPPORT */
+
 float
 tanf(float x)
 {
@@ -75,6 +79,22 @@ tanf(float x)
 							      -1 -- n odd */
 	}
 }
+
+/****************************************************************************/
+
+#if defined(M68881_FLOATING_POINT_SUPPORT)
+
+#undef tanf
+
+extern float __tanf_unchecked(float x);
+
+float
+tanf(float x)
+{
+	return(__finish_float(__tanf_unchecked(x)));
+}
+
+#endif /* M68881_FLOATING_POINT_SUPPORT */
 
 /****************************************************************************/
 

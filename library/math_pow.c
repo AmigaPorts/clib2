@@ -416,9 +416,17 @@ pow(double x,double y)
 	{
 		if(y < 0)
 		{
-			__set_errno(ERANGE);
+			if(kind == 2)
+			{
+				/* Not a pole: this is just infinity. */
+				result = __inf();
+			}
+			else
+			{
+				__set_errno(ERANGE);
 
-			result = (kind == 1) ? copysign(-__pole_error(x),x) : -__pole_error(x);
+				result = (kind == 1) ? copysign(-__pole_error(x),x) : -__pole_error(x);
+			}
 		}
 		else
 		{

@@ -41,11 +41,31 @@
 
 /****************************************************************************/
 
+#if defined(M68881_FLOATING_POINT_SUPPORT)
+#define exp2f __exp2f_unchecked
+#endif /* M68881_FLOATING_POINT_SUPPORT */
+
 float
 exp2f(float x)
 {
 	return(powf(2.0, x));
 }
+
+/****************************************************************************/
+
+#if defined(M68881_FLOATING_POINT_SUPPORT)
+
+#undef exp2f
+
+extern float __exp2f_unchecked(float x);
+
+float
+exp2f(float x)
+{
+	return(__finish_float(__exp2f_unchecked(x)));
+}
+
+#endif /* M68881_FLOATING_POINT_SUPPORT */
 
 /****************************************************************************/
 

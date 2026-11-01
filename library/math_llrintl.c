@@ -53,6 +53,10 @@ raises inexact (with tonearest or upward rounding mode)
 */
 long long llrintl(long double x)
 {
+	/* The conversion won't tell. */
+	if(!(__builtin_fabsl(x) < 0x1p63L))
+		__raise_invalid();
+
 	#pragma STDC FENV_ACCESS ON
 	int e;
 
@@ -66,6 +70,10 @@ long long llrintl(long double x)
 #else
 long long llrintl(long double x)
 {
+	/* The conversion won't tell. */
+	if(!(__builtin_fabsl(x) < 0x1p63L))
+		__raise_invalid();
+
 	return rintl(x);
 }
 #endif

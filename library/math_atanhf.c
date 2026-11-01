@@ -57,6 +57,10 @@ static const float one = 1.0, huge = 1e30;
 
 /****************************************************************************/
 
+#if defined(M68881_FLOATING_POINT_SUPPORT)
+#define atanhf __atanhf_unchecked
+#endif /* M68881_FLOATING_POINT_SUPPORT */
+
 float atanhf(float x)
 {
 	float t;
@@ -76,6 +80,22 @@ float atanhf(float x)
 	    t = (float)0.5*log1pf((x+x)/(one-x));
 	if(hx>=0) return t; else return -t;
 }
+
+/****************************************************************************/
+
+#if defined(M68881_FLOATING_POINT_SUPPORT)
+
+#undef atanhf
+
+extern float __atanhf_unchecked(float x);
+
+float
+atanhf(float x)
+{
+	return(__finish_float(__atanhf_unchecked(x)));
+}
+
+#endif /* M68881_FLOATING_POINT_SUPPORT */
 
 /****************************************************************************/
 

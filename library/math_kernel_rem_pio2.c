@@ -46,7 +46,7 @@
 
 /****************************************************************************/
 
-#if defined(FLOATING_POINT_SUPPORT) && defined(PPC_FLOATING_POINT_SUPPORT)
+#if defined(FLOATING_POINT_SUPPORT)
 
 /****************************************************************************/
 
@@ -350,4 +350,4 @@ int __rem_pio2(double x, double *y)
 
 /****************************************************************************/
 
-#endif /* FLOATING_POINT_SUPPORT && PPC_FLOATING_POINT_SUPPORT */
+#endif /* FLOATING_POINT_SUPPORT */

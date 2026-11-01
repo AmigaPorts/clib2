@@ -178,6 +178,10 @@ __tanh(double x)
 
 /****************************************************************************/
 
+#if defined(M68881_FLOATING_POINT_SUPPORT)
+#define tanh __tanh_unchecked
+#endif /* M68881_FLOATING_POINT_SUPPORT */
+
 double
 tanh(double x)
 {
@@ -187,6 +191,22 @@ tanh(double x)
 
 	return(result);
 }
+
+/****************************************************************************/
+
+#if defined(M68881_FLOATING_POINT_SUPPORT)
+
+#undef tanh
+
+extern double __tanh_unchecked(double x);
+
+double
+tanh(double x)
+{
+	return(__finish_double(__tanh_unchecked(x)));
+}
+
+#endif /* M68881_FLOATING_POINT_SUPPORT */
 
 /****************************************************************************/
 

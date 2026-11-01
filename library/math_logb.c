@@ -84,7 +84,7 @@ logb(double x)
 
 	if(x == 0.0)
 	{
-		result = -__inf();
+		result = __pole_error(x);
 		goto out;
 	}
 

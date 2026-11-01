@@ -184,6 +184,10 @@ __sinh(double x)
 
 /****************************************************************************/
 
+#if defined(M68881_FLOATING_POINT_SUPPORT)
+#define sinh __sinh_unchecked
+#endif /* M68881_FLOATING_POINT_SUPPORT */
+
 double
 sinh(double x)
 {
@@ -193,6 +197,22 @@ sinh(double x)
 
 	return(result);
 }
+
+/****************************************************************************/
+
+#if defined(M68881_FLOATING_POINT_SUPPORT)
+
+#undef sinh
+
+extern double __sinh_unchecked(double x);
+
+double
+sinh(double x)
+{
+	return(__finish_double(__sinh_unchecked(x)));
+}
+
+#endif /* M68881_FLOATING_POINT_SUPPORT */
 
 /****************************************************************************/
 

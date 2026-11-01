@@ -55,6 +55,10 @@
 
 static const float one = 1.0, shuge = 1.0e37;
 
+#if defined(M68881_FLOATING_POINT_SUPPORT)
+#define sinhf __sinhf_unchecked
+#endif /* M68881_FLOATING_POINT_SUPPORT */
+
 float
 sinhf(float x)
 {
@@ -91,6 +95,22 @@ sinhf(float x)
     /* |x| > overflowthresold, sinh(x) overflow */
 	return x*shuge;
 }
+
+/****************************************************************************/
+
+#if defined(M68881_FLOATING_POINT_SUPPORT)
+
+#undef sinhf
+
+extern float __sinhf_unchecked(float x);
+
+float
+sinhf(float x)
+{
+	return(__finish_float(__sinhf_unchecked(x)));
+}
+
+#endif /* M68881_FLOATING_POINT_SUPPORT */
 
 /****************************************************************************/
 
