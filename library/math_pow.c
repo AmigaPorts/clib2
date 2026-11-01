@@ -502,7 +502,7 @@ pow(double x,double y)
 
 #if defined(__MATH_SETS_ERRNO)
 #undef pow
-__MATH_ERRNO_2(double, double, pow)
+__MATH_ERRNO_2_OVERFLOW(double, double, pow, y * log(fabs(x)) > 709.79)
 #endif /* __MATH_SETS_ERRNO */
 
 /****************************************************************************/

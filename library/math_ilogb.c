@@ -78,4 +78,11 @@ ilogb(double x)
 
 /****************************************************************************/
 
+#if defined(__MATH_SETS_ERRNO)
+#undef ilogb
+__MATH_ERRNO_ILOGB(double, double, ilogb)
+#endif /* __MATH_SETS_ERRNO */
+
+/****************************************************************************/
+
 #endif /* FLOATING_POINT_SUPPORT */

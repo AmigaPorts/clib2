@@ -144,6 +144,21 @@
 #define nexttoward __nexttoward_unchecked
 #define nexttowardf __nexttowardf_unchecked
 #define nexttowardl __nexttowardl_unchecked
+#define ilogb __ilogb_unchecked
+#define lrint __lrint_unchecked
+#define llrint __llrint_unchecked
+#define lround __lround_unchecked
+#define llround __llround_unchecked
+#define ilogbf __ilogbf_unchecked
+#define lrintf __lrintf_unchecked
+#define llrintf __llrintf_unchecked
+#define lroundf __lroundf_unchecked
+#define llroundf __llroundf_unchecked
+#define ilogbl __ilogbl_unchecked
+#define lrintl __lrintl_unchecked
+#define llrintl __llrintl_unchecked
+#define lroundl __lroundl_unchecked
+#define llroundl __llroundl_unchecked
 
 #endif /* IEEE_FLOATING_POINT_SUPPORT || soft float on the PowerPC */
 

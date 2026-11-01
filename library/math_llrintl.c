@@ -84,4 +84,11 @@ long long llrintl(long double x)
 
 /****************************************************************************/
 
+#if defined(__MATH_SETS_ERRNO)
+#undef llrintl
+__MATH_ERRNO_ROUND(long double, long long, llrintl, rintl, __MATH_LONG_LONG_LIMIT)
+#endif /* __MATH_SETS_ERRNO */
+
+/****************************************************************************/
+
 #endif /* FLOATING_POINT_SUPPORT */

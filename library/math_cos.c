@@ -192,7 +192,7 @@ cos(double x)
 
 #if defined(__MATH_SETS_ERRNO)
 #undef cos
-__MATH_ERRNO_1(double, double, cos)
+__MATH_ERRNO_1_GUARD(double, double, cos, if(__math_special_double(x)) return(__math_trig_special(x)))
 #endif /* __MATH_SETS_ERRNO */
 
 /****************************************************************************/

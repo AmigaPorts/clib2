@@ -138,7 +138,7 @@ hypot(double x,double y)
 
 #if defined(__MATH_SETS_ERRNO)
 #undef hypot
-__MATH_ERRNO_2(double, double, hypot)
+__MATH_ERRNO_2_OVERFLOW(double, double, hypot, __hypot_unchecked(x / 2,y / 2) >= DBL_MAX / 2)
 #endif /* __MATH_SETS_ERRNO */
 
 /****************************************************************************/

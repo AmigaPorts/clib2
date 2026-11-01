@@ -84,4 +84,11 @@ lroundf(float x)
 
 /****************************************************************************/
 
+#if defined(__MATH_SETS_ERRNO)
+#undef lroundf
+__MATH_ERRNO_ROUND(float, long, lroundf, roundf, __MATH_LONG_LIMIT)
+#endif /* __MATH_SETS_ERRNO */
+
+/****************************************************************************/
+
 #endif /* FLOATING_POINT_SUPPORT */

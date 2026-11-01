@@ -132,7 +132,7 @@ tan(double x)
 
 #if defined(__MATH_SETS_ERRNO)
 #undef tan
-__MATH_ERRNO_1(double, double, tan)
+__MATH_ERRNO_1_GUARD(double, double, tan, if(__math_special_double(x)) return(__math_trig_special(x)))
 #endif /* __MATH_SETS_ERRNO */
 
 /****************************************************************************/

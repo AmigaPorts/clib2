@@ -50,17 +50,30 @@ typedef unsigned short __attribute__((__may_alias__)) __math_word;
 #define __math_special_long_double(x) \
 	((*(const __math_word *)&(x) & 0x7fff) == 0x7fff)
 
+/* mathieeedoubbas.library doesn't overflow to infinity: it stops at DBL_MAX,
+   so that exponent needs a closer look as well. */
+#define __math_suspect_double(x) \
+	((*(const __math_word *)&(x) & 0x7fe0) == 0x7fe0)
+#define __math_suspect_float(x) __math_special_float(x)
+#define __math_suspect_long_double(x) __math_special_long_double(x)
+
 /****************************************************************************/
 
-extern void __math_errno_double(double result,double x,double y);
-extern void __math_errno_float(float result,float x,float y);
-extern void __math_errno_long_double(long double result,long double x,long double y);
+extern double __math_errno_double(double result,double x,double y);
+extern float __math_errno_float(float result,float x,float y);
+extern long double __math_errno_long_double(long double result,long double x,long double y);
+extern double __math_overflow(double sign);
+extern double __math_trig_special(double x);
+extern double __math_exp_special(double x);
+extern double __math_hyperbolic_special(double x,double sign);
 
 /****************************************************************************/
 
 #if LDBL_MANT_DIG == DBL_MANT_DIG
 #undef __math_special_long_double
+#undef __math_suspect_long_double
 #define __math_special_long_double(x) __math_special_double(x)
+#define __math_suspect_long_double(x) __math_suspect_double(x)
 #endif /* LDBL_MANT_DIG == DBL_MANT_DIG */
 
 /****************************************************************************/
@@ -70,8 +83,22 @@ extern void __math_errno_long_double(long double result,long double x,long doubl
 	type name(type x) \
 	{ \
 		type r = __##name##_unchecked(x); \
-		if(__math_special_##kind(r)) \
-			__math_errno_##kind(r,x,x); \
+		if(__math_suspect_##kind(r)) \
+			r = __math_errno_##kind(r,x,x); \
+		return(r); \
+	}
+
+/* For a function whose library call returns a number that looks fine for the
+   arguments in the guard, and may be anything. */
+#define __MATH_ERRNO_1_GUARD(type,kind,name,guard) \
+	extern __stdargs type name(type x); \
+	type name(type x) \
+	{ \
+		type r; \
+		guard; \
+		r = __##name##_unchecked(x); \
+		if(__math_suspect_##kind(r)) \
+			r = __math_errno_##kind(r,x,x); \
 		return(r); \
 	}
 
@@ -80,8 +107,25 @@ extern void __math_errno_long_double(long double result,long double x,long doubl
 	type name(type x,type y) \
 	{ \
 		type r = __##name##_unchecked(x,y); \
-		if(__math_special_##kind(r)) \
-			__math_errno_##kind(r,x,y); \
+		if(__math_suspect_##kind(r)) \
+			r = __math_errno_##kind(r,x,y); \
+		return(r); \
+	}
+
+/* DBL_MAX is also what these return for an argument of DBL_MAX, whether that
+   is in range or not, so overflowed says which it was. */
+#define __MATH_ERRNO_2_OVERFLOW(type,kind,name,overflowed) \
+	extern __stdargs type name(type x,type y); \
+	type name(type x,type y) \
+	{ \
+		type r = __##name##_unchecked(x,y); \
+		if(__math_suspect_##kind(r)) \
+		{ \
+			if(isfinite(r) && isfinite(x) && isfinite(y) && (overflowed)) \
+				r = __math_overflow(r); \
+			else if(__math_special_##kind(r)) \
+				r = __math_errno_##kind(r,x,y); \
+		} \
 		return(r); \
 	}
 
@@ -92,12 +136,12 @@ extern void __math_errno_long_double(long double result,long double x,long doubl
 	type name(type x,type y,type z) \
 	{ \
 		type r = __##name##_unchecked(x,y,z); \
-		if(__math_special_##kind(r)) \
+		if(__math_suspect_##kind(r)) \
 		{ \
 			if(__math_special_##kind(z) && x == x && y == y) \
-				__math_errno_##kind(r,z,z); \
+				r = __math_errno_##kind(r,z,z); \
 			else \
-				__math_errno_##kind(r,x,y); \
+				r = __math_errno_##kind(r,x,y); \
 		} \
 		return(r); \
 	}
@@ -108,17 +152,18 @@ extern void __math_errno_long_double(long double result,long double x,long doubl
 	{ \
 		type r = __##name##_unchecked(x,y,q); \
 		if(__math_special_##kind(r)) \
-			__math_errno_##kind(r,x,y); \
+			r = __math_errno_##kind(r,x,y); \
 		return(r); \
 	}
 
+/* These two work on the bits, so DBL_MAX really is DBL_MAX. */
 #define __MATH_ERRNO_SCALE(type,kind,name,exponent) \
 	extern __stdargs type name(type x,exponent n); \
 	type name(type x,exponent n) \
 	{ \
 		type r = __##name##_unchecked(x,n); \
 		if(__math_special_##kind(r)) \
-			__math_errno_##kind(r,x,x); \
+			r = __math_errno_##kind(r,x,x); \
 		return(r); \
 	}
 
@@ -130,9 +175,37 @@ extern void __math_errno_long_double(long double result,long double x,long doubl
 	{ \
 		type r = __##name##_unchecked(x,y); \
 		if(__math_special_##kind(r)) \
-			__math_errno_##kind(r,x,y == y ? x : (type)y); \
+			r = __math_errno_##kind(r,x,y == y ? x : (type)y); \
 		return(r); \
 	}
+
+/* C leaves it open whether these are errors: ilogb() of 0, an infinity or a
+   NaN, and a rounded number which doesn't fit. glibc says EDOM. */
+#define __MATH_ERRNO_ILOGB(type,kind,name) \
+	extern __stdargs int name(type x); \
+	int name(type x) \
+	{ \
+		if(x == 0 || __math_special_##kind(x)) \
+			__set_errno(EDOM); \
+		return(__##name##_unchecked(x)); \
+	}
+
+/* Half the limit is enough to know that it fits, without rounding it twice. */
+#define __MATH_ERRNO_ROUND(type,result,name,round,limit) \
+	extern __stdargs result name(type x); \
+	result name(type x) \
+	{ \
+		if(!(x > -(limit) / 2 && x < (limit) / 2)) \
+		{ \
+			const type rounded = round(x); \
+			if(!(rounded >= -(limit) && rounded < (limit))) \
+				__set_errno(EDOM); \
+		} \
+		return(__##name##_unchecked(x)); \
+	}
+
+#define __MATH_LONG_LIMIT 2147483648.0
+#define __MATH_LONG_LONG_LIMIT 9223372036854775808.0
 
 /****************************************************************************/
 

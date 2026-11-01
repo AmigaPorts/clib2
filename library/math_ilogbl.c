@@ -72,4 +72,11 @@ int ilogbl(long double x)
 
 /****************************************************************************/
 
+#if defined(__MATH_SETS_ERRNO)
+#undef ilogbl
+__MATH_ERRNO_ILOGB(long double, long_double, ilogbl)
+#endif /* __MATH_SETS_ERRNO */
+
+/****************************************************************************/
+
 #endif /* FLOATING_POINT_SUPPORT */

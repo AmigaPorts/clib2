@@ -77,4 +77,11 @@ ilogbf(float x)
 
 /****************************************************************************/
 
+#if defined(__MATH_SETS_ERRNO)
+#undef ilogbf
+__MATH_ERRNO_ILOGB(float, float, ilogbf)
+#endif /* __MATH_SETS_ERRNO */
+
+/****************************************************************************/
+
 #endif /* FLOATING_POINT_SUPPORT */
