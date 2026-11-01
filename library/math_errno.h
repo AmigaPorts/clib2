@@ -65,6 +65,7 @@ extern long double __math_errno_long_double(long double result,long double x,lon
 extern double __math_overflow(double sign);
 extern double __math_trig_special(double x);
 extern double __math_exp_special(double x);
+extern double __math_log_special(double x);
 extern double __math_hyperbolic_special(double x,double sign);
 
 /****************************************************************************/
@@ -168,14 +169,20 @@ extern double __math_hyperbolic_special(double x,double sign);
 	}
 
 /* That the target is infinite doesn't excuse overflowing towards it, so only
-   a NaN of the target counts. */
+   a NaN of the target counts. The way there is x + x, which leaves DBL_MAX
+   where it is. */
 #define __MATH_ERRNO_NEXT(type,kind,name,target) \
 	extern __stdargs type name(type x,target y); \
 	type name(type x,target y) \
 	{ \
 		type r = __##name##_unchecked(x,y); \
-		if(__math_special_##kind(r)) \
-			r = __math_errno_##kind(r,x,y == y ? x : (type)y); \
+		if(__math_suspect_##kind(r)) \
+		{ \
+			if(__math_special_##kind(r)) \
+				r = __math_errno_##kind(r,x,y == y ? x : (type)y); \
+			else if(r == x && x != y && y == y) \
+				r = __math_overflow(x); \
+		} \
 		return(r); \
 	}
 

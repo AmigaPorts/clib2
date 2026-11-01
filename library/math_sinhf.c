@@ -116,7 +116,7 @@ sinhf(float x)
 
 #if defined(__MATH_SETS_ERRNO)
 #undef sinhf
-__MATH_ERRNO_1(float, float, sinhf)
+__MATH_ERRNO_1_GUARD(float, float, sinhf, if(!(x > -89.5f && x < 89.5f)) return((float)__math_hyperbolic_special(x,x)))
 #endif /* __MATH_SETS_ERRNO */
 
 /****************************************************************************/

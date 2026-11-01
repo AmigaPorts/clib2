@@ -99,7 +99,7 @@ coshf(float x)
 
 #if defined(__MATH_SETS_ERRNO)
 #undef coshf
-__MATH_ERRNO_1(float, float, coshf)
+__MATH_ERRNO_1_GUARD(float, float, coshf, if(!(x > -89.5f && x < 89.5f)) return((float)__math_hyperbolic_special(x,1.0)))
 #endif /* __MATH_SETS_ERRNO */
 
 /****************************************************************************/

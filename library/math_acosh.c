@@ -61,7 +61,7 @@ acosh(double x)
 
 #if defined(__MATH_SETS_ERRNO)
 #undef acosh
-__MATH_ERRNO_1(double, double, acosh)
+__MATH_ERRNO_1_GUARD(double, double, acosh, if(__math_special_double(x)) return(__math_log_special(x)))
 #endif /* __MATH_SETS_ERRNO */
 
 /****************************************************************************/

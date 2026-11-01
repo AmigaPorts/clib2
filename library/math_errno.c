@@ -136,6 +136,18 @@ __math_exp_special(double x)
 	return(0.0);
 }
 
+/* log(inf) is 709.78, as if it were a large number. */
+double
+__math_log_special(double x)
+{
+	if(isnan(x) || x > 0)
+		return(x);
+
+	__set_errno(EDOM);
+
+	return(__builtin_nan(""));
+}
+
 double
 __math_hyperbolic_special(double x,double sign)
 {

@@ -72,7 +72,7 @@ exp2(double x)
 
 #if defined(__MATH_SETS_ERRNO)
 #undef exp2
-__MATH_ERRNO_1(double, double, exp2)
+__MATH_ERRNO_1_GUARD(double, double, exp2, if(!(x > -1075.0 && x < 1024.0)) return(__math_exp_special(x)))
 #endif /* __MATH_SETS_ERRNO */
 
 /****************************************************************************/

@@ -254,9 +254,15 @@ __sqrt(double x)
 double
 sqrt(double x)
 {
-	if(x >= 0.0)
+	if(x > 0.0)
 	{
 		return __sqrt(x);
+	}
+
+	/* That is -0 as well, whose sign the library drops. */
+	if(x == 0.0)
+	{
+		return x;
 	}
 
 	/* A NaN that comes in is no domain error. */
