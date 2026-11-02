@@ -451,7 +451,17 @@ pow(double x,double y)
 		else if((abs_x > 1) == (y > 0))
 			result = __inf();
 		else
+		{
 			result = 0;
+
+			#if defined(__MATH_SETS_ERRNO)
+			{
+				/* An underflow, unless y is infinite and 0 is exact. */
+				if(NOT isinf(y))
+					__set_errno(ERANGE);
+			}
+			#endif /* __MATH_SETS_ERRNO */
+		}
 
 		goto out;
 	}
