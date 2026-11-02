@@ -979,7 +979,6 @@ MATH_LIB_IEEE = \
 	math_divsf3.o \
 	math_eqdf2.o \
 	math_eqsf2.o \
-	math_extendsfdf2.o \
 	math_fixdfsi.o \
 	math_fixsfsi.o \
 	math_fixunsdfsi.o \
@@ -1001,8 +1000,7 @@ MATH_LIB_IEEE = \
 	math_negsf2.o \
 	math_nesf2.o \
 	math_subdf3.o \
-	math_subsf3.o \
-	math_truncdfsf2.o
+	math_subsf3.o
 
 NET_LIB = \
 	net.lib_rev.o \
