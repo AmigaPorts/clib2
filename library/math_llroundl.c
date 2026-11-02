@@ -45,11 +45,14 @@ llroundl(long double x)
 
 long long llroundl(long double x)
 {
-	/* The conversion won't tell. */
-	if(!(__builtin_fabsl(x) < 0x1p63L))
+	long double rounded = roundl(x);
+
+	/* The conversion won't tell. It is the rounded value that has to fit:
+	   -2^63 does, and 2^63 - 0.5 rounds to one that doesn't. */
+	if(!(rounded >= -0x1p63L && rounded < 0x1p63L))
 		__raise_invalid();
 
-	return roundl(x);
+	return rounded;
 }
 
 /****************************************************************************/
