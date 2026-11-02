@@ -436,7 +436,13 @@ pow(double x,double y)
 		goto out;
 	}
 
+	#if defined(__MATH_SETS_ERRNO)
+	/* From 1e19 on, even the number next to 1 gets out of range, and y is even.
+	   The library's y * log(x) doesn't make it that far: 10 to the DBL_MAX is 1. */
+	if(isinf(y) || fabs(y) >= 1e19)
+	#else
 	if(isinf(y))
+	#endif /* __MATH_SETS_ERRNO */
 	{
 		double abs_x = fabs(x);
 
@@ -502,7 +508,10 @@ pow(double x,double y)
 
 #if defined(__MATH_SETS_ERRNO)
 #undef pow
-__MATH_ERRNO_2_OVERFLOW(double, double, pow, y * log(fabs(x)) > 709.79)
+/* Where the library stops at DBL_MAX, which only pow(DBL_MAX,1) can get to,
+   the limit is just below log(DBL_MAX): log(2) * 1024 can't be told from it.
+   Further out it may also return less, such as 1.36e308 for 1e300 to the 2.5. */
+__MATH_ERRNO_2_OVERFLOW(double, double, pow, y != 1.0 && y * log(fabs(x)) > (fabs(r) == DBL_MAX ? 709.7827128933 : 709.79))
 #endif /* __MATH_SETS_ERRNO */
 
 /****************************************************************************/

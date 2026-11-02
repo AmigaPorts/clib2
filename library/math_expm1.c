@@ -182,7 +182,8 @@ expm1(double x)
 
 #if defined(__MATH_SETS_ERRNO)
 #undef expm1
-__MATH_ERRNO_1(double, double, expm1)
+/* DBL_MAX for an argument of DBL_MAX looks like a result in range. */
+__MATH_ERRNO_1_GUARD(double, double, expm1, if(x == DBL_MAX) return(__math_overflow(1.0)))
 #endif /* __MATH_SETS_ERRNO */
 
 /****************************************************************************/

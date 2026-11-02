@@ -283,7 +283,9 @@ lgammaf(float x)
 
 #if defined(__MATH_SETS_ERRNO)
 #undef lgammaf
-__MATH_ERRNO_1(float, float, lgammaf)
+/* The last argument with a result in range. x * (logf(x) - 1) doesn't get to
+   tell: mathieeesingbas.library's product of it can be just about anything. */
+__MATH_ERRNO_1_GUARD(float, float, lgammaf, if(x > 4.085003108497519e+36f && NOT isinf(x)) { signgam = 1; return(__math_overflow(1.0)); })
 #endif /* __MATH_SETS_ERRNO */
 
 /****************************************************************************/
