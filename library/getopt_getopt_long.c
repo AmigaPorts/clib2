@@ -64,10 +64,10 @@ static int getopt_long_internal(int argc, const char **argv, const char *optstri
 		const struct option *longopts, int *longindex, int flags);
 
 
-int getopt_long(int argc, const char **argv, const char *optstring,
+int getopt_long(int argc, char *const *argv, const char *optstring,
 		const struct option *longopts, int *longindex)
 {
-	return getopt_long_internal(argc, argv, optstring, longopts, longindex, 0);
+	return getopt_long_internal(argc, (const char **)argv, optstring, longopts, longindex, 0);
 }
 
 #if 0

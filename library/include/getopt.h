@@ -71,7 +71,11 @@ struct option
 
 /****************************************************************************/
 
-extern __stdargs int getopt_long(int argc, const char **argv, const char *optstring,
+/* POSIX specifies char *const argv[] (the array of pointers is read-only,
+   not the strings themselves) -- const char ** rejects the char *const*
+   that callers conforming to the standard getopt()/getopt_long() prototype
+   pass (e.g. argv itself, or a local array built to match it). */
+extern __stdargs int getopt_long(int argc, char *const *argv, const char *optstring,
 		const struct option *longopts, int *longindex);
 
 /*extern __stdargs int getopt_long_only(int argc, const char **argv, const char *optstring,
