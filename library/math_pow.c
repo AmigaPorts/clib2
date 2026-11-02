@@ -508,10 +508,16 @@ pow(double x,double y)
 
 #if defined(__MATH_SETS_ERRNO)
 #undef pow
+#if defined(IEEE_FLOATING_POINT_SUPPORT)
 /* Where the library stops at DBL_MAX, which only pow(DBL_MAX,1) can get to,
    the limit is just below log(DBL_MAX): log(2) * 1024 can't be told from it.
    Further out it may also return less, such as 1.36e308 for 1e300 to the 2.5. */
 __MATH_ERRNO_2_OVERFLOW(double, double, pow, y != 1.0 && y * log(fabs(x)) > (fabs(r) == DBL_MAX ? 709.7827128933 : 709.79))
+#else
+/* fdlibm overflows to infinity, so a finite result is in range, DBL_MAX too:
+   pow(0x1.2611186bae674p+819, 1.25) is. */
+__MATH_ERRNO_2_OVERFLOW(double, double, pow, 0)
+#endif /* IEEE_FLOATING_POINT_SUPPORT */
 #endif /* __MATH_SETS_ERRNO */
 
 /****************************************************************************/
