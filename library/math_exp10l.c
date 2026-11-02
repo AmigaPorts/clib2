@@ -32,11 +32,6 @@ long double exp10l(long double x)
 	return powl(10.0, x);
 }
 
-long double pow10l(long double x)
-{
-	return exp10l(x);
-}
-
 /****************************************************************************/
 
 #elif defined(FLOATING_POINT_SUPPORT)
@@ -49,19 +44,25 @@ exp10l(long double x)
 	return powl(10.0L, x);
 }
 
+/****************************************************************************/
+
+#endif /* FLOATING_POINT_SUPPORT && __mc68000__ */
+
+/****************************************************************************/
+
+#if defined(FLOATING_POINT_SUPPORT) && defined(__MATH_SETS_ERRNO)
+#undef exp10l
+__MATH_ERRNO_1(long double, long_double, exp10l)
+#endif /* FLOATING_POINT_SUPPORT && __MATH_SETS_ERRNO */
+
+/****************************************************************************/
+
+#if defined(FLOATING_POINT_SUPPORT)
+
 long double
 pow10l(long double x)
 {
 	return exp10l(x);
 }
 
-/****************************************************************************/
-
-#if defined(__MATH_SETS_ERRNO)
-#undef exp10l
-__MATH_ERRNO_1(long double, long_double, exp10l)
-#endif /* __MATH_SETS_ERRNO */
-
-/****************************************************************************/
-
-#endif /* FLOATING_POINT_SUPPORT && __mc68000__ */
+#endif /* FLOATING_POINT_SUPPORT */

@@ -34,17 +34,19 @@ double exp10(double x)
 }
 
 
-double pow10(double x)
-{
-	return exp10(x);
-}
-
 /****************************************************************************/
 
 #if defined(__MATH_SETS_ERRNO)
 #undef exp10
 __MATH_ERRNO_1(double, double, exp10)
 #endif /* __MATH_SETS_ERRNO */
+
+/****************************************************************************/
+
+double pow10(double x)
+{
+	return exp10(x);
+}
 
 /****************************************************************************/
 

@@ -32,17 +32,19 @@ float exp10f(float x)
 }
 
 
-float pow10f(float x)
-{
-	return exp10f(x);
-}
-
 /****************************************************************************/
 
 #if defined(__MATH_SETS_ERRNO)
 #undef exp10f
 __MATH_ERRNO_1(float, float, exp10f)
 #endif /* __MATH_SETS_ERRNO */
+
+/****************************************************************************/
+
+float pow10f(float x)
+{
+	return exp10f(x);
+}
 
 /****************************************************************************/
 
