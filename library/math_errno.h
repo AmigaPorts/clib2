@@ -131,13 +131,14 @@ extern double __math_hyperbolic_special(double x,double sign);
 	}
 
 /* The third argument takes over unless the first two have a NaN, which is the
-   same as an error that was there from the start. */
+   same as an error that was there from the start. These work on the bits as
+   well, so DBL_MAX really is DBL_MAX. */
 #define __MATH_ERRNO_3(type,kind,name) \
 	extern __stdargs type name(type x,type y,type z); \
 	type name(type x,type y,type z) \
 	{ \
 		type r = __##name##_unchecked(x,y,z); \
-		if(__math_suspect_##kind(r)) \
+		if(__math_special_##kind(r)) \
 		{ \
 			if(__math_special_##kind(z) && x == x && y == y) \
 				r = __math_errno_##kind(r,z,z); \

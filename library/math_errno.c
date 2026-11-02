@@ -98,7 +98,9 @@ __math_errno_float(float result,float x,float y)
 long double
 __math_errno_long_double(long double result,long double x,long double y)
 {
-	set_errno(isnan(result),isnan(x) || isnan(y),isfinite(x) && isfinite(y));
+	/* Where it is a double, the check that led here is the one for DBL_MAX. */
+	if(NOT isfinite(result))
+		set_errno(isnan(result),isnan(x) || isnan(y),isfinite(x) && isfinite(y));
 
 	return(result);
 }

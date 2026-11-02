@@ -275,7 +275,8 @@ lgamma(double x)
 
 #if defined(__MATH_SETS_ERRNO)
 #undef lgamma
-__MATH_ERRNO_1(double, double, lgamma)
+/* DBL_MAX for an argument of DBL_MAX looks like a result in range. */
+__MATH_ERRNO_1_GUARD(double, double, lgamma, if(x == DBL_MAX) { signgam = 1; return(__math_overflow(1.0)); })
 #endif /* __MATH_SETS_ERRNO */
 
 /****************************************************************************/
