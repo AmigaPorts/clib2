@@ -490,11 +490,19 @@ pow(double x,double y)
 
 		if(kind == 1)
 			result = -result;
-
-		goto out;
+	}
+	else
+	{
+		result = __pow(x,y);
 	}
 
-	result = __pow(x,y);
+	#if defined(__MATH_SETS_ERRNO)
+	{
+		/* x and y are finite and x isn't 0, so a 0 is an underflow. */
+		if(result == 0)
+			__set_errno(ERANGE);
+	}
+	#endif /* __MATH_SETS_ERRNO */
 
  out:
 
