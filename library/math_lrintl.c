@@ -53,10 +53,6 @@ raises inexact (with tonearest or upward rounding mode)
 */
 long lrintl(long double x)
 {
-	/* The conversion won't tell. */
-	if(!(__builtin_fabsl(x) < 0x1p31L))
-		__raise_invalid();
-
 	#pragma STDC FENV_ACCESS ON
 	int e;
 
@@ -64,17 +60,26 @@ long lrintl(long double x)
 	x = rintl(x);
 	if (!e && (x > LONG_MAX || x < LONG_MIN))
 		feclearexcept(FE_INEXACT);
+
+	/* The conversion won't tell. It is the rounded value that has to fit:
+	   -2^31 does, and 2^31 - 0.5 can round to one that doesn't. */
+	if(!(x >= -0x1p31L && x < 0x1p31L))
+		__raise_invalid();
+
 	/* conversion */
 	return x;
 }
 #else
 long lrintl(long double x)
 {
-	/* The conversion won't tell. */
-	if(!(__builtin_fabsl(x) < 0x1p31L))
+	long double rounded = rintl(x);
+
+	/* The conversion won't tell. It is the rounded value that has to fit:
+	   -2^31 does, and 2^31 - 0.5 can round to one that doesn't. */
+	if(!(rounded >= -0x1p31L && rounded < 0x1p31L))
 		__raise_invalid();
 
-	return rintl(x);
+	return rounded;
 }
 #endif
 
