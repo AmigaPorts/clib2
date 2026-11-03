@@ -103,6 +103,23 @@ extern double __math_hyperbolic_special(double x,double sign);
 		return(r); \
 	}
 
+/* For a function whose result is never 0 for a finite argument, such as exp():
+   a 0 is an underflow. The library returns 0 rather than a subnormal number,
+   from below DBL_MIN or FLT_MIN on, so the guard alone doesn't catch it. */
+#define __MATH_ERRNO_1_UNDERFLOW(type,kind,name,guard) \
+	extern __stdargs type name(type x); \
+	type name(type x) \
+	{ \
+		type r; \
+		guard; \
+		r = __##name##_unchecked(x); \
+		if(__math_suspect_##kind(r)) \
+			r = __math_errno_##kind(r,x,x); \
+		else if(r == 0 && !__math_special_##kind(x)) \
+			__set_errno(ERANGE); \
+		return(r); \
+	}
+
 #define __MATH_ERRNO_2(type,kind,name) \
 	extern __stdargs type name(type x,type y); \
 	type name(type x,type y) \
@@ -132,8 +149,11 @@ extern double __math_hyperbolic_special(double x,double sign);
 
 /* The third argument takes over unless the first two have a NaN, which is the
    same as an error that was there from the start. These work on the bits as
-   well, so DBL_MAX really is DBL_MAX. */
-#define __MATH_ERRNO_3(type,kind,name) \
+   well, so DBL_MAX really is DBL_MAX. For nonzero x and y, a 0 is an
+   underflow unless x * y + z is exactly 0. That takes x * y == -z, which the
+   rounded product still shows, and in wide it is exact for fmaf(). With a z of
+   0 the product may have rounded to 0 itself, so there it is an underflow. */
+#define __MATH_ERRNO_3(type,kind,name,wide) \
 	extern __stdargs type name(type x,type y,type z); \
 	type name(type x,type y,type z) \
 	{ \
@@ -145,6 +165,8 @@ extern double __math_hyperbolic_special(double x,double sign);
 			else \
 				r = __math_errno_##kind(r,x,y); \
 		} \
+		else if(r == 0 && x != 0 && y != 0 && (z == 0 || (wide)x * y != -(wide)z)) \
+			__set_errno(ERANGE); \
 		return(r); \
 	}
 
@@ -158,7 +180,8 @@ extern double __math_hyperbolic_special(double x,double sign);
 		return(r); \
 	}
 
-/* These two work on the bits, so DBL_MAX really is DBL_MAX. */
+/* These two work on the bits, so DBL_MAX really is DBL_MAX. A nonzero x that
+   scales to 0 has underflowed. */
 #define __MATH_ERRNO_SCALE(type,kind,name,exponent) \
 	extern __stdargs type name(type x,exponent n); \
 	type name(type x,exponent n) \
@@ -166,6 +189,8 @@ extern double __math_hyperbolic_special(double x,double sign);
 		type r = __##name##_unchecked(x,n); \
 		if(__math_special_##kind(r)) \
 			r = __math_errno_##kind(r,x,x); \
+		else if(r == 0 && x != 0) \
+			__set_errno(ERANGE); \
 		return(r); \
 	}
 
