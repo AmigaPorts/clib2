@@ -102,7 +102,7 @@ fmaf(float x,float y,float z)
 
 #if defined(__MATH_SETS_ERRNO)
 #undef fmaf
-__MATH_ERRNO_3(float, float, fmaf)
+__MATH_ERRNO_3(float, float, fmaf, double)
 #endif /* __MATH_SETS_ERRNO */
 
 /****************************************************************************/

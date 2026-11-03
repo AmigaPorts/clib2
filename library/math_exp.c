@@ -257,7 +257,7 @@ exp(double x)
 
 #if defined(__MATH_SETS_ERRNO)
 #undef exp
-__MATH_ERRNO_1_GUARD(double, double, exp, if(!(x > -745.14 && x < 709.79)) return(__math_exp_special(x)))
+__MATH_ERRNO_1_UNDERFLOW(double, double, exp, if(!(x > -745.14 && x < 709.79)) return(__math_exp_special(x)))
 #endif /* __MATH_SETS_ERRNO */
 
 /****************************************************************************/

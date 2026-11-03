@@ -72,7 +72,7 @@ exp2f(float x)
 
 #if defined(__MATH_SETS_ERRNO)
 #undef exp2f
-__MATH_ERRNO_1(float, float, exp2f)
+__MATH_ERRNO_1_UNDERFLOW(float, float, exp2f, (void)0)
 #endif /* __MATH_SETS_ERRNO */
 
 /****************************************************************************/
