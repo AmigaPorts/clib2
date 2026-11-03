@@ -100,8 +100,8 @@ llrint(double x)
   else if (j0 < (int)(8 * sizeof (long long int)) - 1)
     {
       if (j0 >= 52)
-        result = ((long long int) ((i0 & 0x000fffff) | 0x0010000) << (j0 - 20)) |
-                   (i1 << (j0 - 52));
+        result = ((long long int) ((i0 & 0x000fffff) | 0x00100000) << (j0 - 20)) |
+                   ((long long int) i1 << (j0 - 52));
       else
         {
           w = TWO52[sx] + x;
