@@ -66,12 +66,13 @@ extern "C" {
 /****************************************************************************/
 
 /* clib2's stdlib.h joins newlib's declarations on classic AmigaOS
-   (#include_next <stdlib.h>). When _GNU_SOURCE/__GNU_VISIBLE is set,
-   newlib's stdlib.h pulls in <sys/_locale.h>, which already typedefs
-   locale_t (as struct __locale_t *) before this header is reached. Avoid
-   redeclaring it with a conflicting type (void *) in that case. */
+   (#include_next <stdlib.h>), and with _GNU_SOURCE newlib's stdlib.h
+   declares locale_t through <sys/_locale.h>. This is the same opaque type,
+   under the same guard, so it is one type whichever header comes first. */
 #ifndef _SYS__LOCALE_H
-typedef void *locale_t;
+#define _SYS__LOCALE_H
+struct __locale_t;
+typedef struct __locale_t *locale_t;
 #endif
 
 /****************************************************************************/
