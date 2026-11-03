@@ -150,10 +150,12 @@ extern double __math_hyperbolic_special(double x,double sign);
 /* The third argument takes over unless the first two have a NaN, which is the
    same as an error that was there from the start. These work on the bits as
    well, so DBL_MAX really is DBL_MAX. For nonzero x and y, a 0 is an
-   underflow unless x * y + z is exactly 0. That takes x * y == -z, which the
-   rounded product still shows, and in wide it is exact for fmaf(). With a z of
-   0 the product may have rounded to 0 itself, so there it is an underflow. */
-#define __MATH_ERRNO_3(type,kind,name,wide) \
+   underflow unless x * y + z is exactly 0, which a rounded product can't tell:
+   it may be -z when x * y + z is a tiny number that rounds to 0. So it is asked
+   again of x and y scaled to [0.5,1) and z scaled with them, which is exact:
+   with x * y + z that close to 0, z is close to -x * y and lands near 1. There
+   nothing underflows, so the sum is 0 only if it is exactly 0. */
+#define __MATH_ERRNO_3(type,kind,name,frexp,ldexp) \
 	extern __stdargs type name(type x,type y,type z); \
 	type name(type x,type y,type z) \
 	{ \
@@ -165,8 +167,13 @@ extern double __math_hyperbolic_special(double x,double sign);
 			else \
 				r = __math_errno_##kind(r,x,y); \
 		} \
-		else if(r == 0 && x != 0 && y != 0 && (z == 0 || (wide)x * y != -(wide)z)) \
-			__set_errno(ERANGE); \
+		else if(r == 0 && x != 0 && y != 0) \
+		{ \
+			int ex, ey; \
+			type xs = frexp(x,&ex), ys = frexp(y,&ey); \
+			if(z == 0 || __##name##_unchecked(xs,ys,ldexp(z,-(ex + ey))) != 0) \
+				__set_errno(ERANGE); \
+		} \
 		return(r); \
 	}
 

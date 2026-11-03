@@ -41,7 +41,8 @@
 
 /****************************************************************************/
 
-#if defined(__mc68000__)
+/* Without an FPU, x * y + z rounds twice on the PowerPC too. */
+#if defined(__mc68000__) || (defined(__PPC__) && defined(_SOFT_FLOAT))
 
 /****************************************************************************/
 
@@ -96,13 +97,13 @@ fmaf(float x,float y,float z)
 
 /****************************************************************************/
 
-#endif /* __mc68000__ */
+#endif /* __mc68000__ || (__PPC__ && _SOFT_FLOAT) */
 
 /****************************************************************************/
 
 #if defined(__MATH_SETS_ERRNO)
 #undef fmaf
-__MATH_ERRNO_3(float, float, fmaf, double)
+__MATH_ERRNO_3(float, float, fmaf, frexpf, ldexpf)
 #endif /* __MATH_SETS_ERRNO */
 
 /****************************************************************************/

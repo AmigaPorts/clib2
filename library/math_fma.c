@@ -41,7 +41,8 @@
 
 /****************************************************************************/
 
-#if defined(__mc68000__)
+/* Without an FPU, x * y + z rounds twice on the PowerPC too. */
+#if defined(__mc68000__) || (defined(__PPC__) && defined(_SOFT_FLOAT))
 
 /****************************************************************************/
 
@@ -330,6 +331,11 @@ fma(double x,double y,double z)
 		                  : /* no outputs */
 		                  : "dmi" (fpsr | flags));
 	}
+	#else
+	{
+		/* Without an FPU there are no flags to raise. */
+		(void)flags;
+	}
 	#endif /* M68881_FLOATING_POINT_SUPPORT */
 
 	return(ur.f);
@@ -351,13 +357,13 @@ fma(double x,double y,double z)
 
 /****************************************************************************/
 
-#endif /* __mc68000__ */
+#endif /* __mc68000__ || (__PPC__ && _SOFT_FLOAT) */
 
 /****************************************************************************/
 
 #if defined(__MATH_SETS_ERRNO)
 #undef fma
-__MATH_ERRNO_3(double, double, fma, double)
+__MATH_ERRNO_3(double, double, fma, frexp, ldexp)
 #endif /* __MATH_SETS_ERRNO */
 
 /****************************************************************************/
