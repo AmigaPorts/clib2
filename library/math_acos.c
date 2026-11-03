@@ -224,6 +224,10 @@ acos(double x)
 		return __acos(x);
 	}
 
+	/* A NaN comes back, as it came in: no domain error. */
+	if(isnan(x))
+		return(x);
+
 	__set_errno(EDOM);
 	return __domain_error(x);
 }
