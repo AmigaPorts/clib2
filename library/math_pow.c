@@ -456,8 +456,8 @@ pow(double x,double y)
 
 			#if defined(__MATH_SETS_ERRNO)
 			{
-				/* An underflow, unless y is infinite and 0 is exact. */
-				if(NOT isinf(y))
+				/* An underflow, unless x or y is infinite and 0 is exact. */
+				if(NOT isinf(y) && NOT isinf(x))
 					__set_errno(ERANGE);
 			}
 			#endif /* __MATH_SETS_ERRNO */
