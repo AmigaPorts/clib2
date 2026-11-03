@@ -27,7 +27,14 @@
 long long int
 llrintf(float x)
 {
-	return lrintf(x);
+	/* Not lrintf(), whose long runs out at 2^31. */
+	float rounded = rintf(x);
+
+	/* The conversion goes through libgcc, which won't tell. */
+	if(!(rounded >= -0x1p63f && rounded < 0x1p63f))
+		__raise_invalid();
+
+	return rounded;
 }
 
 /****************************************************************************/
