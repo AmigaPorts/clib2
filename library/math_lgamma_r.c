@@ -15,7 +15,8 @@
 double
 lgamma_r(double x,int * sign)
 {
-	return(__lgamma(x,sign));
+	/* stored as a double, for the overflow flag, as in lgamma() */
+	return(__finish_double(__lgamma(x,sign)));
 }
 
 /****************************************************************************/
