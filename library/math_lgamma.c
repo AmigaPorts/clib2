@@ -265,10 +265,13 @@ int signgam __attribute__((weak));
 
 /****************************************************************************/
 
+/* Stored as a double: with the FPU, a result too large for one is a finite
+   number in fp0 that only overflows when it is stored, and raises nothing in
+   a caller that keeps it in a register. */
 double
 lgamma(double x)
 {
-	return(__lgamma(x,&signgam));
+	return(__finish_double(__lgamma(x,&signgam)));
 }
 
 /****************************************************************************/
