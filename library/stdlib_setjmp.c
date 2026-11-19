@@ -174,9 +174,94 @@ l1:	moveml	a0@(4:W),d1-d7	| restore all data registers							\n\
 
 /****************************************************************************/
 
+#if defined(__SPE__)
+
+/* With SPE (-mcpu=8548) the GPRs are 64 bits wide, and doubles are kept
+   in them: the upper halves of r14-r31 are callee-saved, like their lower
+   halves, which stmw and lmw don't reach.  They go into jb_FPR, which SPE
+   has no floating point registers for: 18 doublewords at offset 88, which
+   is 8-byte aligned as evstdd and evldd require. */
+
+__asm("						\n\
+							\n\
+	.text					\n\
+	.align	2				\n\
+							\n\
+	.globl	setjmp			\n\
+							\n\
+setjmp:						\n\
+							\n\
+	mflr	r10				\n\
+	mfcr	r11				\n\
+	mr		r12, r1			\n\
+	stmw	r10, 0(r3)		\n\
+	evstdd	r14, 88(r3)	\n\
+	evstdd	r15, 96(r3)	\n\
+	evstdd	r16, 104(r3)	\n\
+	evstdd	r17, 112(r3)	\n\
+	evstdd	r18, 120(r3)	\n\
+	evstdd	r19, 128(r3)	\n\
+	evstdd	r20, 136(r3)	\n\
+	evstdd	r21, 144(r3)	\n\
+	evstdd	r22, 152(r3)	\n\
+	evstdd	r23, 160(r3)	\n\
+	evstdd	r24, 168(r3)	\n\
+	evstdd	r25, 176(r3)	\n\
+	evstdd	r26, 184(r3)	\n\
+	evstdd	r27, 192(r3)	\n\
+	evstdd	r28, 200(r3)	\n\
+	evstdd	r29, 208(r3)	\n\
+	evstdd	r30, 216(r3)	\n\
+	evstdd	r31, 224(r3)	\n\
+	li		r3, 0			\n\
+	blr						\n\
+							\n\
+");
+
+__asm("						\n\
+	.text					\n\
+	.align	2				\n\
+							\n\
+	.globl	longjmp			\n\
+							\n\
+longjmp:					\n\
+							\n\
+	lmw		r10,0(r3)		\n\
+	mtlr	r10				\n\
+	mtcr	r11				\n\
+	mr		r1,r12			\n\
+	evldd	r14, 88(r3)	\n\
+	evldd	r15, 96(r3)	\n\
+	evldd	r16, 104(r3)	\n\
+	evldd	r17, 112(r3)	\n\
+	evldd	r18, 120(r3)	\n\
+	evldd	r19, 128(r3)	\n\
+	evldd	r20, 136(r3)	\n\
+	evldd	r21, 144(r3)	\n\
+	evldd	r22, 152(r3)	\n\
+	evldd	r23, 160(r3)	\n\
+	evldd	r24, 168(r3)	\n\
+	evldd	r25, 176(r3)	\n\
+	evldd	r26, 184(r3)	\n\
+	evldd	r27, 192(r3)	\n\
+	evldd	r28, 200(r3)	\n\
+	evldd	r29, 208(r3)	\n\
+	evldd	r30, 216(r3)	\n\
+	evldd	r31, 224(r3)	\n\
+	cmpwi	r4, 0			\n\
+	bne		1f				\n\
+	li		r3,1			\n\
+	blr						\n\
+1:							\n\
+	mr		r3, r4			\n\
+	blr						\n\
+							\n\
+");
+
+#elif !defined(__NO_FPRS__)
+
 /* f14-f31 are callee-saved too, where there are floating point registers.
-   Not with -msoft-float or SPE, whose gcc defines __NO_FPRS__. */
-#if !defined(__NO_FPRS__)
+   Not with -msoft-float, whose gcc defines __NO_FPRS__. */
 
 __asm("						\n\
 							\n\
@@ -294,7 +379,7 @@ longjmp:					\n\
 							\n\
 ");
 
-#endif /* __NO_FPRS__ */
+#endif /* __SPE__, __NO_FPRS__ */
 
 /****************************************************************************/
 
