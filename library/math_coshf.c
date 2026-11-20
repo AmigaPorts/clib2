@@ -88,11 +88,16 @@ coshf(float x)
 	if (ix<=0x42b2d4fc) {
 	    w = expf(half*fabsf(x));
 	    t = half*w;
-	    return t*w;
+	    return __finish_float(t*w);
 	}
 
     /* |x| > overflowthresold, cosh(x) overflow */
-	return huge*huge;
+	{
+		/* Not folded, so that the overflow is raised. */
+		volatile float big = huge;
+
+		return __finish_float(big*big);
+	}
 }
 
 /****************************************************************************/

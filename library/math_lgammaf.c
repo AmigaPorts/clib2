@@ -172,6 +172,11 @@ sin_pif(float x)
 float
 __lgammaf(float x,int * gamma_sign_ptr)
 {
+#if defined(M68881_FLOATING_POINT_SUPPORT)
+	/* The float version's errors add up to more than 2 ulp near some
+	   arguments: the double one rounded to a float is within half. */
+	return(__finish_float(__lgamma(x,gamma_sign_ptr)));
+#endif /* M68881_FLOATING_POINT_SUPPORT */
 	float t,y,z,nadj=0.0,p,p1,p2,p3,q,r,w;
 	LONG i,hx,ix;
 
