@@ -176,7 +176,7 @@ __lgammaf(float x,int * gamma_sign_ptr)
 	/* The float version's errors add up to more than 2 ulp near some
 	   arguments: the double one rounded to a float is within half. */
 	return(__finish_float(__lgamma(x,gamma_sign_ptr)));
-#endif /* M68881_FLOATING_POINT_SUPPORT */
+#else
 	float t,y,z,nadj=0.0,p,p1,p2,p3,q,r,w;
 	LONG i,hx,ix;
 
@@ -274,6 +274,7 @@ __lgammaf(float x,int * gamma_sign_ptr)
 	    r =  x*(logf(x)-one);
 	if(hx<0) r = nadj - r;
 	return r;
+#endif /* M68881_FLOATING_POINT_SUPPORT */
 }
 
 /****************************************************************************/
