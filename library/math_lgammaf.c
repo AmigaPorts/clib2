@@ -53,6 +53,8 @@
 
 /****************************************************************************/
 
+#if !defined(M68881_FLOATING_POINT_SUPPORT)
+
 static const float
 two23=  8.3886080000e+06, /* 0x4b000000 */
 half=  5.0000000000e-01, /* 0x3f000000 */
@@ -168,6 +170,7 @@ sin_pif(float x)
 	return -y;
 }
 
+#endif /* !M68881_FLOATING_POINT_SUPPORT */
 
 float
 __lgammaf(float x,int * gamma_sign_ptr)
@@ -176,7 +179,7 @@ __lgammaf(float x,int * gamma_sign_ptr)
 	/* The float version's errors add up to more than 2 ulp near some
 	   arguments: the double one rounded to a float is within half. */
 	return(__finish_float(__lgamma(x,gamma_sign_ptr)));
-#endif /* M68881_FLOATING_POINT_SUPPORT */
+#else
 	float t,y,z,nadj=0.0,p,p1,p2,p3,q,r,w;
 	LONG i,hx,ix;
 
@@ -274,6 +277,7 @@ __lgammaf(float x,int * gamma_sign_ptr)
 	    r =  x*(logf(x)-one);
 	if(hx<0) r = nadj - r;
 	return r;
+#endif /* M68881_FLOATING_POINT_SUPPORT */
 }
 
 /****************************************************************************/

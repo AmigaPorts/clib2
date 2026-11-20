@@ -191,10 +191,15 @@ log10(double x)
 	{
 		result = __log10(x);
 	}
-	else if(isless(x, 0) || __builtin_isnan(x))
+	else if(isless(x, 0))
 	{
 		__set_errno(EDOM);
 
+		result = __domain_error(x);
+	}
+	else if(__builtin_isnan(x))
+	{
+		/* A NaN is not a domain error: it propagates quietly. */
 		result = __domain_error(x);
 	}
 	else
