@@ -53,6 +53,8 @@
 
 /****************************************************************************/
 
+#if !defined(M68881_FLOATING_POINT_SUPPORT)
+
 static const float
 two23=  8.3886080000e+06, /* 0x4b000000 */
 half=  5.0000000000e-01, /* 0x3f000000 */
@@ -168,6 +170,7 @@ sin_pif(float x)
 	return -y;
 }
 
+#endif /* !M68881_FLOATING_POINT_SUPPORT */
 
 float
 __lgammaf(float x,int * gamma_sign_ptr)
