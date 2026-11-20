@@ -193,9 +193,9 @@ extern float __nan;
 #if __has_builtin (__builtin_isgreater)
 #define isgreater(x,y) __builtin_isgreater(x,y)
 #endif /* __builtin_isgreater */
-#if __has_builtin (__builtin_isgreaterqeual)
-#define isgreaterqeual(x,y) __builtin_isgreaterqeual(x,y)
-#endif /* __builtin_isgreaterqeual */
+#if __has_builtin (__builtin_isgreaterequal)
+#define isgreaterequal(x,y) __builtin_isgreaterequal(x,y)
+#endif /* __builtin_isgreaterequal */
 #if __has_builtin (__builtin_isless)
 #define isless(x,y) __builtin_isless(x,y)
 #endif /* __builtin_isless */
