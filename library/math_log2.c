@@ -48,7 +48,7 @@ log2(double x)
 {
 	volatile double result;
 
-	if(x < 0)
+	if(isless(x, 0))
 		__set_errno(EDOM);
 	else if(x == 0)
 		__set_errno(ERANGE);

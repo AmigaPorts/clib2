@@ -254,7 +254,7 @@ __sqrt(double x)
 double
 sqrt(double x)
 {
-	if(x > 0.0)
+	if(isgreater(x, 0.0))
 	{
 		return __sqrt(x);
 	}

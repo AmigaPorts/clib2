@@ -187,11 +187,11 @@ log10(double x)
 {
 	double result;
 
-	if(x > 0)
+	if(isgreater(x, 0))
 	{
 		result = __log10(x);
 	}
-	else if(x < 0 || __builtin_isnan(x))
+	else if(isless(x, 0) || __builtin_isnan(x))
 	{
 		__set_errno(EDOM);
 

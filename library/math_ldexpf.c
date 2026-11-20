@@ -54,7 +54,7 @@ ldexpf(float x,int exp)
 	{
 		result = scalbnf(x,exp);
 
-		if(isinf(result) || fabsf(result) < FLT_MIN)
+		if(isinf(result) || isless(fabsf(result), FLT_MIN))
 			__set_errno(ERANGE);
 	}
 
