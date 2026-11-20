@@ -63,7 +63,7 @@ ldexp(double x, int exp)
 	{
 		result = scalbn(x,exp);
 
-		if(isinf(result) || fabs(result) < DBL_MIN)
+		if(isinf(result) || isless(fabs(result), DBL_MIN))
 			__set_errno(ERANGE);
 	}
 

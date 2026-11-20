@@ -222,7 +222,7 @@ __finish_double(double x)
 {
 	volatile double result = x;
 
-	if(result != 0.0 && __builtin_fabs(result) < 0x1p-1022)
+	if(result != 0.0 && __builtin_isless(__builtin_fabs(result), 0x1p-1022))
 		__fpu_raise(FPSR_RAISE_UNDERFLOW);
 
 	return(result);
@@ -233,7 +233,7 @@ __finish_float(float x)
 {
 	volatile float result = x;
 
-	if(result != 0.0f && __builtin_fabsf(result) < 0x1p-126f)
+	if(result != 0.0f && __builtin_isless(__builtin_fabsf(result), 0x1p-126f))
 		__fpu_raise(FPSR_RAISE_UNDERFLOW);
 
 	return(result);
@@ -242,7 +242,7 @@ __finish_float(float x)
 static __inline__ long double
 __finish_long_double(long double x)
 {
-	if(x != 0.0L && __builtin_fabsl(x) < 0x1p-16383L)
+	if(x != 0.0L && __builtin_isless(__builtin_fabsl(x), 0x1p-16383L))
 		__fpu_raise(FPSR_RAISE_UNDERFLOW);
 
 	return(x);

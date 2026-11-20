@@ -234,7 +234,7 @@ __asin(double x)
 double
 asin(double x)
 {
-	if(-1.0 <= x && x <= 1.0)
+	if(islessequal(-1.0, x) && islessequal(x, 1.0))
 	{
 		return __asin(x);
 	}
