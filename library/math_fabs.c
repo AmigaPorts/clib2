@@ -130,7 +130,8 @@ __fabs(double x)
 
 /****************************************************************************/
 
-#if defined(PPC_FLOATING_POINT_SUPPORT) && !defined(_SOFT_FLOAT)
+/* Not with SPE (-mcpu=8548), which has no floating point registers. */
+#if defined(PPC_FLOATING_POINT_SUPPORT) && !defined(_SOFT_FLOAT) && !defined(__SPE__)
 
 /****************************************************************************/
 
