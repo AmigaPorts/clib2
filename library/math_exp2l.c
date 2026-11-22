@@ -43,21 +43,6 @@ exp2l(long double x)
 /* From musl 1.2.5, src/math/exp2l.c, under its MIT license: Copyright (c) 2005-2020
    Rich Felker, et al.  Further notices are in the text. */
 
-#if defined(__mc68000__) && defined(M68881_FLOATING_POINT_SUPPORT)
-
-long double
-exp2l(long double x)
-{
-	long double result;
-
-	__asm ("ftwotox%.x %1,%0" : "=f" (result) : "f" (x));
-
-	/* Powers of two are exact, even the tiny ones. */
-	return(__builtin_floorl(x) == x ? result : __finish_long_double(result));
-}
-
-#else
-
 /* origin: FreeBSD /usr/src/lib/msun/ld80/s_exp2l.c and /usr/src/lib/msun/ld128/s_exp2l.c */
 /*-
  * Copyright (c) 2005-2008 David Schultz <das@FreeBSD.ORG>
@@ -265,6 +250,18 @@ long double exp2l(long double x)
 			return x * 0x1p16383L;
 		if (e == 0x7fff)  /* -inf or -nan */
 			return -1/x;
+#if defined(M68881_FLOATING_POINT_SUPPORT)
+		/* The 68881's results are denormal below 2^-16383, not 2^-16382,
+		   and the smallest is 2^-16446, not 2^-16445: its exponent 0 is
+		   2^-16383, with the integer bit in the mantissa. */
+		if (x < -16383) {
+			if (x <= -16447 || x - 0x1p63 + 0x1p63 != x)
+				/* underflow */
+				__fpu_raise(FPSR_RAISE_UNDERFLOW);
+			if (x <= -16447)
+				return 0;
+		}
+#else
 		if (x < -16382) {
 			if (x <= -16446 || x - 0x1p63 + 0x1p63 != x)
 				/* underflow */
@@ -272,6 +269,7 @@ long double exp2l(long double x)
 			if (x <= -16446)
 				return 0;
 		}
+#endif /* M68881_FLOATING_POINT_SUPPORT */
 	} else if (e < 0x3fff - 64) {
 		return 1 + x;
 	}
@@ -304,8 +302,6 @@ long double exp2l(long double x)
 
 	return scalbnl(r, k.i);
 }
-
-#endif /* __mc68000__ && M68881_FLOATING_POINT_SUPPORT */
 
 /****************************************************************************/
 
