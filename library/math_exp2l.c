@@ -250,14 +250,19 @@ long double exp2l(long double x)
 			return x * 0x1p16383L;
 		if (e == 0x7fff)  /* -inf or -nan */
 			return -1/x;
-#if defined(M68881_FLOATING_POINT_SUPPORT)
-		/* The 68881's results are denormal below 2^-16383, not 2^-16382,
-		   and the smallest is 2^-16446, not 2^-16445: its exponent 0 is
-		   2^-16383, with the integer bit in the mantissa. */
+#if defined(__mc68000__)
+		/* The 68k extended format is denormal below 2^-16383, not 2^-16382,
+		   and its smallest value is 2^-16446, not 2^-16445: its exponent 0
+		   is 2^-16383, with the integer bit in the mantissa. */
 		if (x < -16383) {
-			if (x <= -16447 || x - 0x1p63 + 0x1p63 != x)
+			if (x <= -16447 || x - 0x1p63 + 0x1p63 != x) {
 				/* underflow */
+			#if defined(M68881_FLOATING_POINT_SUPPORT)
 				__fpu_raise(FPSR_RAISE_UNDERFLOW);
+			#else
+				FORCE_EVAL((float)(-0x1p-149/x));
+			#endif
+			}
 			if (x <= -16447)
 				return 0;
 		}
@@ -269,7 +274,7 @@ long double exp2l(long double x)
 			if (x <= -16446)
 				return 0;
 		}
-#endif /* M68881_FLOATING_POINT_SUPPORT */
+#endif /* __mc68000__ */
 	} else if (e < 0x3fff - 64) {
 		return 1 + x;
 	}
