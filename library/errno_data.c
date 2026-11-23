@@ -44,5 +44,14 @@ int *__errno (void) {
 	return &errno[0];
 }
 
+#if !defined(__amigaos4__)
+/* libstdc++ is built with newlib's headers, and for gcc's amigaos thread
+   model they read errno through __amigaos_errno().  The same errno, for
+   clib2 programs that link libstdc++. */
+__stdargs int *__amigaos_errno (void) {
+	return &errno[0];
+}
+#endif
+
 // provide a minimal reent structure.
 int * _impure_ptr = &errno[0];
