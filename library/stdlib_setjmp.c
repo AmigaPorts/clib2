@@ -174,7 +174,9 @@ l1:	moveml	a0@(4:W),d1-d7	| restore all data registers							\n\
 
 /****************************************************************************/
 
-#ifdef PPC_FLOATING_POINT_SUPPORT
+/* f14-f31 are callee-saved too, where there are floating point registers.
+   Not with -msoft-float or SPE, whose gcc defines __NO_FPRS__. */
+#if !defined(__NO_FPRS__)
 
 __asm("						\n\
 							\n\
@@ -292,7 +294,7 @@ longjmp:					\n\
 							\n\
 ");
 
-#endif /* defined PPC_FLOATING_POINT_SUPPORT */
+#endif /* __NO_FPRS__ */
 
 /****************************************************************************/
 
