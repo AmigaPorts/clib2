@@ -51,6 +51,12 @@ fesetround(int mode)
 	if((mode & ~FPSCR_RN_BITS) != 0)
 		return(-1);
 
+#if defined(__SPE__)
+	/* SPE rounds only to nearest and towards zero. */
+	if(mode != FE_TONEAREST && mode != FE_TOWARDZERO)
+		return(-1);
+#endif /* __SPE__ */
+
 	__fpu_set_fpscr((__fpu_get_fpscr() & ~FPSCR_RN_BITS) | (unsigned long)mode);
 
 	return(0);
