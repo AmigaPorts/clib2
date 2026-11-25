@@ -65,7 +65,7 @@ sqrtf(float x)
 	unsigned long fpcr;
 	float result;
 
-	if(isless(x, 0))
+	if(isless(x, 0.0f))
 		__set_errno(EDOM);
 
 	/* In single precision, so that the result only rounds once. */

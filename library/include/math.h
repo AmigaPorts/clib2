@@ -242,21 +242,24 @@ extern __stdargs int __fpclassify_float(float x);
 extern __stdargs int __fpclassify_double(double x);
 extern __stdargs int __fpclassify_long_double(long double x);
 #define fpclassify(x) _Generic(x, float : __fpclassify_float, \
-double : __fpclassify_double, long double : __fpclassify_long_double)(x)
+double : __fpclassify_double, long double : __fpclassify_long_double, \
+default : __fpclassify_double)(x)
 #endif /* fpclassify */
 #ifndef isfinite
 extern __stdargs int __isfinite_float(float x);
 extern __stdargs int __isfinite_double(double x);
 extern __stdargs int __isfinite_long_double(long double x);
 #define isfinite(x) _Generic(x, float : __isfinite_float, \
-double : __isfinite_double, long double : __isfinite_long_double)(x)
+double : __isfinite_double, long double : __isfinite_long_double, \
+default : __isfinite_double)(x)
 #endif /* isfinite */
 #ifndef signbit
 extern __stdargs int __signbit_float(float x);
 extern __stdargs int __signbit_double(double x);
 extern __stdargs int __signbit_long_double(long double x);
 #define signbit(x) _Generic(x, float : __signbit_float, \
-double : __signbit_double, long double : __signbit_long_double)(x)
+double : __signbit_double, long double : __signbit_long_double, \
+default : __signbit_double)(x)
 #endif /* signbit */
 #ifndef isinf
 #define isinf(x) (fpclassify(x) == FP_INFINITE)

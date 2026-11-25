@@ -187,11 +187,11 @@ log10(double x)
 {
 	double result;
 
-	if(isgreater(x, 0))
+	if(isgreater(x, 0.0))
 	{
 		result = __log10(x);
 	}
-	else if(isless(x, 0))
+	else if(isless(x, 0.0))
 	{
 		__set_errno(EDOM);
 
