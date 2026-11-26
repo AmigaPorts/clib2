@@ -197,7 +197,7 @@ extern float __nan;
 #define __CLIB2_HAS_FP_BUILTIN(x) __has_builtin(x)
 #else
 #define __CLIB2_HAS_FP_BUILTIN(x) 0
-#endif /* __has_builtin */
+#endif /* __GNUC__ >= 6 */
 
 #if __CLIB2_HAS_FP_BUILTIN (__builtin_isunordered)
 #define isunordered(x,y) __builtin_isunordered(x,y)
@@ -232,19 +232,10 @@ FP_NORMAL, FP_SUBNORMAL, FP_ZERO, x))
 #endif /* __builtin_fpclassify */
 #if __CLIB2_HAS_FP_BUILTIN (__builtin_isfinite)
 #define isfinite(x) __builtin_isfinite(x)
-#endif /* __builtin_isinfinite */
+#endif /* __builtin_isfinite */
 #if __CLIB2_HAS_FP_BUILTIN (__builtin_signbit)
 #define signbit(x) __builtin_signbit(x)
 #endif /* __builtin_signbit */
-#if __CLIB2_HAS_FP_BUILTIN (__builtin_isinf)
-#define isinf(x) __builtin_isinf(x)
-#endif /* __builtin_isinf */
-#if __CLIB2_HAS_FP_BUILTIN (__builtin_isnan)
-#define isnan(x) __builtin_isnan(x)
-#endif /* __builtin_isnan */
-#if __CLIB2_HAS_FP_BUILTIN (__builtin_isnormal)
-#define isnormal(x) __builtin_isnormal(x)
-#endif /* __builtin_isnormal */
 
 #undef __CLIB2_HAS_FP_BUILTIN
 
