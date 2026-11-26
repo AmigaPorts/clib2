@@ -186,54 +186,67 @@ extern float __nan;
 
 /****************************************************************************/
 
-#if defined __has_builtin
-#if __has_builtin (__builtin_isunordered)
+/* GCC has had all of these builtins, type generic, since GCC 6 (signbit was
+   the last), but __has_builtin only came with GCC 10.  Ask the version
+   first: newlib's <sys/cdefs.h>, which <stdlib.h> brings in, defines
+   __has_builtin(x) as 0 for a compiler that lacks it.  Without the builtins
+   the fallbacks below call a library function for every comparison. */
+#if defined(__GNUC__) && __GNUC__ >= 6
+#define __CLIB2_HAS_FP_BUILTIN(x) 1
+#elif defined __has_builtin
+#define __CLIB2_HAS_FP_BUILTIN(x) __has_builtin(x)
+#else
+#define __CLIB2_HAS_FP_BUILTIN(x) 0
+#endif /* __has_builtin */
+
+#if __CLIB2_HAS_FP_BUILTIN (__builtin_isunordered)
 #define isunordered(x,y) __builtin_isunordered(x,y)
 #endif /* __builtin_isunordered */
-#if __has_builtin (__builtin_isgreater)
+#if __CLIB2_HAS_FP_BUILTIN (__builtin_isgreater)
 #define isgreater(x,y) __builtin_isgreater(x,y)
 #endif /* __builtin_isgreater */
-#if __has_builtin (__builtin_isgreaterequal)
+#if __CLIB2_HAS_FP_BUILTIN (__builtin_isgreaterequal)
 #define isgreaterequal(x,y) __builtin_isgreaterequal(x,y)
 #endif /* __builtin_isgreaterequal */
-#if __has_builtin (__builtin_isless)
+#if __CLIB2_HAS_FP_BUILTIN (__builtin_isless)
 #define isless(x,y) __builtin_isless(x,y)
 #endif /* __builtin_isless */
-#if __has_builtin (__builtin_islessequal)
+#if __CLIB2_HAS_FP_BUILTIN (__builtin_islessequal)
 #define islessequal(x,y) __builtin_islessequal(x,y)
 #endif /* __builtin_islessequal */
-#if __has_builtin (__builtin_islessgreater)
+#if __CLIB2_HAS_FP_BUILTIN (__builtin_islessgreater)
 #define islessgreater(x,y) __builtin_islessgreater(x,y)
 #endif /* __builtin_islessgreater */
-#if __has_builtin (__builtin_isinf)
+#if __CLIB2_HAS_FP_BUILTIN (__builtin_isinf)
 #define isinf(x) __builtin_isinf(x)
 #endif /* __builtin_isinf */
-#if __has_builtin (__builtin_isnan)
+#if __CLIB2_HAS_FP_BUILTIN (__builtin_isnan)
 #define isnan(x) __builtin_isnan(x)
 #endif /* __builtin_isnan */
-#if __has_builtin (__builtin_isnormal)
+#if __CLIB2_HAS_FP_BUILTIN (__builtin_isnormal)
 #define isnormal(x) __builtin_isnormal(x)
 #endif /* __builtin_isnormal */
-#if __has_builtin (__builtin_fpclassify)
+#if __CLIB2_HAS_FP_BUILTIN (__builtin_fpclassify)
 #define fpclassify(x) (__builtin_fpclassify(FP_NAN, FP_INFINITE, \
 FP_NORMAL, FP_SUBNORMAL, FP_ZERO, x))
 #endif /* __builtin_fpclassify */
-#if __has_builtin (__builtin_isfinite)
+#if __CLIB2_HAS_FP_BUILTIN (__builtin_isfinite)
 #define isfinite(x) __builtin_isfinite(x)
 #endif /* __builtin_isinfinite */
-#if __has_builtin (__builtin_signbit)
+#if __CLIB2_HAS_FP_BUILTIN (__builtin_signbit)
 #define signbit(x) __builtin_signbit(x)
 #endif /* __builtin_signbit */
-#if __has_builtin (__builtin_isinf)
+#if __CLIB2_HAS_FP_BUILTIN (__builtin_isinf)
 #define isinf(x) __builtin_isinf(x)
 #endif /* __builtin_isinf */
-#if __has_builtin (__builtin_isnan)
+#if __CLIB2_HAS_FP_BUILTIN (__builtin_isnan)
 #define isnan(x) __builtin_isnan(x)
 #endif /* __builtin_isnan */
-#if __has_builtin (__builtin_isnormal)
+#if __CLIB2_HAS_FP_BUILTIN (__builtin_isnormal)
 #define isnormal(x) __builtin_isnormal(x)
 #endif /* __builtin_isnormal */
-#endif /* __has_builtin */
+
+#undef __CLIB2_HAS_FP_BUILTIN
 
 /****************************************************************************/
 
@@ -242,21 +255,24 @@ extern __stdargs int __fpclassify_float(float x);
 extern __stdargs int __fpclassify_double(double x);
 extern __stdargs int __fpclassify_long_double(long double x);
 #define fpclassify(x) _Generic(x, float : __fpclassify_float, \
-double : __fpclassify_double, long double : __fpclassify_long_double)(x)
+double : __fpclassify_double, long double : __fpclassify_long_double, \
+default : __fpclassify_double)(x)
 #endif /* fpclassify */
 #ifndef isfinite
 extern __stdargs int __isfinite_float(float x);
 extern __stdargs int __isfinite_double(double x);
 extern __stdargs int __isfinite_long_double(long double x);
 #define isfinite(x) _Generic(x, float : __isfinite_float, \
-double : __isfinite_double, long double : __isfinite_long_double)(x)
+double : __isfinite_double, long double : __isfinite_long_double, \
+default : __isfinite_double)(x)
 #endif /* isfinite */
 #ifndef signbit
 extern __stdargs int __signbit_float(float x);
 extern __stdargs int __signbit_double(double x);
 extern __stdargs int __signbit_long_double(long double x);
 #define signbit(x) _Generic(x, float : __signbit_float, \
-double : __signbit_double, long double : __signbit_long_double)(x)
+double : __signbit_double, long double : __signbit_long_double, \
+default : __signbit_double)(x)
 #endif /* signbit */
 #ifndef isinf
 #define isinf(x) (fpclassify(x) == FP_INFINITE)
